@@ -13,11 +13,11 @@ public class Workspace {
     private String ownerName;
 
     public List<String>getAccessorList(){
-
+        return null;
     }
 
     public boolean removeUser(){
-
+        return false;
     }
 
     public String getOwnerName() {
