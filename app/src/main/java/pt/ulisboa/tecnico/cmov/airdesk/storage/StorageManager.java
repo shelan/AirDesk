@@ -14,13 +14,18 @@ import java.util.HashMap;
 
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
 import pt.ulisboa.tecnico.cmov.airdesk.Exception.WriteLockedException;
-import pt.ulisboa.tecnico.cmov.airdesk.Utils;
+import pt.ulisboa.tecnico.cmov.airdesk.FileUtils;
 import pt.ulisboa.tecnico.cmov.airdesk.context.AirDeskApp;
 
 /**
  * Created by Chathuri on 3/14/2015.
  */
 public class StorageManager {
+
+    private static HashMap<String, Boolean> fileWriteLock = new HashMap<String, Boolean>();
+    //TODO read from property file
+    private String workspaceDir = Constants.WS_DIR;
+    private String foreignWorkspaceDir = Constants.WS_DIR;
 
     public String readFromInternalFile()
     {
@@ -79,10 +84,6 @@ public class StorageManager {
         }
     }
 
-    private static HashMap<String, Boolean> fileWriteLock = new HashMap<String, Boolean>();
-    //TODO read from property file
-    private String workspaceDir = Constants.WS_DIR;
-
     public boolean createDataFile(String workspaceName, String fileName) throws IOException {
         String path =  workspaceDir+ workspaceName + "/" + fileName;
         return new File(path).createNewFile();
@@ -96,21 +97,21 @@ public class StorageManager {
                 throw new WriteLockedException("File is already write locked. Cannot open in write mode");
             else {
                 addWriteLock(workspaceName, fileName);
-                return Utils.readFile(path);
+                return FileUtils.readFile(path);
             }
         }
 
-        return Utils.readFile(path);
+        return FileUtils.readFile(path);
     }
 
     public void updateDataFile(String workspaceName, String fileName, FileInputStream inputStream) throws IOException {
         String path =  workspaceDir+ workspaceName + "/" + fileName;
-        Utils.writeToFile(path, inputStream);
+        FileUtils.writeToFile(path, inputStream);
     }
 
     public void deleteDataFile(String workspaceName, String fileName) throws IOException {
         String path =  workspaceDir+ workspaceName + "/" + fileName;
-        Utils.deleteFolder(path);
+        FileUtils.deleteFolder(path);
     }
 
     private boolean isWriteLocked(String workspaceName, String fileName) {
@@ -119,6 +120,10 @@ public class StorageManager {
 
     private void addWriteLock(String workspaceName, String fileName) {
         fileWriteLock.put(workspaceName + "/" + fileName, new Boolean(true));
+    }
+
+    public void createFolderStructureOnForeignWSAddition(String workspaceName, String ownerId, String[] fileNames) throws Exception {
+        FileUtils.createFolderStructureOnForeignWSAddition(workspaceName, ownerId, fileNames);
     }
 
 }

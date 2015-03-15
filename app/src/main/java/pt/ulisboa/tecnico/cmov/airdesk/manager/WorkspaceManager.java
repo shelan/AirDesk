@@ -7,10 +7,12 @@ import com.google.gson.Gson;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
 import pt.ulisboa.tecnico.cmov.airdesk.Exception.WriteLockedException;
+import pt.ulisboa.tecnico.cmov.airdesk.FileUtils;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.User;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.Workspace;
 import pt.ulisboa.tecnico.cmov.airdesk.storage.StorageManager;
@@ -19,6 +21,13 @@ import pt.ulisboa.tecnico.cmov.airdesk.storage.StorageManager;
  * Created by Chathuri on 3/14/2015.
  */
 public class WorkspaceManager {
+
+    private static StorageManager storageManager;
+
+    public WorkspaceManager() {
+        storageManager = new StorageManager();
+    }
+
     public boolean createWorkspace(String workspaceName,double quotaSize){
         boolean isMemoryNotSufficient=isNotSufficientMemory(quotaSize);
         if(isMemoryNotSufficient){
@@ -64,14 +73,10 @@ public class WorkspaceManager {
         //when user edit quota size, use this to  check he has not reduced it below workspace size
         return false;
     }
-    private static StorageManager storageManager;
 
-    public WorkspaceManager() {
-        storageManager = new StorageManager();
-    }
-
-    public boolean addToForeignWorkspaces(Workspace workspace){
-        return false;
+    public void addToForeignWorkspace(String workspaceName, String ownerId, String[] fileNames) throws Exception {
+        /////TODO add to metadata structure...
+        storageManager.createFolderStructureOnForeignWSAddition(workspaceName, ownerId, fileNames);
     }
 
     public void addDataFile(String workspace, String fileName) throws IOException {
