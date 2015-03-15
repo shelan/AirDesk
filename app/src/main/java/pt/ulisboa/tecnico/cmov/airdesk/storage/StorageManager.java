@@ -107,9 +107,9 @@ public class StorageManager {
         Utils.writeToFile(path, inputStream);
     }
 
-    public boolean deleteDataFile(String workspaceName, String fileName) throws IOException {
+    public void deleteDataFile(String workspaceName, String fileName) throws IOException {
         String path =  workspaceDir+ workspaceName + "/" + fileName;
-        return new File(path).delete();
+        Utils.deleteFolder(path);
     }
 
     private boolean isWriteLocked(String workspaceName, String fileName) {

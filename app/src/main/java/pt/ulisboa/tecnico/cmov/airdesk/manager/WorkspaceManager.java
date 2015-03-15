@@ -26,8 +26,8 @@ public class WorkspaceManager {
         storageManager.createDataFile(workspace, fileName);
     }
 
-    public void getDataFile(String workspace, String fileName, boolean writeMode) throws IOException, WriteLockedException {
-        storageManager.getDataFile(workspace, fileName, writeMode);
+    public FileInputStream getDataFile(String workspace, String fileName, boolean writeMode) throws IOException, WriteLockedException {
+        return storageManager.getDataFile(workspace, fileName, writeMode);
     }
 
     public void updateDataFile(String workspace, String fileName, FileInputStream inputStream) throws IOException {
