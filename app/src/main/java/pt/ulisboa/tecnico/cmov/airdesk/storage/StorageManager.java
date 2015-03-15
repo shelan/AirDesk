@@ -3,17 +3,25 @@ package pt.ulisboa.tecnico.cmov.airdesk.storage;
 import android.content.Context;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
+
+import pt.ulisboa.tecnico.cmov.airdesk.Constants;
+import pt.ulisboa.tecnico.cmov.airdesk.Exception.WriteLockedException;
+
+import org.apache.commons.io.FileUtils;
 
 /**
  * Created by Chathuri on 3/14/2015.
  */
 public class StorageManager {
+
     public String readFromInternalFile()
     {
         FileInputStream fis = null;
@@ -70,4 +78,38 @@ public class StorageManager {
             ex.printStackTrace();
         }
     }
+
+    private static HashMap<String, Boolean> fileWriteLock = new HashMap<String, Boolean>();
+    //TODO read from property file
+    private String workspaceDir = Constants.WS_DIR;
+
+    public boolean createDataFile(String workspaceName, String fileName) throws IOException {
+        String path =  workspaceDir+ workspaceName + "/" + fileName;
+        return new File(path).createNewFile();
+    }
+
+    public String getDataFile(String workspaceName, String fileName) throws WriteLockedException, IOException {
+        String path =  workspaceDir+ workspaceName + "/" + fileName;
+        return FileUtils.readFileToString(new File(path));
+
+    }
+
+    public void updateDataFile(String workspaceName, String fileName, FileInputStream inputStream) throws IOException {
+        String path =  workspaceDir+ workspaceName + "/" + fileName;
+        FileUtils.copyInputStreamToFile(inputStream, new File(path));
+    }
+
+    public boolean deleteDataFile(String workspaceName, String fileName) throws IOException {
+        String path =  workspaceDir+ workspaceName + "/" + fileName;
+        return new File(path).delete();
+    }
+
+    public boolean isWriteLocked(String workspaceName, String fileName) {
+        return fileWriteLock.get(workspaceName + "/" + fileName);
+    }
+
+    public void writeLock(String workspaceName, String fileName) {
+        fileWriteLock.put(workspaceName + "/" + fileName, new Boolean(true));
+    }
+
 }
