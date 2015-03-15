@@ -5,7 +5,8 @@ package pt.ulisboa.tecnico.cmov.airdesk;
  */
 public class Constants {
 
-    public static final String WS_DIR = "/Users/ashansa/softwares/github/uni_projects/2semester/AirDesk/app";
+    public static final String WS_DIR = "/Users/ashansa/Workspaces";
+    public static final String FOREIGN_WS_DIR = "/Users/ashansa/ForeignWorkspaces";
     public static String userJsonFileName="user.json";
     public static int bytesPerKb=1024;
     public static String jsonSuffix=".json";

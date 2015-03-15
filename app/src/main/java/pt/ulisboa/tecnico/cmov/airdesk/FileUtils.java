@@ -10,7 +10,7 @@ import java.io.OutputStream;
 /**
  * Created by ashansa on 3/15/15.
  */
-public class Utils {
+public class FileUtils {
 
     public static FileInputStream readFile(String path) throws IOException {
         FileInputStream inputStream = new FileInputStream(path);
@@ -42,5 +42,33 @@ public class Utils {
             }
         }
         folder.delete();
+    }
+
+    public static void createFolderStructureOnForeignWSAddition(String workspaceName, String ownerId, String[] fileNames) throws Exception {
+        if (!new File(Constants.FOREIGN_WS_DIR).exists()) {
+            throw new FileNotFoundException("No directory found: " + Constants.FOREIGN_WS_DIR);
+        }
+
+        String dirPath = Constants.FOREIGN_WS_DIR + "/" + ownerId;
+        File dir = new File(dirPath);
+        if(!dir.exists()) {
+            dir.mkdirs();
+        }
+
+        String wsPath = dirPath + "/" + ownerId;
+        boolean wsDirCreated = false;
+        File workspace = new File(wsPath);
+        if(workspace.exists()) {
+            throw new Exception("Foreign workspace " + workspaceName + " of owner " + ownerId +
+                    " already exists");
+        }
+
+        wsDirCreated = workspace.mkdirs();
+        if(!wsDirCreated) {
+            throw new Exception("Could not create foreign workspace " + workspaceName + " of owner " + ownerId);
+        } else {
+           /////TODO create metadata object
+        }
+
     }
 }
