@@ -28,11 +28,11 @@ public class User {
     }
 
 
-    public void addNewWs(String WSName){
+    public void addNewOwnedWs(String WSName){
         getOwnedWorkspaces().add(WSName);
     }
 
-    public void removeWS(String WSName){
+    public void removeOwnedWS(String WSName){
         for(int i=0;i< getOwnedWorkspaces().size();i++) {
 
             if(getOwnedWorkspaces().get(i).toLowerCase().equals(WSName.toLowerCase())){

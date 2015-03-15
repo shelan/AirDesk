@@ -14,25 +14,25 @@ import java.io.OutputStream;
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
 import pt.ulisboa.tecnico.cmov.airdesk.context.AirDeskApp;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.ForeignWorkspace;
+import pt.ulisboa.tecnico.cmov.airdesk.entity.OwnedWorkspace;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.User;
-import pt.ulisboa.tecnico.cmov.airdesk.entity.Workspace;
 
 /**
  * Created by Chathuri on 3/14/2015.
  */
 public class MetadataManager {
 
-    public void saveWorkspace(Workspace workspace){
+    public void saveOwnedWorkspace(OwnedWorkspace workspace){
         Gson gson=new Gson();
         String jsonString=gson.toJson(workspace);
         System.out.println(jsonString);
         String jsonWorkspaceFileName=workspace.getWorkspaceName()+ Constants.jsonSuffix;
         saveToInternalFile(jsonString, jsonWorkspaceFileName);
     }
-    public Workspace getWorkspace(String workspaceFileName){
+    public OwnedWorkspace getOwnedWorkspace(String workspaceFileName){
         String workspaceJson=readFromInternalFile(workspaceFileName);
         Gson gson=new Gson();
-        Workspace workspace=gson.fromJson(workspaceJson,Workspace.class);
+        OwnedWorkspace workspace=gson.fromJson(workspaceJson,OwnedWorkspace.class);
         return workspace;
     }
 
@@ -44,10 +44,10 @@ public class MetadataManager {
         saveToInternalFile(jsonString, jsonWorkspaceFileName);
     }
 
-    public Workspace getForeignWorkspace(String workspaceFileName) {
+    public OwnedWorkspace getForeignWorkspace(String workspaceFileName) {
         String workspaceJson = readFromInternalFile(workspaceFileName);
         Gson gson = new Gson();
-        Workspace workspace = gson.fromJson(workspaceJson, Workspace.class);
+        OwnedWorkspace workspace = gson.fromJson(workspaceJson, OwnedWorkspace.class);
         return workspace;
     }
 

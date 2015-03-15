@@ -12,8 +12,8 @@ import pt.ulisboa.tecnico.cmov.airdesk.Constants;
 import pt.ulisboa.tecnico.cmov.airdesk.Exception.WriteLockedException;
 import pt.ulisboa.tecnico.cmov.airdesk.FileUtils;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.ForeignWorkspace;
+import pt.ulisboa.tecnico.cmov.airdesk.entity.OwnedWorkspace;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.User;
-import pt.ulisboa.tecnico.cmov.airdesk.entity.Workspace;
 import pt.ulisboa.tecnico.cmov.airdesk.storage.StorageManager;
 
 /**
@@ -30,16 +30,14 @@ public class WorkspaceManager {
             UserManager userMgr=new UserManager();
             MetadataManager metaManager=new MetadataManager();
             User user=userMgr.getOwner();
-            user.addNewWs(workspaceName);
+            user.addNewOwnedWs(workspaceName);
             userMgr.createUser(user);//update existing user with new workspace
             System.out.println("------user created------");
 
-            Workspace workspace=new Workspace();
-            workspace.setWorkspaceName(workspaceName);
+            OwnedWorkspace workspace=new OwnedWorkspace(workspaceName, user.getEmail(), quotaSize);
             workspace.setOwnerName(user.getNickName());
             workspace.setOwnerEmail(user.getEmail());
-            workspace.setQuota(quotaSize);
-            metaManager.saveWorkspace(workspace);
+            metaManager.saveOwnedWorkspace(workspace);
 
             System.out.println("----ws metadata------");
             boolean create= FileUtils.createFolder(workspaceName);
@@ -48,7 +46,7 @@ public class WorkspaceManager {
         }
     }
 
-    public boolean editWorkspace(String workspaceName,double quotaSize){
+    public boolean editOwnedWorkspace(String workspaceName, double quotaSize){
         boolean isQuotaSmallerThanUsage=isQuotaSmallerThanUsage(workspaceName,quotaSize);
         if(isQuotaSmallerThanUsage){
             return false;
@@ -57,9 +55,9 @@ public class WorkspaceManager {
             //get metadata for workspace and save after changing quota size
             String jsonWorkspaceFileName=workspaceName+Constants.jsonSuffix;
             MetadataManager metaManager=new MetadataManager();
-            Workspace workspace=metaManager.getWorkspace(jsonWorkspaceFileName);
+            OwnedWorkspace workspace=metaManager.getOwnedWorkspace(jsonWorkspaceFileName);
             workspace.setQuota(quotaSize);
-            metaManager.saveWorkspace(workspace);
+            metaManager.saveOwnedWorkspace(workspace);
             return true;
         }
     }
@@ -94,7 +92,7 @@ public class WorkspaceManager {
         return null;
     }
 
-    public boolean addToForeignWorkspaces(Workspace workspace){
+    public boolean addToForeignWorkspaces(OwnedWorkspace workspace){
         return false;
     }
 

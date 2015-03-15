@@ -14,7 +14,7 @@ public class AbstractWorkspace {
     private String ownerId;
     private ArrayList<String> fileNames = new ArrayList<String>();
 
-    public AbstractWorkspace(String workspaceName, String ownerId, long quota) {
+    public AbstractWorkspace(String workspaceName, String ownerId, double quota) {
         this.workspaceName = workspaceName;
         this.ownerId = ownerId;
         this.quota = quota;

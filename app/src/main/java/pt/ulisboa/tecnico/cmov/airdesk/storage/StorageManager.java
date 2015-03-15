@@ -1,21 +1,13 @@
 package pt.ulisboa.tecnico.cmov.airdesk.storage;
 
-import android.content.Context;
-
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.HashMap;
 
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
 import pt.ulisboa.tecnico.cmov.airdesk.Exception.WriteLockedException;
 import pt.ulisboa.tecnico.cmov.airdesk.FileUtils;
-import pt.ulisboa.tecnico.cmov.airdesk.context.AirDeskApp;
 
 /**
  * Created by Chathuri on 3/14/2015.
@@ -24,16 +16,16 @@ public class StorageManager {
 
     private static HashMap<String, Boolean> fileWriteLock = new HashMap<String, Boolean>();
     //TODO read from property file
-    private String workspaceDir = Constants.WS_DIR;
+    private String ownedWorkspaceDir = Constants.WS_DIR;
     private String foreignWorkspaceDir = Constants.WS_DIR;
 
     public boolean createDataFile(String workspaceName, String fileName) throws IOException {
-        String path =  workspaceDir+ workspaceName + "/" + fileName;
+        String path =  ownedWorkspaceDir + workspaceName + "/" + fileName;
         return new File(path).createNewFile();
     }
 
     public synchronized FileInputStream getDataFile(String workspaceName, String fileName, boolean writeMode) throws WriteLockedException, IOException {
-        String path =  workspaceDir+ workspaceName + "/" + fileName;
+        String path =  ownedWorkspaceDir + workspaceName + "/" + fileName;
 
         if(writeMode) {
             if(isWriteLocked(workspaceName, fileName))
@@ -48,12 +40,12 @@ public class StorageManager {
     }
 
     public void updateDataFile(String workspaceName, String fileName, FileInputStream inputStream) throws IOException {
-        String path =  workspaceDir+ workspaceName + "/" + fileName;
+        String path =  ownedWorkspaceDir + workspaceName + "/" + fileName;
         FileUtils.writeToFile(path, inputStream);
     }
 
     public void deleteDataFile(String workspaceName, String fileName) throws IOException {
-        String path =  workspaceDir+ workspaceName + "/" + fileName;
+        String path =  ownedWorkspaceDir + workspaceName + "/" + fileName;
         FileUtils.deleteFolder(path);
     }
 

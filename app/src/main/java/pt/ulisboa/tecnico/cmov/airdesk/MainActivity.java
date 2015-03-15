@@ -11,7 +11,6 @@ import pt.ulisboa.tecnico.cmov.airdesk.entity.User;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.MetadataManager;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.UserManager;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.WorkspaceManager;
-import pt.ulisboa.tecnico.cmov.airdesk.storage.StorageManager;
 
 public class MainActivity extends ActionBarActivity {
 
@@ -39,9 +38,9 @@ public class MainActivity extends ActionBarActivity {
 
     private void testEditWS(String test, int i) {
         WorkspaceManager mgr=new WorkspaceManager();
-        mgr.editWorkspace(test,i);
+        mgr.editOwnedWorkspace(test, i);
         MetadataManager mtr=new MetadataManager();
-        double edited= mtr.getWorkspace(test+Constants.jsonSuffix).getQuota();
+        double edited= mtr.getOwnedWorkspace(test + Constants.jsonSuffix).getQuota();
         System.out.println("quota"+edited);
 
     }
@@ -65,7 +64,7 @@ public class MainActivity extends ActionBarActivity {
 
     public void testAddWS(String text,double size){
         WorkspaceManager mgr=new WorkspaceManager();
-        mgr.createWorkspace(text,size);
+        mgr.createWorkspace(text, size);
 
     }
 
