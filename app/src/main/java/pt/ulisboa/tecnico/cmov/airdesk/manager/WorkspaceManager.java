@@ -23,9 +23,11 @@ import pt.ulisboa.tecnico.cmov.airdesk.storage.StorageManager;
 public class WorkspaceManager {
 
     private static StorageManager storageManager;
+    private static MetadataManager metadataManager;
 
     public WorkspaceManager() {
         storageManager = new StorageManager();
+        metadataManager = new MetadataManager();
     }
 
     public boolean createWorkspace(String workspaceName,double quotaSize){
@@ -76,7 +78,10 @@ public class WorkspaceManager {
 
     public void addToForeignWorkspace(String workspaceName, String ownerId, String[] fileNames) throws Exception {
         /////TODO add to metadata structure...
-        storageManager.createFolderStructureOnForeignWSAddition(workspaceName, ownerId, fileNames);
+        String workspacePath = Constants.FOREIGN_WS_DIR + "/" + ownerId + "/" + workspaceName;
+        boolean successfullyAdded = storageManager.createFolderStructureOnForeignWSAddition(workspacePath);
+        if(successfullyAdded)
+            metadataManager.addForeignWSMetadata(workspacePath, fileNames);
     }
 
     public void addDataFile(String workspace, String fileName) throws IOException {

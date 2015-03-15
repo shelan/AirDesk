@@ -122,8 +122,8 @@ public class StorageManager {
         fileWriteLock.put(workspaceName + "/" + fileName, new Boolean(true));
     }
 
-    public void createFolderStructureOnForeignWSAddition(String workspaceName, String ownerId, String[] fileNames) throws Exception {
-        FileUtils.createFolderStructureOnForeignWSAddition(workspaceName, ownerId, fileNames);
+    public boolean createFolderStructureOnForeignWSAddition(String path) throws Exception {
+        return FileUtils.createFolderStructureOnForeignWSAddition(path);
     }
 
 }
