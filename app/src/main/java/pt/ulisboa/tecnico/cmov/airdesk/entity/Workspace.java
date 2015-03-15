@@ -7,24 +7,52 @@ import java.util.List;
  * Created by Chathuri on 3/14/2015.
  */
 public class Workspace {
-    String workspaceName;
-    long quota;
-    List<String> accessorList=new ArrayList<String>();
+
+    private String workspaceName;
+    private long quota;
+    private ArrayList<String> clients=new ArrayList<String>();
+    private ArrayList<String> files = new ArrayList<String>();
     private String ownerName;
 
-    public List<String>getAccessorList(){
-        return null;
-    }
-
-    public boolean removeUser(){
-        return false;
+    public Workspace(String name, String owner, long quota) {
+        this.workspaceName = name;
+        this.ownerName = owner;
+        this.quota = quota;
     }
 
     public String getOwnerName() {
         return ownerName;
     }
 
-    public void setOwnerName(String ownerName) {
-        this.ownerName = ownerName;
+    public String workspaceName() {
+        return workspaceName;
+    }
+
+    public long getQuota() {
+        return quota;
+    }
+
+    public ArrayList<String> getClients() {
+        return clients;
+    }
+
+    public void addClient(String clientName) {
+        clients.add(clientName);
+    }
+
+    public void removeClient(String clientName) {
+        clients.remove(clientName);
+    }
+
+    public ArrayList<String> getFiles() {
+        return files;
+    }
+
+    public void addFile(String fileName) {
+        files.add(fileName);
+    }
+
+    public void removeFile(String fileName) {
+        files.remove(fileName);
     }
 }
