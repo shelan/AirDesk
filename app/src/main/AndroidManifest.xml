@@ -3,7 +3,7 @@
     package="pt.ulisboa.tecnico.cmov.airdesk" >
 
     <application
-        android:name=".storage.AirDeskApp"
+        android:name=".context.AirDeskApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"

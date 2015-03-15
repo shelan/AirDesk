@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.cmov.airdesk.storage;
+package pt.ulisboa.tecnico.cmov.airdesk.context;
 
 import android.app.Application;
 import android.content.Context;
