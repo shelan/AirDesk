@@ -42,7 +42,9 @@ public class WorkspaceManager {
             metaManager.saveWorkspace(workspace);
 
             System.out.println("----ws metadata------");
-            return FileUtils.createFolder(workspaceName);
+            boolean create= FileUtils.createFolder(workspaceName);
+            System.out.println("file created "+create);
+            return create;
         }
     }
 
@@ -78,8 +80,7 @@ public class WorkspaceManager {
 
     public boolean isQuotaSmallerThanUsage(String workspaceName, double quotaSize){
         //when user edit quota size, use this to  check he has not reduced it below workspace size
-        String wsFolderPath=Constants.WS_DIR+ workspaceName;
-        double wsFolderSize=FileUtils.folderSize(wsFolderPath);
+        double wsFolderSize=FileUtils.folderSize(workspaceName);
         if(wsFolderSize>quotaSize){
             return true;
         }

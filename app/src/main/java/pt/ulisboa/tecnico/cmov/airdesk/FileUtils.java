@@ -1,11 +1,17 @@
 package pt.ulisboa.tecnico.cmov.airdesk;
 
+import android.content.Context;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+
+import pt.ulisboa.tecnico.cmov.airdesk.context.AirDeskApp;
 
 /**
  * Created by ashansa on 3/15/15.
@@ -44,34 +50,64 @@ public class FileUtils {
         folder.delete();
     }
 
-    public static boolean createFolderStructureOnForeignWSAddition(String path) throws Exception {
+    public static void createFolderStructureOnForeignWSAddition(String workspaceName, String ownerId, String[] fileNames) throws Exception {
+        if (!new File(Constants.FOREIGN_WS_DIR).exists()) {
+            throw new FileNotFoundException("No directory found: " + Constants.FOREIGN_WS_DIR);
+        }
+
+        String dirPath = Constants.FOREIGN_WS_DIR + "/" + ownerId;
+        File dir = new File(dirPath);
+        if(!dir.exists()) {
+            dir.mkdirs();
+        }
+
+        String wsPath = dirPath + "/" + ownerId;
         boolean wsDirCreated = false;
-        File workspace = new File(path);
+        File workspace = new File(wsPath);
         if(workspace.exists()) {
-            throw new Exception("Foreign workspace already exists. " + path);
+            throw new Exception("Foreign workspace " + workspaceName + " of owner " + ownerId +
+                    " already exists");
         }
 
         wsDirCreated = workspace.mkdirs();
         if(!wsDirCreated) {
-            throw new Exception("Could not create foreign workspace at " + path);
+            throw new Exception("Could not create foreign workspace " + workspaceName + " of owner " + ownerId);
+        } else {
+           /////TODO create metadata object
         }
-        return wsDirCreated;
     }
 
     public static boolean createFolder(String workspaceName){
-        File dir = new File(Constants.WS_DIR+"/"+workspaceName);
-        return dir.mkdir();
+        Context appContext = AirDeskApp.s_applicationContext;
+        File parentDir=appContext.getDir(Constants.WS_DIR,appContext.MODE_PRIVATE);
+        File workspaceDir = new File(parentDir, workspaceName);//create workspace inside WS dir
+        System.out.println("parent "+parentDir.getAbsolutePath());
+        System.out.println("child"+workspaceDir.getAbsolutePath());
+        workspaceDir.mkdir();
+        return true;
     }
 
-    public static double folderSize(String directoryPath) {
-        File folder = new File(directoryPath);
+    public static void createFolderForOwnedWorkSpaces(){//all owned workspaces will be here
+        Context appContext = AirDeskApp.s_applicationContext;
+        File parentDir=appContext.getDir(Constants.WS_DIR, appContext.MODE_PRIVATE);
+        System.out.println("ws path"+parentDir.getAbsolutePath());
+    }
+
+
+    public static double folderSize(String workspaceName) {
+        Context appContext = AirDeskApp.s_applicationContext;
+        File parentDir=appContext.getDir(Constants.WS_DIR,appContext.MODE_PRIVATE);
+        File workspaceDir = new File(parentDir.getAbsolutePath()+"/"+workspaceName);
+        System.out.println("new work dir"+workspaceDir.getAbsolutePath());
         long length = 0;
-        for (File file : folder.listFiles()) {
+
+        for (File file : workspaceDir.listFiles()) {
             if (file.isFile())
                 length += file.length();
             else
-                length += folderSize(folder.getPath());
+                length += folderSize(workspaceDir.getPath());
         }
+        System.out.println("folder size "+length);
         double lengthInKB=length/Constants.bytesPerKb;
         return lengthInKB;
     }

@@ -5,7 +5,7 @@ package pt.ulisboa.tecnico.cmov.airdesk;
  */
 public class Constants {
 
-    public static final String WS_DIR = "/Users/ashansa/Workspaces";
+    public static final String WS_DIR = "sample";
     public static final String FOREIGN_WS_DIR = "/Users/ashansa/ForeignWorkspaces";
     public static String userJsonFileName="user.json";
     public static String FOREIGN_WS_METADATA_FILE="files_in_ws.txt";
