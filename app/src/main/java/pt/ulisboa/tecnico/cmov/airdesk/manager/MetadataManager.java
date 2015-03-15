@@ -1,23 +1,53 @@
 package pt.ulisboa.tecnico.cmov.airdesk.manager;
 import android.content.Context;
 
-import java.io.BufferedWriter;
+import com.google.gson.Gson;
+
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
 import pt.ulisboa.tecnico.cmov.airdesk.context.AirDeskApp;
+import pt.ulisboa.tecnico.cmov.airdesk.entity.User;
+import pt.ulisboa.tecnico.cmov.airdesk.entity.Workspace;
+
 /**
  * Created by Chathuri on 3/14/2015.
  */
 public class MetadataManager {
+
+    public void saveWorkspace(Workspace workspace){
+        Gson gson=new Gson();
+        String jsonString=gson.toJson(workspace);
+        System.out.println(jsonString);
+        String jsonWorkspaceFileName=workspace.getWorkspaceName()+ Constants.jsonSuffix;
+        saveToInternalFile(jsonString, jsonWorkspaceFileName);
+    }
+    public Workspace getWorkspace(String workspaceFileName){
+        String workspaceJson=readFromInternalFile(workspaceFileName);
+        Gson gson=new Gson();
+        Workspace workspace=gson.fromJson(workspaceJson,Workspace.class);
+        return workspace;
+    }
+
+    public void saveUser(User user){
+        Gson gson=new Gson();
+        String jsonString=gson.toJson(user);
+        saveToInternalFile(jsonString, Constants.userJsonFileName);
+    }
+
+    public User getUser(){
+        String userJson=readFromInternalFile(Constants.userJsonFileName);
+        Gson gson=new Gson();
+        User user=gson.fromJson(userJson,User.class);
+        return user;
+    }
+
     public String readFromInternalFile(String fileName)
     {
         FileInputStream fis = null;
@@ -52,7 +82,7 @@ public class MetadataManager {
     {
         byte byteArray[] = new byte[4092];
         while(true) {
-            int numOfBytesRead = reader.read(byteArray, 0, 4092);
+            int numOfBytesRead = reader.read(byteArray,0,4092);
             if (numOfBytesRead == -1) {
                 break;
             }
@@ -73,28 +103,5 @@ public class MetadataManager {
         catch(IOException ex){
             ex.printStackTrace();
         }
-    }
-
-    public void addForeignWSMetadata(String path, String[] fileNames) throws Exception {
-
-       /* File dir = new File(path);
-        if(!dir.exists()) {
-            boolean dirCreated = dir.mkdirs();
-            if(!dirCreated)
-                throw new Exception("Could not find path to store metadata. " + path);
-        }
-
-        File metadataFile = new File(path + "/" + Constants.FOREIGN_WS_METADATA_FILE);
-        metadataFile.createNewFile();
-        FileWriter fw = new FileWriter(metadataFile);
-        BufferedWriter bw = new BufferedWriter(fw);
-
-        if(fileNames.length > 0) {
-            for(String fileName : fileNames) {
-                bw.write(fileName + "\n");
-                bw.flush();
-            }
-        }
-        bw.close();*/
     }
 }

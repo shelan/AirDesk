@@ -44,18 +44,49 @@ public class FileUtils {
         folder.delete();
     }
 
-    public static boolean createFolderStructureOnForeignWSAddition(String path) throws Exception {
+    public static void createFolderStructureOnForeignWSAddition(String workspaceName, String ownerId, String[] fileNames) throws Exception {
+        if (!new File(Constants.FOREIGN_WS_DIR).exists()) {
+            throw new FileNotFoundException("No directory found: " + Constants.FOREIGN_WS_DIR);
+        }
+
+        String dirPath = Constants.FOREIGN_WS_DIR + "/" + ownerId;
+        File dir = new File(dirPath);
+        if(!dir.exists()) {
+            dir.mkdirs();
+        }
+
+        String wsPath = dirPath + "/" + ownerId;
         boolean wsDirCreated = false;
-        File workspace = new File(path);
+        File workspace = new File(wsPath);
         if(workspace.exists()) {
-            throw new Exception("Foreign workspace already exists. " + path);
+            throw new Exception("Foreign workspace " + workspaceName + " of owner " + ownerId +
+                    " already exists");
         }
 
         wsDirCreated = workspace.mkdirs();
         if(!wsDirCreated) {
-            throw new Exception("Could not create foreign workspace at " + path);
+            throw new Exception("Could not create foreign workspace " + workspaceName + " of owner " + ownerId);
+        } else {
+           /////TODO create metadata object
         }
 
-        return wsDirCreated;
+
+    }
+    public static boolean createFolder(String workspaceName){
+        File dir = new File(Constants.WS_DIR+"/"+workspaceName);
+        return dir.mkdir();
+    }
+
+    public static double folderSize(String directoryPath) {
+        File folder = new File(directoryPath);
+        long length = 0;
+        for (File file : folder.listFiles()) {
+            if (file.isFile())
+                length += file.length();
+            else
+                length += folderSize(folder.getPath());
+        }
+        double lengthInKB=length/Constants.bytesPerKb;
+        return lengthInKB;
     }
 }

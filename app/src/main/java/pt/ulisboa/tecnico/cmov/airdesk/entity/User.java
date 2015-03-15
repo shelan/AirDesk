@@ -27,16 +27,21 @@ public class User {
         this.email = email;
     }
 
+
     public void addNewWs(String WSName){
-        ownedWorkspaces.add(WSName);
+        getOwnedWorkspaces().add(WSName);
     }
 
     public void removeWS(String WSName){
-        for(int i=0;i<ownedWorkspaces.size();i++) {
+        for(int i=0;i< getOwnedWorkspaces().size();i++) {
 
-            if(ownedWorkspaces.get(i).toLowerCase().equals(WSName.toLowerCase())){
-                ownedWorkspaces.remove(i);
+            if(getOwnedWorkspaces().get(i).toLowerCase().equals(WSName.toLowerCase())){
+                getOwnedWorkspaces().remove(i);
             }
         }
+    }
+
+    public List<String> getOwnedWorkspaces() {
+        return ownedWorkspaces;
     }
 }
