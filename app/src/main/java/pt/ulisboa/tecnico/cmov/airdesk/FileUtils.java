@@ -70,5 +70,23 @@ public class FileUtils {
            /////TODO create metadata object
         }
 
+
+    }
+    public static boolean createFolder(String workspaceName){
+        File dir = new File(Constants.WS_DIR+"/"+workspaceName);
+        return dir.mkdir();
+    }
+
+    public static double folderSize(String directoryPath) {
+        File folder = new File(directoryPath);
+        long length = 0;
+        for (File file : folder.listFiles()) {
+            if (file.isFile())
+                length += file.length();
+            else
+                length += folderSize(folder.getPath());
+        }
+        double lengthInKB=length/Constants.bytesPerKb;
+        return lengthInKB;
     }
 }

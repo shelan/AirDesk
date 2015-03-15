@@ -14,23 +14,21 @@ import pt.ulisboa.tecnico.cmov.airdesk.storage.*;
 public class UserManager {
 
     public void createUser(User user) {
-        Gson gson=new Gson();
-        String jsonString=gson.toJson(user);
         MetadataManager metaManager=new MetadataManager();
-        metaManager.saveToInternalFile(jsonString, Constants.userJsonFileName);
+        metaManager.saveUser(user);
     }
     public User getOwner(){
         MetadataManager metaManager=new MetadataManager();
-        String userJson=metaManager.readFromInternalFile(Constants.userJsonFileName);
-        Gson gson=new Gson();
-        User user=gson.fromJson(userJson,User.class);
+        User user=metaManager.getUser();
         return user;
     }
 
-
     public List<String> getOwnedWorkspaces(){
-     return null;
-   }
+        //read ownedWorkSpaces from user
+        User user=getOwner();
+        List<String>ownedWorkSpaces=user.getOwnedWorkspaces();
+        return ownedWorkSpaces;
+    }
 
     public List<String>getForeignWorkspaces(){
      return null;

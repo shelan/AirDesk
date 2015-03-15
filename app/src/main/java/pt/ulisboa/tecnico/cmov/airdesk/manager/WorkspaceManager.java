@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.List;
 
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
 import pt.ulisboa.tecnico.cmov.airdesk.Exception.WriteLockedException;
@@ -21,12 +22,6 @@ import pt.ulisboa.tecnico.cmov.airdesk.storage.StorageManager;
  * Created by Chathuri on 3/14/2015.
  */
 public class WorkspaceManager {
-
-    private static StorageManager storageManager;
-
-    public WorkspaceManager() {
-        storageManager = new StorageManager();
-    }
 
     public boolean createWorkspace(String workspaceName,double quotaSize){
         boolean isMemoryNotSufficient=isNotSufficientMemory(quotaSize);
@@ -46,16 +41,30 @@ public class WorkspaceManager {
             workspace.setOwnerName(user.getNickName());
             workspace.setOwnerEmail(user.getEmail());
             workspace.setQuota(quotaSize);
-            Gson gson=new Gson();
-            String jsonString=gson.toJson(workspace);
-            System.out.println(jsonString);
-            String jsonWorkspaceFileName=workspaceName+ Constants.jsonSuffix;
-            metaManager.saveToInternalFile(jsonString,jsonWorkspaceFileName);
-            System.out.println("----ws created------");
+            metaManager.saveWorkspace(workspace);
+
+            System.out.println("----ws metadata------");
+            return FileUtils.createFolder(workspaceName);
+        }
+    }
+
+    public boolean editWorkspace(String workspaceName,double quotaSize){
+        boolean isQuotaSmallerThanUsage=isQuotaSmallerThanUsage(workspaceName,quotaSize);
+        if(isQuotaSmallerThanUsage){
+            return false;
+        }
+        else{
+            //get metadata for workspace and save after changing quota size
+            String jsonWorkspaceFileName=workspaceName+Constants.jsonSuffix;
+            MetadataManager metaManager=new MetadataManager();
+            Workspace workspace=metaManager.getWorkspace(jsonWorkspaceFileName);
+            workspace.setQuota(quotaSize);
+            metaManager.saveWorkspace(workspace);
             return true;
         }
     }
 
+    /*make this public if don't do a prevalidation on textbox*/
     public boolean isNotSufficientMemory(double quotaSize){
         File path = Environment.getExternalStorageDirectory();
         StatFs stat = new StatFs(path.getPath());
@@ -69,16 +78,32 @@ public class WorkspaceManager {
         return false;
     }
 
-    public boolean isQuotaTooSmall(double quotaSize){
+    public boolean isQuotaSmallerThanUsage(String workspaceName, double quotaSize){
         //when user edit quota size, use this to  check he has not reduced it below workspace size
+        String wsFolderPath=Constants.WS_DIR+ workspaceName;
+        double wsFolderSize=FileUtils.folderSize(wsFolderPath);
+        if(wsFolderSize>quotaSize){
+            return true;
+        }
         return false;
     }
 
-    public void addToForeignWorkspace(String workspaceName, String ownerId, String[] fileNames) throws Exception {
-        /////TODO add to metadata structure...
-        storageManager.createFolderStructureOnForeignWSAddition(workspaceName, ownerId, fileNames);
+    public List<String> addUsersToAccessList(String workspace,String userId){
+        //Both from the subscription and adding email by owner
+        //To simulate mount, add to foreign ws of same user. Later change this to use wifidirect
+
+        return null;
     }
 
+    public boolean addToForeignWorkspaces(Workspace workspace){
+        return false;
+    }
+
+    private static StorageManager storageManager;
+
+    public WorkspaceManager() {
+        storageManager = new StorageManager();
+    }
     public void addDataFile(String workspace, String fileName) throws IOException {
         storageManager.createDataFile(workspace, fileName);
     }
