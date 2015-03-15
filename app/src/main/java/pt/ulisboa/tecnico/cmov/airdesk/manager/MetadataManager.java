@@ -13,6 +13,7 @@ import java.io.OutputStream;
 
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
 import pt.ulisboa.tecnico.cmov.airdesk.context.AirDeskApp;
+import pt.ulisboa.tecnico.cmov.airdesk.entity.ForeignWorkspace;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.User;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.Workspace;
 
@@ -32,6 +33,21 @@ public class MetadataManager {
         String workspaceJson=readFromInternalFile(workspaceFileName);
         Gson gson=new Gson();
         Workspace workspace=gson.fromJson(workspaceJson,Workspace.class);
+        return workspace;
+    }
+
+    public void saveForeignWorkspace(ForeignWorkspace workspace) {
+        Gson gson = new Gson();
+        String jsonString = gson.toJson(workspace);
+        System.out.println(jsonString);
+        String jsonWorkspaceFileName = workspace.getWorkspaceName() + Constants.jsonSuffix;
+        saveToInternalFile(jsonString, jsonWorkspaceFileName);
+    }
+
+    public Workspace getForeignWorkspace(String workspaceFileName) {
+        String workspaceJson = readFromInternalFile(workspaceFileName);
+        Gson gson = new Gson();
+        Workspace workspace = gson.fromJson(workspaceJson, Workspace.class);
         return workspace;
     }
 

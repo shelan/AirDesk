@@ -3,17 +3,15 @@ package pt.ulisboa.tecnico.cmov.airdesk.manager;
 import android.os.Environment;
 import android.os.StatFs;
 
-import com.google.gson.Gson;
-
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
 import pt.ulisboa.tecnico.cmov.airdesk.Exception.WriteLockedException;
 import pt.ulisboa.tecnico.cmov.airdesk.FileUtils;
+import pt.ulisboa.tecnico.cmov.airdesk.entity.ForeignWorkspace;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.User;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.Workspace;
 import pt.ulisboa.tecnico.cmov.airdesk.storage.StorageManager;
@@ -100,9 +98,11 @@ public class WorkspaceManager {
     }
 
     private static StorageManager storageManager;
+    private static MetadataManager metadataManager;
 
     public WorkspaceManager() {
         storageManager = new StorageManager();
+        metadataManager = new MetadataManager();
     }
     public void addDataFile(String workspace, String fileName) throws IOException {
         storageManager.createDataFile(workspace, fileName);
@@ -118,5 +118,16 @@ public class WorkspaceManager {
 
     public void deleteDataFile(String workspace, String fileName) throws IOException {
         storageManager.deleteDataFile(workspace, fileName);
+    }
+
+    public void addToForeignWorkspace(String workspaceName, String ownerId, long quota, String[] fileNames) throws Exception {
+
+        String workspacePath = Constants.FOREIGN_WS_DIR + "/" + ownerId + "/" + workspaceName;
+        boolean successfullyAdded = storageManager.createFolderStructureOnForeignWSAddition(workspacePath);
+        if(successfullyAdded) {
+            ForeignWorkspace workspace = new ForeignWorkspace(workspaceName, ownerId, quota);
+            workspace.addFiles(fileNames);
+            metadataManager.saveForeignWorkspace(workspace);
+        }
     }
 }
