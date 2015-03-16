@@ -20,14 +20,6 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        FileUtils.createFolderForOwnedWorkSpaces();
-        FileUtils.createFolder("test");
-        FileUtils.folderSize("test");
-        testAddUser();
-        testAddWS("test", 500);
-        testAddWS("test2", 200);
-        testEditWS("test", 300);
-        testOwnedWS();
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, new MyWorkspaceListFragment(), "fragment_1")
@@ -35,6 +27,20 @@ public class MainActivity extends ActionBarActivity {
                     .commit();
 
         }
+
+
+        //TODO move these tests and write proper tests in android test package
+
+       /* FileUtils.createFolderForOwnedWorkSpaces();
+        FileUtils.createFolder("test");
+        FileUtils.folderSize("test");
+        testAddUser();
+        testAddWS("test", 500);
+        testAddWS("test2", 200);
+        testEditWS("test", 300);
+        testOwnedWS();*/
+
+
     }
 
 
