@@ -18,6 +18,8 @@ import pt.ulisboa.tecnico.cmov.airdesk.context.AirDeskApp;
  */
 public class FileUtils {
 
+    private static Context appContext = AirDeskApp.s_applicationContext;
+
     public static FileInputStream readFile(String path) throws IOException {
         FileInputStream inputStream = new FileInputStream(path);
         inputStream.close();
@@ -50,19 +52,20 @@ public class FileUtils {
         folder.delete();
     }
 
-    public static boolean createFolderStructureOnForeignWSAddition(String path) throws Exception {
-        boolean wsDirCreated = false;
-        File workspace = new File(path);
+    /**
+     *
+     * @param baseDir
+     * @param subDirName can be one folder or a set like folder1/folder2
+     * @return
+     * @throws Exception
+     */
+    public static boolean createFolder(File baseDir, String subDirName) throws Exception {
+        File workspaceDir = new File(baseDir, subDirName);
+        System.out.println("path------> " + workspaceDir.getAbsolutePath());
+        if(workspaceDir.exists())
+            throw new Exception("Folder already exists. " + workspaceDir.getAbsolutePath());
 
-        if(workspace.exists()) {
-            throw new Exception("Foreign workspace already exists. " + path);
-        }
-
-        wsDirCreated = workspace.mkdirs();
-        if(!wsDirCreated) {
-            throw new Exception("Could not create foreign workspace at " + path);
-        }
-        return wsDirCreated;
+        return workspaceDir.mkdirs();
     }
 
     public static boolean createFolder(String workspaceName){

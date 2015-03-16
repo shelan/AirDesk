@@ -55,7 +55,7 @@ public class WorkspaceManager {
 
 
     public boolean editOwnedWorkspace(String workspaceName, OwnedWorkspace editedWS){
-        boolean isQuotaSmallerThanUsage=isQuotaSmallerThanUsage(workspaceName,editedWS.getQuota());
+        boolean isQuotaSmallerThanUsage=isQuotaSmallerThanUsage(workspaceName, editedWS.getQuota());
         if(isQuotaSmallerThanUsage){
             return false;
         }
@@ -137,9 +137,7 @@ public class WorkspaceManager {
     }
 
     public void addToForeignWorkspace(String workspaceName, String ownerId, long quota, String[] fileNames) throws Exception {
-
-        String workspacePath = Constants.FOREIGN_WS_DIR + "/" + ownerId + "/" + workspaceName;
-        boolean successfullyAdded = storageManager.createFolderStructureOnForeignWSAddition(workspacePath);
+        boolean successfullyAdded = storageManager.createFolderStructureOnForeignWSAddition(ownerId, workspaceName);
         if(successfullyAdded) {
             ForeignWorkspace workspace = new ForeignWorkspace(workspaceName, ownerId, quota);
             workspace.addFiles(fileNames);

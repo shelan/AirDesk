@@ -1,5 +1,7 @@
 package pt.ulisboa.tecnico.cmov.airdesk.storage;
 
+import android.content.Context;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -8,6 +10,7 @@ import java.util.HashMap;
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
 import pt.ulisboa.tecnico.cmov.airdesk.Exception.WriteLockedException;
 import pt.ulisboa.tecnico.cmov.airdesk.FileUtils;
+import pt.ulisboa.tecnico.cmov.airdesk.context.AirDeskApp;
 
 /**
  * Created by Chathuri on 3/14/2015.
@@ -57,8 +60,11 @@ public class StorageManager {
         fileWriteLock.put(workspaceName + "/" + fileName, new Boolean(true));
     }
 
-    public boolean createFolderStructureOnForeignWSAddition(String path) throws Exception {
-        return FileUtils.createFolderStructureOnForeignWSAddition(path);
+    public boolean createFolderStructureOnForeignWSAddition(String ownerId, String workspaceName) throws Exception {
+        Context appContext = AirDeskApp.s_applicationContext;
+        File parentDir = appContext.getDir(Constants.FOREIGN_WORKSPACE_DIR, appContext.MODE_PRIVATE);
+        String uniqueWorkspacePath = ownerId + "/" + workspaceName;
+        return FileUtils.createFolder(parentDir, uniqueWorkspacePath);
     }
 
 }
