@@ -14,6 +14,7 @@ import pt.ulisboa.tecnico.cmov.airdesk.FileUtils;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.ForeignWorkspace;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.OwnedWorkspace;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.User;
+import pt.ulisboa.tecnico.cmov.airdesk.enums.WorkspaceCreateStatus;
 import pt.ulisboa.tecnico.cmov.airdesk.storage.StorageManager;
 
 /**
@@ -22,15 +23,21 @@ import pt.ulisboa.tecnico.cmov.airdesk.storage.StorageManager;
 public class WorkspaceManager {
 
     //set all ui data other than owner data in workspace object
-    public boolean createWorkspace(String workspaceName,OwnedWorkspace workspace){
+    public WorkspaceCreateStatus createWorkspace(String workspaceName,OwnedWorkspace workspace){
         boolean isMemoryNotSufficient=isNotSufficientMemory(workspace.getQuota());
         if(isMemoryNotSufficient){
-            return false;
+            return WorkspaceCreateStatus.INSUFFICIENT_MEMORY;
         }
         else{
             UserManager userMgr=new UserManager();
             MetadataManager metaManager=new MetadataManager();
             User user=userMgr.getOwner();
+
+            boolean isWorkspaceAlreadyExist= isWorkspaceAlreadyExists(workspaceName, user.getOwnedWorkspaces());
+            if(isWorkspaceAlreadyExist){
+                return WorkspaceCreateStatus.WORKSPACE_ALREADY_EXISTS;
+            }
+
             user.addNewOwnedWs(workspaceName);
             userMgr.createUser(user);//update existing user with new workspace
             System.out.println("------user created------");
@@ -42,8 +49,17 @@ public class WorkspaceManager {
             System.out.println("----ws metadata------");
             boolean create= FileUtils.createWSFolder(workspaceName);
             System.out.println("file created "+create);
-            return create;
+            return WorkspaceCreateStatus.OK;
         }
+    }
+
+    private boolean isWorkspaceAlreadyExists(String workspaceName, List<String> ownedWorkspaces) {
+        for (int i = 0; i <ownedWorkspaces.size() ; i++) {
+          if(ownedWorkspaces.get(i).toLowerCase().equals(workspaceName)){
+              return true;
+          }
+        }
+        return false;
     }
 
     //ui need this before editing ws details, to populate view. Use this object before editing ws
@@ -86,7 +102,7 @@ public class WorkspaceManager {
          //TODO:Do we need to delete from foreign ws as well?
 
         //detete owned WS folder
-         boolean status=FileUtils.deleteWSFolder(workspaceName);
+         boolean status=FileUtils.deleteOwnedWorkspaceFolder(workspaceName);
          System.out.println("workspace folder delete status "+status);
 
          return true;
@@ -98,7 +114,7 @@ public class WorkspaceManager {
         StatFs stat = new StatFs(path.getPath());
         int availBlocks = stat.getFreeBlocks();
         int blockSize = stat.getBlockSize();
-        double free_memory = (((long)availBlocks * (long)blockSize)/(double)Constants.bytesPerKb);//available free memory on internal storage
+        double free_memory = (((long)availBlocks * (long)blockSize)/(double)Constants.BYTES_PER_KB);//available free memory on internal storage
         System.out.println("free memory is "+free_memory);
         if(free_memory<quotaSize){
             return true;

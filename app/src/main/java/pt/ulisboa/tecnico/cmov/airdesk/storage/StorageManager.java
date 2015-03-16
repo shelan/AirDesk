@@ -16,8 +16,8 @@ public class StorageManager {
 
     private static HashMap<String, Boolean> fileWriteLock = new HashMap<String, Boolean>();
     //TODO read from property file
-    private String ownedWorkspaceDir = Constants.OWNED_WS_DIR;
-    private String foreignWorkspaceDir = Constants.OWNED_WS_DIR;
+    private String ownedWorkspaceDir = Constants.OWNED_Workspace_DIR;
+    private String foreignWorkspaceDir = Constants.OWNED_Workspace_DIR;
 
     public boolean createDataFile(String workspaceName, String fileName) throws IOException {
         String path =  ownedWorkspaceDir + workspaceName + "/" + fileName;
