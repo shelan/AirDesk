@@ -27,7 +27,9 @@ public class UserManager {
     }
 
     public List<String>getForeignWorkspaces(){
-     return null;
+     User user=getOwner();
+        return user.getForeignWorkspaces();
+
    }
 
     public void notifyClientOnAddForeignWorkspace() {

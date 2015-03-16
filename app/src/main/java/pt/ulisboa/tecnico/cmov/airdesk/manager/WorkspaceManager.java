@@ -21,8 +21,9 @@ import pt.ulisboa.tecnico.cmov.airdesk.storage.StorageManager;
  */
 public class WorkspaceManager {
 
-    public boolean createWorkspace(String workspaceName,double quotaSize){
-        boolean isMemoryNotSufficient=isNotSufficientMemory(quotaSize);
+    //set all ui data other than owner data in workspace object
+    public boolean createWorkspace(String workspaceName,OwnedWorkspace workspace){
+        boolean isMemoryNotSufficient=isNotSufficientMemory(workspace.getQuota());
         if(isMemoryNotSufficient){
             return false;
         }
@@ -34,7 +35,6 @@ public class WorkspaceManager {
             userMgr.createUser(user);//update existing user with new workspace
             System.out.println("------user created------");
 
-            OwnedWorkspace workspace=new OwnedWorkspace(workspaceName, user.getEmail(), quotaSize);
             workspace.setOwnerName(user.getNickName());
             workspace.setOwnerEmail(user.getEmail());
             metaManager.saveOwnedWorkspace(workspace);
@@ -46,19 +46,37 @@ public class WorkspaceManager {
         }
     }
 
-    public boolean editOwnedWorkspace(String workspaceName, double quotaSize){
-        boolean isQuotaSmallerThanUsage=isQuotaSmallerThanUsage(workspaceName,quotaSize);
+    //ui need this before editing ws details, to populate view. Use this object before editing ws
+    public OwnedWorkspace getWorkspace(String workspaceName){
+        MetadataManager metaManager=new MetadataManager();
+        OwnedWorkspace workspace=metaManager.getOwnedWorkspace(workspaceName);
+        return workspace;
+    }
+
+
+    public boolean editOwnedWorkspace(String workspaceName, OwnedWorkspace editedWS){
+        boolean isQuotaSmallerThanUsage=isQuotaSmallerThanUsage(workspaceName,editedWS.getQuota());
         if(isQuotaSmallerThanUsage){
             return false;
         }
         else{
-            //get metadata for workspace and save after changing quota size
             MetadataManager metaManager=new MetadataManager();
-            OwnedWorkspace workspace=metaManager.getOwnedWorkspace(workspaceName);
-            workspace.setQuota(quotaSize);
-            metaManager.saveOwnedWorkspace(workspace);
+            metaManager.saveOwnedWorkspace(editedWS);
+            //TODO: to be notified to clients in same network about the edit
             return true;
         }
+    }
+
+    public boolean deleteOwnedWorkspace(String workspaceName){
+     //remove from ownedWSList, remove all clients foreignWSList,
+        UserManager userMgr=new UserManager();
+        User user=userMgr.getOwner();
+        user.removeOwnedWS(workspaceName);
+
+        //remove from foreign list to simulate self mount.
+        //TODO: Change this to notify wifidirect and then call that clients changeforeignwsList
+       // user.
+         return false;
     }
 
     /*make this public if don't do a prevalidation on textbox*/

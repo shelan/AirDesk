@@ -10,6 +10,7 @@ public class User {
     private String nickName;
     private String email;
     private List<String> ownedWorkspaces=new ArrayList<String>();
+    private List<String>foreignWorkspaces=new ArrayList<>();
 
     public String getNickName() {
         return nickName;
@@ -44,4 +45,20 @@ public class User {
     public List<String> getOwnedWorkspaces() {
         return ownedWorkspaces;
     }
+
+    public void addForeignWS(String WSName){getForeignWorkspaces();}
+
+    public void removeForeignWS(String WSName){
+        for(int i=0;i< getForeignWorkspaces().size();i++) {
+
+            if(getOwnedWorkspaces().get(i).toLowerCase().equals(WSName.toLowerCase())){
+                getOwnedWorkspaces().remove(i);
+            }
+        }
+    }
+
+    public List<String> getForeignWorkspaces() {
+        return foreignWorkspaces;
+    }
+
 }
