@@ -4,12 +4,9 @@ import android.content.Context;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 
 import pt.ulisboa.tecnico.cmov.airdesk.context.AirDeskApp;
 
@@ -68,26 +65,44 @@ public class FileUtils {
         return workspaceDir.mkdirs();
     }
 
-    public static boolean createFolder(String workspaceName){
+    public static boolean createWSFolder(String workspaceName){
         Context appContext = AirDeskApp.s_applicationContext;
-        File parentDir=appContext.getDir(Constants.WS_DIR,appContext.MODE_PRIVATE);
-        File workspaceDir = new File(parentDir, workspaceName);//create workspace inside WS dir
-        System.out.println("parent "+parentDir.getAbsolutePath());
-        System.out.println("child"+workspaceDir.getAbsolutePath());
-        workspaceDir.mkdir();
+        File parentDir=appContext.getDir(Constants.OWNED_WORKSPACE_DIR,appContext.MODE_PRIVATE);
+        File workspaceDir = new File(parentDir.getAbsolutePath()+"/"+workspaceName);//create workspace inside WS dir
+        boolean status= workspaceDir.mkdir();
+        System.out.println("child folder created "+status);
         return true;
     }
 
     public static void createFolderForOwnedWorkSpaces(){//all owned workspaces will be here
         Context appContext = AirDeskApp.s_applicationContext;
-        File parentDir=appContext.getDir(Constants.WS_DIR, appContext.MODE_PRIVATE);
+        File parentDir=appContext.getDir(Constants.OWNED_WORKSPACE_DIR, appContext.MODE_PRIVATE);
         System.out.println("ws path"+parentDir.getAbsolutePath());
+    }
+
+
+
+    public static boolean deleteOwnedWorkspaceFolder(String workspaceName){
+        Context appContext = AirDeskApp.s_applicationContext;
+        File parentDir=appContext.getDir(Constants.OWNED_WORKSPACE_DIR,appContext.MODE_PRIVATE);
+        File workspaceDir = new File(parentDir.getAbsolutePath()+"/"+workspaceName);
+        File[] files = workspaceDir.listFiles();
+        if(files!=null) { //some JVMs return null for empty dirs
+            for(File f: files) {
+                if(f.isDirectory()) {
+                    deleteFolder(f.getAbsolutePath());
+                } else {
+                    f.delete();
+                }
+            }
+        }
+        return workspaceDir.delete();
     }
 
 
     public static double folderSize(String workspaceName) {
         Context appContext = AirDeskApp.s_applicationContext;
-        File parentDir=appContext.getDir(Constants.WS_DIR,appContext.MODE_PRIVATE);
+        File parentDir=appContext.getDir(Constants.OWNED_WORKSPACE_DIR,appContext.MODE_PRIVATE);
         File workspaceDir = new File(parentDir.getAbsolutePath()+"/"+workspaceName);
         System.out.println("new work dir"+workspaceDir.getAbsolutePath());
         long length = 0;
@@ -99,7 +114,25 @@ public class FileUtils {
                 length += folderSize(workspaceDir.getPath());
         }
         System.out.println("folder size "+length);
-        double lengthInKB=length/Constants.bytesPerKb;
+        double lengthInKB=length/Constants.BYTES_PER_KB;
         return lengthInKB;
+    }
+
+    public static boolean deleteForeignWorkspaceFolder(String workspaceName, String nickName) {
+        Context appContext = AirDeskApp.s_applicationContext;
+        File parentDir=appContext.getDir(Constants.FOREIGN_WS_DIR ,appContext.MODE_PRIVATE);
+        String fileName=parentDir.getAbsolutePath()+ "/" + nickName + "/" + workspaceName;
+        File workspaceDir = new File(fileName);
+        File[] files = workspaceDir.listFiles();
+        if(files!=null) { //some JVMs return null for empty dirs
+            for(File f: files) {
+                if(f.isDirectory()) {
+                    deleteFolder(f.getAbsolutePath());
+                } else {
+                    f.delete();
+                }
+            }
+        }
+        return workspaceDir.delete();
     }
 }

@@ -5,6 +5,7 @@ import android.content.Context;
 import com.google.gson.Gson;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -28,15 +29,20 @@ public class MetadataManager {
     public void saveOwnedWorkspace(OwnedWorkspace workspace) {
         String jsonString = gson.toJson(workspace);
         System.out.println(jsonString);
-        String jsonWorkspaceFileName = workspace.getWorkspaceName() + Constants.OWNED_SUFFIX + Constants.jsonSuffix;
+        String jsonWorkspaceFileName = workspace.getWorkspaceName() + Constants.OWNED_SUFFIX + Constants.JSON_SUFFIX;
         saveToInternalFile(jsonString, jsonWorkspaceFileName);
     }
 
     public OwnedWorkspace getOwnedWorkspace(String workspaceFileName) {
-        String ownedWSFileName = workspaceFileName + Constants.OWNED_SUFFIX + Constants.jsonSuffix;
+        String ownedWSFileName = workspaceFileName + Constants.OWNED_SUFFIX + Constants.JSON_SUFFIX;
         String workspaceJson = readFromInternalFile(ownedWSFileName);
         OwnedWorkspace workspace = gson.fromJson(workspaceJson, OwnedWorkspace.class);
         return workspace;
+    }
+
+    public boolean deleteOwnedWorkspace(String workspaceName){
+        String ownedWSFileName=workspaceName+Constants.OWNED_SUFFIX+Constants.JSON_SUFFIX;
+        return deleteFile(ownedWSFileName);
     }
 
     public void saveForeignWorkspace(ForeignWorkspace workspace) {
@@ -54,13 +60,28 @@ public class MetadataManager {
 
     public void saveUser(User user) {
         String jsonString = gson.toJson(user);
-        saveToInternalFile(jsonString, Constants.userJsonFileName);
+        saveToInternalFile(jsonString, Constants.USER_JSON_FILE_NAME);
     }
 
     public User getUser() {
-        String userJson = readFromInternalFile(Constants.userJsonFileName);
+        String userJson = readFromInternalFile(Constants.USER_JSON_FILE_NAME);
         User user = gson.fromJson(userJson, User.class);
         return user;
+    }
+
+    public boolean deleteFile(String fileName ){
+     try{
+         Context appContext = AirDeskApp.s_applicationContext;
+         String absFileLocation=appContext.getFilesDir().getAbsolutePath()+"/"+fileName;
+         File file = new File(absFileLocation);
+         boolean deleted = file.delete();
+         System.out.println("file delete status is"+deleted);
+         return  deleted;
+     }
+     catch (Exception ex){
+         ex.printStackTrace();
+         return false;
+     }
     }
 
     public String readFromInternalFile(String fileName) {

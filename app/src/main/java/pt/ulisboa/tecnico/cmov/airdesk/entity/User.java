@@ -29,14 +29,14 @@ public class User {
     }
 
 
-    public void addNewOwnedWs(String WSName){
-        getOwnedWorkspaces().add(WSName);
+    public void addNewOwnedWorkspace(String WorkspaceName){
+        getOwnedWorkspaces().add(WorkspaceName);
     }
 
-    public void removeOwnedWS(String WSName){
+    public void removeFromOwnedWorkspaceList(String WorkspaceName){
         for(int i=0;i< getOwnedWorkspaces().size();i++) {
 
-            if(getOwnedWorkspaces().get(i).toLowerCase().equals(WSName.toLowerCase())){
+            if(getOwnedWorkspaces().get(i).toLowerCase().equals(WorkspaceName.toLowerCase())){
                 getOwnedWorkspaces().remove(i);
             }
         }
@@ -46,12 +46,14 @@ public class User {
         return ownedWorkspaces;
     }
 
-    public void addForeignWS(String WSName){getForeignWorkspaces();}
+    public void addForeignWS(String WorkspaceName){
+        foreignWorkspaces.add(WorkspaceName);
+    }
 
-    public void removeForeignWS(String WSName){
+    public void removeFromForeignWorkspaceList(String WorkspaceName){
         for(int i=0;i< getForeignWorkspaces().size();i++) {
 
-            if(getOwnedWorkspaces().get(i).toLowerCase().equals(WSName.toLowerCase())){
+            if(getOwnedWorkspaces().get(i).toLowerCase().equals(WorkspaceName.toLowerCase())){
                 getOwnedWorkspaces().remove(i);
             }
         }
