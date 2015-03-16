@@ -37,26 +37,17 @@ public class MainActivity extends ActionBarActivity {
         FileUtils.createFolder("test");
         FileUtils.folderSize("test");
         testAddUser();
-        testAddWS("test",500);
-        testAddWS("test2",200);
-        testEditWS("test",300);
+        testAddWS("test", 500);
+        testAddWS("test2", 200);
+        testEditWS("test", 300);
         testOwnedWS();
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new MyWorkspaceListFragment(),"fragment_1")
-                    .add(R.id.container, new ForiegnWorkspaceListFragment(),"fragment_2")
+                    .add(R.id.container, new MyWorkspaceListFragment(), "fragment_1")
+                    .add(R.id.container, new ForiegnWorkspaceListFragment(), "fragment_2")
                     .commit();
 
-            FileUtils.createFolderForOwnedWorkSpaces();
-            FileUtils.createFolder("test");
-            FileUtils.folderSize("test");
-            testAddUser();
-            testAddWS("test",500);
-            testAddWS("test2",200);
-            testEditWS("test",300);
-            testOwnedWS();
-
-    }
+        }
     }
 
 
@@ -68,68 +59,37 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void testEditWS(String test, int i) {
-        WorkspaceManager mgr=new WorkspaceManager();
+        WorkspaceManager mgr = new WorkspaceManager();
         mgr.editOwnedWorkspace(test, i);
-        MetadataManager mtr=new MetadataManager();
-        double edited= mtr.getOwnedWorkspace(test + Constants.jsonSuffix).getQuota();
-        System.out.println("quota"+edited);
+        MetadataManager mtr = new MetadataManager();
+        double edited = mtr.getOwnedWorkspace(test + Constants.jsonSuffix).getQuota();
+        System.out.println("quota" + edited);
 
     }
 
     private void testOwnedWS() {
-        UserManager manager=new UserManager();
-        List<String> files= manager.getOwnedWorkspaces();
-        for (int i=0;i<files.size();i++){
-            System.out.println("file is "+files.get(i));
+        UserManager manager = new UserManager();
+        List<String> files = manager.getOwnedWorkspaces();
+        for (int i = 0; i < files.size(); i++) {
+            System.out.println("file is " + files.get(i));
         }
     }
 
+    public void testAddWS(String text, double size) {
+        WorkspaceManager mgr = new WorkspaceManager();
+        mgr.createWorkspace(text, size);
+
+    }
+
     private void testAddUser() {
-        UserManager manager=new UserManager();
-        User user=new User();
+        UserManager manager = new UserManager();
+        User user = new User();
         user.setEmail("lanch.gune@gmail.com");
         user.setNickName("junda");
         manager.createUser(user);
 
     }
 
-    public void testAddWS(String text,double size){
-        WorkspaceManager mgr=new WorkspaceManager();
-        mgr.createWorkspace(text, size);
-
-    }
-
-    private void testEditWS(String test, int i) {
-        WorkspaceManager mgr=new WorkspaceManager();
-        mgr.editOwnedWorkspace(test, i);
-        MetadataManager mtr=new MetadataManager();
-        double edited= mtr.getOwnedWorkspace(test + Constants.jsonSuffix).getQuota();
-        System.out.println("quota"+edited);
-
-    }
-
-    private void testOwnedWS() {
-        UserManager manager=new UserManager();
-        List<String> files= manager.getOwnedWorkspaces();
-        for (int i=0;i<files.size();i++){
-            System.out.println("file is "+files.get(i));
-        }
-    }
-
-    private void testAddUser() {
-        UserManager manager=new UserManager();
-        User user=new User();
-        user.setEmail("lanch.gune@gmail.com");
-        user.setNickName("junda");
-        manager.createUser(user);
-
-    }
-
-    public void testAddWS(String text,double size){
-        WorkspaceManager mgr=new WorkspaceManager();
-        mgr.createWorkspace(text, size);
-
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
