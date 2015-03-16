@@ -3,4 +3,6 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="my_workspace_header">My Workspaces</string>
+    <string name="foreign_workspace_header">Client Workspaces</string>
 </resources>
