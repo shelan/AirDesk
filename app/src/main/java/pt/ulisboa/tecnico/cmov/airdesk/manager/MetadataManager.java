@@ -40,14 +40,14 @@ public class MetadataManager {
         Gson gson = new Gson();
         String jsonString = gson.toJson(workspace);
         System.out.println(jsonString);
-        String jsonWorkspaceFileName = workspace.getWorkspaceName() + Constants.jsonSuffix;
+        String jsonWorkspaceFileName = workspace.getWorkspaceName() + Constants.FOREIGN_WS_SUFFIX;
         saveToInternalFile(jsonString, jsonWorkspaceFileName);
     }
 
-    public OwnedWorkspace getForeignWorkspace(String workspaceFileName) {
-        String workspaceJson = readFromInternalFile(workspaceFileName);
+    public ForeignWorkspace getForeignWorkspace(String workspaceFileName) {
+        String workspaceJson = readFromInternalFile(workspaceFileName + Constants.FOREIGN_WS_SUFFIX);
         Gson gson = new Gson();
-        OwnedWorkspace workspace = gson.fromJson(workspaceJson, OwnedWorkspace.class);
+        ForeignWorkspace workspace = gson.fromJson(workspaceJson, ForeignWorkspace.class);
         return workspace;
     }
 

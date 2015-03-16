@@ -28,6 +28,10 @@ public class AbstractWorkspace {
         return quota;
     }
 
+    public void setQuota(double quota) {
+        this.quota = quota;
+    }
+
     public String getOwnerId() {
         return ownerId;
     }
