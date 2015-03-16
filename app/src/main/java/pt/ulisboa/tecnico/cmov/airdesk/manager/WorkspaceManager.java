@@ -99,7 +99,7 @@ public class WorkspaceManager {
         //detete owned WS folder
          boolean statusOwned=FileUtils.deleteOwnedWorkspaceFolder(workspaceName);
 
-        //TODO: later change this to notify all clients about deletion
+        //TODO: later change this to notify all clients about deletion?????do we need another metadata obj like notifications????
          boolean statusForeign=FileUtils.deleteForeignWorkspaceFolder(workspaceName,user.getNickName());  //only to simulate self mount. remove later
          System.out.println("workspace folder delete status :owned"+statusOwned+" foreign"+statusForeign);
 

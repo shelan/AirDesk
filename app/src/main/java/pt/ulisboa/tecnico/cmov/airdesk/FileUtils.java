@@ -120,7 +120,7 @@ public class FileUtils {
 
     public static boolean deleteForeignWorkspaceFolder(String workspaceName, String nickName) {
         Context appContext = AirDeskApp.s_applicationContext;
-        File parentDir=appContext.getDir(Constants.FOREIGN_WS_DIR ,appContext.MODE_PRIVATE);
+        File parentDir=appContext.getDir(Constants.FOREIGN_WORKSPACE_DIR ,appContext.MODE_PRIVATE);
         String fileName=parentDir.getAbsolutePath()+ "/" + nickName + "/" + workspaceName;
         File workspaceDir = new File(fileName);
         File[] files = workspaceDir.listFiles();
