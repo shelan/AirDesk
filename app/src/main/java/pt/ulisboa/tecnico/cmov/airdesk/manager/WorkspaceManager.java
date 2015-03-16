@@ -22,6 +22,9 @@ import pt.ulisboa.tecnico.cmov.airdesk.storage.StorageManager;
  */
 public class WorkspaceManager {
 
+    private  StorageManager storageManager=new StorageManager();
+    private  MetadataManager metadataManager=new MetadataManager();
+    private UserManager userManager=new UserManager();
     //set all ui data other than owner data in workspace object
     public WorkspaceCreateStatus createWorkspace(String workspaceName,OwnedWorkspace workspace){
         boolean isMemoryNotSufficient=isNotSufficientMemory(workspace.getQuota());
@@ -29,9 +32,7 @@ public class WorkspaceManager {
             return WorkspaceCreateStatus.INSUFFICIENT_MEMORY;
         }
         else{
-            UserManager userMgr=new UserManager();
-            MetadataManager metaManager=new MetadataManager();
-            User user=userMgr.getOwner();
+            User user=userManager.getOwner();
 
             boolean isWorkspaceAlreadyExist= isWorkspaceAlreadyExists(workspaceName, user.getOwnedWorkspaces());
             if(isWorkspaceAlreadyExist){
@@ -39,12 +40,12 @@ public class WorkspaceManager {
             }
 
             user.addNewOwnedWorkspace(workspaceName);
-            userMgr.createUser(user);//update existing user with new workspace
+            userManager.createUser(user);//update existing user with new workspace
             System.out.println("------user created------");
 
             workspace.setOwnerName(user.getNickName());
             workspace.setOwnerEmail(user.getEmail());
-            metaManager.saveOwnedWorkspace(workspace);
+            metadataManager.saveOwnedWorkspace(workspace);
 
             System.out.println("----ws metadata------");
             boolean create= FileUtils.createWSFolder(workspaceName);
@@ -64,8 +65,7 @@ public class WorkspaceManager {
 
     //ui need this before editing ws details, to populate view. Use this object before editing ws
     public OwnedWorkspace getWorkspace(String workspaceName){
-        MetadataManager metaManager=new MetadataManager();
-        OwnedWorkspace workspace=metaManager.getOwnedWorkspace(workspaceName);
+        OwnedWorkspace workspace=metadataManager.getOwnedWorkspace(workspaceName);
         return workspace;
     }
 
@@ -76,8 +76,7 @@ public class WorkspaceManager {
             return false;
         }
         else{
-            MetadataManager metaManager=new MetadataManager();
-            metaManager.saveOwnedWorkspace(editedWS);
+            metadataManager.saveOwnedWorkspace(editedWS);
             //TODO: to be notified to clients in same network about the edit
             return true;
         }
@@ -85,8 +84,7 @@ public class WorkspaceManager {
 
     public boolean deleteOwnedWorkspace(String workspaceName){
      //remove from ownedWSList, remove all clients foreignWSList,delete metadata file
-        UserManager userMgr=new UserManager();
-        User user=userMgr.getOwner();
+        User user=userManager.getOwner();
         user.removeFromOwnedWorkspaceList(workspaceName);
 
         //remove from foreign list to simulate self mount.
@@ -94,10 +92,9 @@ public class WorkspaceManager {
          user.removeFromForeignWorkspaceList(workspaceName);//TODO:has to be removed later
 
         //save user with new changes
-         userMgr.createUser(user);
+         userManager.createUser(user);
 
-         MetadataManager metaManager=new MetadataManager();
-         metaManager.deleteOwnedWorkspace(workspaceName);
+         metadataManager.deleteOwnedWorkspace(workspaceName);
 
         //detete owned WS folder
          boolean statusOwned=FileUtils.deleteOwnedWorkspaceFolder(workspaceName);
@@ -143,15 +140,18 @@ public class WorkspaceManager {
         return false;
     }
 
-    private static StorageManager storageManager;
-    private static MetadataManager metadataManager;
+    public void addDataFile(String workspace, String fileName,boolean isOwnedWorkspace) throws IOException {
+       boolean isCreate= storageManager.createDataFile(workspace, fileName);
+        if(isCreate){
+            if(isOwnedWorkspace){
+              
+            }
+            else{
 
-    public WorkspaceManager() {
-        storageManager = new StorageManager();
-        metadataManager = new MetadataManager();
-    }
-    public void addDataFile(String workspace, String fileName) throws IOException {
-        storageManager.createDataFile(workspace, fileName);
+            }
+        }
+
+
     }
 
     public FileInputStream getDataFile(String workspace, String fileName, boolean writeMode) throws IOException, WriteLockedException {
