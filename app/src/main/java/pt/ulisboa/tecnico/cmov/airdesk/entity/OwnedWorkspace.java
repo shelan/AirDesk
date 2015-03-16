@@ -1,7 +1,9 @@
 package pt.ulisboa.tecnico.cmov.airdesk.entity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Chathuri on 3/14/2015.
@@ -9,7 +11,7 @@ import java.util.List;
 public class OwnedWorkspace extends AbstractWorkspace {
 
     private String ownerEmail;
-    private ArrayList<String> clients=new ArrayList<String>();
+    private HashMap<String,Boolean> clients=new HashMap<String,Boolean>();
     private String ownerName;
     private boolean isPublic;
     List<String> tags=new ArrayList<String>();
@@ -22,12 +24,16 @@ public class OwnedWorkspace extends AbstractWorkspace {
         return ownerName;
     }
 
-    public ArrayList<String> getClients() {
+    public Map<String,Boolean> getClients() {
         return clients;
     }
 
-    public void addClient(String clientName) {
-        clients.add(clientName);
+    public void addClient(String clientName,boolean IsInactive) {
+        clients.put(clientName, IsInactive);
+    }
+
+    public void activateClient(String clientName,boolean IsInactive){//when clients receive msg/subscribe to public profile make them active
+        clients.put(clientName,IsInactive);
     }
 
     public void removeClient(String clientName) {

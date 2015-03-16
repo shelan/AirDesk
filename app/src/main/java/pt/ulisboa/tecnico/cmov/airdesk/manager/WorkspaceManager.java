@@ -6,7 +6,10 @@ import android.os.StatFs;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
 import pt.ulisboa.tecnico.cmov.airdesk.Exception.WriteLockedException;
@@ -25,6 +28,7 @@ public class WorkspaceManager {
     private  StorageManager storageManager=new StorageManager();
     private  MetadataManager metadataManager=new MetadataManager();
     private UserManager userManager=new UserManager();
+
     //set all ui data other than owner data in workspace object
     public WorkspaceCreateStatus createWorkspace(String workspaceName,OwnedWorkspace workspace){
         boolean isMemoryNotSufficient=isNotSufficientMemory(workspace.getQuota());
@@ -89,22 +93,38 @@ public class WorkspaceManager {
 
         //remove from foreign list to simulate self mount.
         //TODO: Change this to notify wifidirect and then call that clients changeforeignwsList
+        //
          user.removeFromForeignWorkspaceList(workspaceName);//TODO:has to be removed later
 
-        //save user with new changes
-         userManager.createUser(user);
+        OwnedWorkspace ownedWorkspace=getWorkspace(workspaceName);
+        Set<String> clients=ownedWorkspace.getClients().keySet();
+        List<String>accessList=getClientList(clients);
+        user.addClientsToDeletedWorkspacesMap(workspaceName, accessList);//to send notifications for deleted workspaces
 
          metadataManager.deleteOwnedWorkspace(workspaceName);
 
         //detete owned WS folder
          boolean statusOwned=FileUtils.deleteOwnedWorkspaceFolder(workspaceName);
 
-        //TODO: later change this to notify all clients about deletion?????do we need another metadata obj like notifications????
+        //TODO: later change this to notify all clients about deletion
+
          boolean statusForeign=FileUtils.deleteForeignWorkspaceFolder(workspaceName,user.getNickName());  //only to simulate self mount. remove later
          System.out.println("workspace folder delete status :owned"+statusOwned+" foreign"+statusForeign);
 
-         return true;
+        //save user with new changes
+        userManager.createUser(user);//save user with updated owned and foreign WS and updated deletedWSMap
+        return true;
     }
+
+    private List<String> getClientList(Set<String> clients) {
+        List<String>clientList=new ArrayList<String>();
+
+        for (String client : clients) {
+          clientList.add(client);
+        }
+        return clientList;
+        }
+
 
     /*make this public if don't do a prevalidation on textbox*/
     public boolean isNotSufficientMemory(double quotaSize){
@@ -129,11 +149,28 @@ public class WorkspaceManager {
         return false;
     }
 
-    public List<String> addUsersToAccessList(String workspace,String userId){
+    public void addUsersToAccessList(String workspace,String userId){
         //Both from the subscription and adding email by owner
-        //To simulate mount, add to foreign ws of same user. Later change this to use wifidirect
+        //To simulate mount, add to foreign ws of same user.
+        // TODO:Later change this to use wifidirect
+        OwnedWorkspace ownedWorkspace=getWorkspace(workspace);
+        ownedWorkspace.addClient(userId,false);//still client is inactive
 
-        return null;
+        //TODO:notify user background job to send workspace to inactive clients, when they receive msg, make them active
+        //TODO: received clients should add that workspace to their foreign space, and to their foreign workspace list
+        User user=userManager.getOwner();
+        user.addForeignWS(workspace);
+        ForeignWorkspace foreignWorkspace=cloneOwnedWorkspaceToForeign(ownedWorkspace);
+        metadataManager.saveForeignWorkspace(foreignWorkspace);
+       // addToForeignWorkspace(workspace,foreignWorkspace.getOwnerId(),foreignWorkspace.getQuota(),foreignWorkspace.getFileNames().toArray(new String[foreignWorkspace.getFileNames().size()]));
+    }
+
+    private ForeignWorkspace cloneOwnedWorkspaceToForeign(OwnedWorkspace ownedWorkspace) {
+      ForeignWorkspace foreignWorkspace=new ForeignWorkspace(ownedWorkspace.getWorkspaceName(),ownedWorkspace.getOwnerId(),ownedWorkspace.getQuota());
+
+        List<String>files=ownedWorkspace.getFileNames();
+        foreignWorkspace.addFiles(files.toArray((new String[files.size()])));;
+        return  foreignWorkspace;
     }
 
     public boolean addToForeignWorkspaces(OwnedWorkspace workspace){
@@ -144,14 +181,16 @@ public class WorkspaceManager {
        boolean isCreate= storageManager.createDataFile(workspace, fileName);
         if(isCreate){
             if(isOwnedWorkspace){
-              
+                OwnedWorkspace ownedWorkspace=metadataManager.getOwnedWorkspace(workspace);
+                ownedWorkspace.addFile(fileName);
+                metadataManager.saveOwnedWorkspace(ownedWorkspace);//add new file to metadata and save it
             }
             else{
-
+                ForeignWorkspace foreignWorkspace=metadataManager.getForeignWorkspace(fileName);
+                foreignWorkspace.addFile(fileName);
+                metadataManager.saveForeignWorkspace(foreignWorkspace);//add new file to metadata and save it
             }
         }
-
-
     }
 
     public FileInputStream getDataFile(String workspace, String fileName, boolean writeMode) throws IOException, WriteLockedException {
@@ -166,7 +205,7 @@ public class WorkspaceManager {
         storageManager.deleteDataFile(workspace, fileName);
     }
 
-    public void addToForeignWorkspace(String workspaceName, String ownerId, long quota, String[] fileNames) throws Exception {
+    public void addToForeignWorkspace(String workspaceName, String ownerId, double quota, String[] fileNames) throws Exception {
         boolean successfullyAdded = storageManager.createFolderStructureOnForeignWSAddition(ownerId, workspaceName);
         if(successfullyAdded) {
             ForeignWorkspace workspace = new ForeignWorkspace(workspaceName, ownerId, quota);

@@ -1,7 +1,9 @@
 package pt.ulisboa.tecnico.cmov.airdesk.entity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Chathuri on 3/14/2015.
@@ -11,7 +13,25 @@ public class User {
     private String email;
     private List<String> ownedWorkspaces=new ArrayList<String>();
     private List<String>foreignWorkspaces=new ArrayList<>();
+    private Map<String, List<String>> deletedWorkspaces = new HashMap<String, List<String>>();//whenever notidication is received removefrom this
 
+    public void addClientsToDeletedWorkspacesMap(String workspaceName, List<String> accessList){
+        deletedWorkspaces.put(workspaceName,accessList);
+    }
+
+    public void removeClientFromDeletedMap(String workspaceName,String clientId){//should be called after sending delete msg to client
+        List<String>accessList=deletedWorkspaces.get(workspaceName);
+        for (int i = 0; i <accessList.size() ; i++) {
+            if(accessList.get(i).toLowerCase().equals(clientId.toLowerCase())){
+                accessList.remove(i);
+                deletedWorkspaces.put(workspaceName,accessList);
+            }
+        }
+    }
+
+    public Map<String,List<String>> getDeletedWorkspacesMap(){
+        return deletedWorkspaces;
+    }
     public String getNickName() {
         return nickName;
     }
@@ -53,8 +73,8 @@ public class User {
     public void removeFromForeignWorkspaceList(String WorkspaceName){
         for(int i=0;i< getForeignWorkspaces().size();i++) {
 
-            if(getOwnedWorkspaces().get(i).toLowerCase().equals(WorkspaceName.toLowerCase())){
-                getOwnedWorkspaces().remove(i);
+            if(getForeignWorkspaces().get(i).toLowerCase().equals(WorkspaceName.toLowerCase())){
+                getForeignWorkspaces().remove(i);
             }
         }
     }
