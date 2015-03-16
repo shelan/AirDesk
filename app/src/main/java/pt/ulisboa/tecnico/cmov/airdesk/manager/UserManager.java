@@ -9,17 +9,30 @@ import pt.ulisboa.tecnico.cmov.airdesk.entity.User;
  */
 public class UserManager {
 
-    public void createUser(User user){
-
+    public void createUser(User user) {
+        MetadataManager metaManager=new MetadataManager();
+        metaManager.saveUser(user);
     }
-   public List<String> getOwnedWorkspaces(){
-       return null;
-   }
+    public User getOwner(){
+        MetadataManager metaManager=new MetadataManager();
+        User user=metaManager.getUser();
+        return user;
+    }
+
+    public List<String> getOwnedWorkspaces(){
+        //read ownedWorkSpaces from user
+        User user=getOwner();
+        List<String>ownedWorkSpaces=user.getOwnedWorkspaces();
+        return ownedWorkSpaces;
+    }
 
     public List<String>getForeignWorkspaces(){
-        return null;
+     return null;
+   }
+
+    public void notifyClientOnAddForeignWorkspace() {
+        //
     }
-    
 
 
 }
