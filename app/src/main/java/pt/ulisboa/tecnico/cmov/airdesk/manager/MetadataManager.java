@@ -26,11 +26,12 @@ public class MetadataManager {
         Gson gson=new Gson();
         String jsonString=gson.toJson(workspace);
         System.out.println(jsonString);
-        String jsonWorkspaceFileName=workspace.getWorkspaceName()+ Constants.jsonSuffix;
+        String jsonWorkspaceFileName=workspace.getWorkspaceName()+Constants.OWNED_SUFFIX+ Constants.jsonSuffix;
         saveToInternalFile(jsonString, jsonWorkspaceFileName);
     }
     public OwnedWorkspace getOwnedWorkspace(String workspaceFileName){
-        String workspaceJson=readFromInternalFile(workspaceFileName);
+        String ownedWSFileName=workspaceFileName+Constants.OWNED_SUFFIX+Constants.jsonSuffix;
+        String workspaceJson=readFromInternalFile(ownedWSFileName);
         Gson gson=new Gson();
         OwnedWorkspace workspace=gson.fromJson(workspaceJson,OwnedWorkspace.class);
         return workspace;

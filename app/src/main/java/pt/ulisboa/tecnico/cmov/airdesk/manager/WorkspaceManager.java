@@ -53,9 +53,8 @@ public class WorkspaceManager {
         }
         else{
             //get metadata for workspace and save after changing quota size
-            String jsonWorkspaceFileName=workspaceName+Constants.jsonSuffix;
             MetadataManager metaManager=new MetadataManager();
-            OwnedWorkspace workspace=metaManager.getOwnedWorkspace(jsonWorkspaceFileName);
+            OwnedWorkspace workspace=metaManager.getOwnedWorkspace(workspaceName);
             workspace.setQuota(quotaSize);
             metaManager.saveOwnedWorkspace(workspace);
             return true;

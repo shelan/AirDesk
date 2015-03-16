@@ -9,6 +9,7 @@ public class Constants {
     public static final String FOREIGN_WS_DIR = "/Users/ashansa/ForeignWorkspaces";
     public static String userJsonFileName="user.json";
     public static String FOREIGN_WS_SUFFIX="-foreign";
+    public static String OWNED_SUFFIX="-owned";
     public static int bytesPerKb=1024;
     public static String jsonSuffix=".json";
 }
