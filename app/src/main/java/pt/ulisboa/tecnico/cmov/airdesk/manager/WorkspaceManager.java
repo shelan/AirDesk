@@ -38,7 +38,7 @@ public class WorkspaceManager {
                 return WorkspaceCreateStatus.WORKSPACE_ALREADY_EXISTS;
             }
 
-            user.addNewOwnedWs(workspaceName);
+            user.addNewOwnedWorkspace(workspaceName);
             userMgr.createUser(user);//update existing user with new workspace
             System.out.println("------user created------");
 
@@ -87,11 +87,11 @@ public class WorkspaceManager {
      //remove from ownedWSList, remove all clients foreignWSList,delete metadata file
         UserManager userMgr=new UserManager();
         User user=userMgr.getOwner();
-        user.removeOwnedWS(workspaceName);
+        user.removeFromOwnedWorkspaceList(workspaceName);
 
         //remove from foreign list to simulate self mount.
         //TODO: Change this to notify wifidirect and then call that clients changeforeignwsList
-         user.removeForeignWS(workspaceName);//TODO:has to be removed later
+         user.removeFromForeignWorkspaceList(workspaceName);//TODO:has to be removed later
 
         //save user with new changes
          userMgr.createUser(user);
@@ -99,11 +99,12 @@ public class WorkspaceManager {
          MetadataManager metaManager=new MetadataManager();
          metaManager.deleteOwnedWorkspace(workspaceName);
 
-         //TODO:Do we need to delete from foreign ws as well?
-
         //detete owned WS folder
-         boolean status=FileUtils.deleteOwnedWorkspaceFolder(workspaceName);
-         System.out.println("workspace folder delete status "+status);
+         boolean statusOwned=FileUtils.deleteOwnedWorkspaceFolder(workspaceName);
+
+        //TODO: later change this to notify all clients about deletion
+         boolean statusForeign=FileUtils.deleteForeignWorkspaceFolder(workspaceName,user.getNickName());  //only to simulate self mount. remove later
+         System.out.println("workspace folder delete status :owned"+statusOwned+" foreign"+statusForeign);
 
          return true;
     }

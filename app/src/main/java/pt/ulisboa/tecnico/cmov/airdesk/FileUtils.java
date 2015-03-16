@@ -114,4 +114,22 @@ public class FileUtils {
         double lengthInKB=length/Constants.BYTES_PER_KB;
         return lengthInKB;
     }
+
+    public static boolean deleteForeignWorkspaceFolder(String workspaceName, String nickName) {
+        Context appContext = AirDeskApp.s_applicationContext;
+        File parentDir=appContext.getDir(Constants.FOREIGN_WS_DIR ,appContext.MODE_PRIVATE);
+        String fileName=parentDir.getAbsolutePath()+ "/" + nickName + "/" + workspaceName;
+        File workspaceDir = new File(fileName);
+        File[] files = workspaceDir.listFiles();
+        if(files!=null) { //some JVMs return null for empty dirs
+            for(File f: files) {
+                if(f.isDirectory()) {
+                    deleteFolder(f.getAbsolutePath());
+                } else {
+                    f.delete();
+                }
+            }
+        }
+        return workspaceDir.delete();
+    }
 }
