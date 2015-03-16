@@ -1,4 +1,5 @@
 package pt.ulisboa.tecnico.cmov.airdesk.manager;
+
 import android.content.Context;
 
 import com.google.gson.Gson;
@@ -22,23 +23,23 @@ import pt.ulisboa.tecnico.cmov.airdesk.entity.User;
  */
 public class MetadataManager {
 
-    public void saveOwnedWorkspace(OwnedWorkspace workspace){
-        Gson gson=new Gson();
-        String jsonString=gson.toJson(workspace);
+    private Gson gson = new Gson();
+
+    public void saveOwnedWorkspace(OwnedWorkspace workspace) {
+        String jsonString = gson.toJson(workspace);
         System.out.println(jsonString);
-        String jsonWorkspaceFileName=workspace.getWorkspaceName()+Constants.OWNED_SUFFIX+ Constants.jsonSuffix;
+        String jsonWorkspaceFileName = workspace.getWorkspaceName() + Constants.OWNED_SUFFIX + Constants.jsonSuffix;
         saveToInternalFile(jsonString, jsonWorkspaceFileName);
     }
-    public OwnedWorkspace getOwnedWorkspace(String workspaceFileName){
-        String ownedWSFileName=workspaceFileName+Constants.OWNED_SUFFIX+Constants.jsonSuffix;
-        String workspaceJson=readFromInternalFile(ownedWSFileName);
-        Gson gson=new Gson();
-        OwnedWorkspace workspace=gson.fromJson(workspaceJson,OwnedWorkspace.class);
+
+    public OwnedWorkspace getOwnedWorkspace(String workspaceFileName) {
+        String ownedWSFileName = workspaceFileName + Constants.OWNED_SUFFIX + Constants.jsonSuffix;
+        String workspaceJson = readFromInternalFile(ownedWSFileName);
+        OwnedWorkspace workspace = gson.fromJson(workspaceJson, OwnedWorkspace.class);
         return workspace;
     }
 
     public void saveForeignWorkspace(ForeignWorkspace workspace) {
-        Gson gson = new Gson();
         String jsonString = gson.toJson(workspace);
         System.out.println(jsonString);
         String jsonWorkspaceFileName = workspace.getWorkspaceName() + Constants.FOREIGN_WS_SUFFIX;
@@ -47,35 +48,29 @@ public class MetadataManager {
 
     public ForeignWorkspace getForeignWorkspace(String workspaceFileName) {
         String workspaceJson = readFromInternalFile(workspaceFileName + Constants.FOREIGN_WS_SUFFIX);
-        Gson gson = new Gson();
         ForeignWorkspace workspace = gson.fromJson(workspaceJson, ForeignWorkspace.class);
         return workspace;
     }
 
-    public void saveUser(User user){
-        Gson gson=new Gson();
-        String jsonString=gson.toJson(user);
+    public void saveUser(User user) {
+        String jsonString = gson.toJson(user);
         saveToInternalFile(jsonString, Constants.userJsonFileName);
     }
 
-    public User getUser(){
-        String userJson=readFromInternalFile(Constants.userJsonFileName);
-        Gson gson=new Gson();
-        User user=gson.fromJson(userJson,User.class);
+    public User getUser() {
+        String userJson = readFromInternalFile(Constants.userJsonFileName);
+        User user = gson.fromJson(userJson, User.class);
         return user;
     }
 
-    public String readFromInternalFile(String fileName)
-    {
+    public String readFromInternalFile(String fileName) {
         FileInputStream fis = null;
         try {
             Context appContext = AirDeskApp.s_applicationContext;
             fis = appContext.openFileInput(fileName);
             String jsonString = readStreamAsString(fis);
             return jsonString;
-        }
-        catch(IOException x)
-        {
+        } catch (IOException x) {
             return null;
         }
 
@@ -94,30 +89,29 @@ public class MetadataManager {
         }
         return null;
     }
+
     private void copy(InputStream reader, OutputStream writer)
-            throws IOException
-    {
+            throws IOException {
         byte byteArray[] = new byte[4092];
-        while(true) {
-            int numOfBytesRead = reader.read(byteArray,0,4092);
+        while (true) {
+            int numOfBytesRead = reader.read(byteArray, 0, 4092);
             if (numOfBytesRead == -1) {
                 break;
             }
-            writer.write(byteArray,0,numOfBytesRead);
+            writer.write(byteArray, 0, numOfBytesRead);
         }
         return;
     }
-    public void saveToInternalFile(String jsonString,String fileName)
-    {
+
+    public void saveToInternalFile(String jsonString, String fileName) {
         FileOutputStream fos = null;
         try {
             Context appContext = AirDeskApp.s_applicationContext;
             fos = appContext.openFileOutput(fileName
-                    ,Context.MODE_PRIVATE);
+                    , Context.MODE_PRIVATE);
             fos.write(jsonString.getBytes());
             fos.close();
-        }
-        catch(IOException ex){
+        } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
