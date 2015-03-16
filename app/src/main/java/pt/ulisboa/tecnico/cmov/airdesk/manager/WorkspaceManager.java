@@ -40,7 +40,7 @@ public class WorkspaceManager {
             metaManager.saveOwnedWorkspace(workspace);
 
             System.out.println("----ws metadata------");
-            boolean create= FileUtils.createFolder(workspaceName);
+            boolean create= FileUtils.createWSFolder(workspaceName);
             System.out.println("file created "+create);
             return create;
         }
@@ -76,6 +76,8 @@ public class WorkspaceManager {
         //remove from foreign list to simulate self mount.
         //TODO: Change this to notify wifidirect and then call that clients changeforeignwsList
          user.removeForeignWS(workspaceName);//TODO:has to be removed later
+
+        //save user with new changes
          userMgr.createUser(user);
 
          MetadataManager metaManager=new MetadataManager();
@@ -84,7 +86,8 @@ public class WorkspaceManager {
          //TODO:Do we need to delete from foreign ws as well?
 
         //detete owned WS folder
-         FileUtils.deleteOwnedWorkspace(workspaceName);
+         boolean status=FileUtils.deleteWSFolder(workspaceName);
+         System.out.println("workspace folder delete status "+status);
 
          return true;
     }

@@ -62,7 +62,7 @@ public class FileUtils {
         return wsDirCreated;
     }
 
-    public static boolean createFolder(String workspaceName){
+    public static boolean createWSFolder(String workspaceName){
         Context appContext = AirDeskApp.s_applicationContext;
         File parentDir=appContext.getDir(Constants.OWNED_WS_DIR,appContext.MODE_PRIVATE);
         File workspaceDir = new File(parentDir.getAbsolutePath()+"/"+workspaceName);//create workspace inside WS dir
@@ -77,11 +77,21 @@ public class FileUtils {
         System.out.println("ws path"+parentDir.getAbsolutePath());
     }
 
-    public static void deleteOwnedWorkspace(String workspaceName){
+    public static boolean deleteWSFolder(String workspaceName){
         Context appContext = AirDeskApp.s_applicationContext;
         File parentDir=appContext.getDir(Constants.OWNED_WS_DIR,appContext.MODE_PRIVATE);
         File workspaceDir = new File(parentDir.getAbsolutePath()+"/"+workspaceName);
-        boolean isDeleted=workspaceDir.delete();
+        File[] files = workspaceDir.listFiles();
+        if(files!=null) { //some JVMs return null for empty dirs
+            for(File f: files) {
+                if(f.isDirectory()) {
+                    deleteFolder(f.getAbsolutePath());
+                } else {
+                    f.delete();
+                }
+            }
+        }
+        return workspaceDir.delete();
     }
 
 
