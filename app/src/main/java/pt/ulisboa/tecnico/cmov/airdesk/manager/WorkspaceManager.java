@@ -68,15 +68,25 @@ public class WorkspaceManager {
     }
 
     public boolean deleteOwnedWorkspace(String workspaceName){
-     //remove from ownedWSList, remove all clients foreignWSList,
+     //remove from ownedWSList, remove all clients foreignWSList,delete metadata file
         UserManager userMgr=new UserManager();
         User user=userMgr.getOwner();
         user.removeOwnedWS(workspaceName);
 
         //remove from foreign list to simulate self mount.
         //TODO: Change this to notify wifidirect and then call that clients changeforeignwsList
-       // user.
-         return false;
+         user.removeForeignWS(workspaceName);//TODO:has to be removed later
+         userMgr.createUser(user);
+
+         MetadataManager metaManager=new MetadataManager();
+         metaManager.deleteOwnedWorkspace(workspaceName);
+
+         //TODO:Do we need to delete from foreign ws as well?
+
+        //detete owned WS folder
+         FileUtils.deleteOwnedWorkspace(workspaceName);
+
+         return true;
     }
 
     /*make this public if don't do a prevalidation on textbox*/

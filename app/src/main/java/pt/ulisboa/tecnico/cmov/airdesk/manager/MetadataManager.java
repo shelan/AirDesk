@@ -5,6 +5,7 @@ import android.content.Context;
 import com.google.gson.Gson;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -39,6 +40,11 @@ public class MetadataManager {
         return workspace;
     }
 
+    public boolean deleteOwnedWorkspace(String workspaceName){
+        String ownedWSFileName=workspaceName+Constants.OWNED_SUFFIX+Constants.jsonSuffix;
+        return deleteFile(ownedWSFileName);
+    }
+
     public void saveForeignWorkspace(ForeignWorkspace workspace) {
         String jsonString = gson.toJson(workspace);
         System.out.println(jsonString);
@@ -61,6 +67,21 @@ public class MetadataManager {
         String userJson = readFromInternalFile(Constants.userJsonFileName);
         User user = gson.fromJson(userJson, User.class);
         return user;
+    }
+
+    public boolean deleteFile(String fileName ){
+     try{
+         Context appContext = AirDeskApp.s_applicationContext;
+         String absFileLocation=appContext.getFilesDir().getAbsolutePath()+"/"+fileName;
+         File file = new File(absFileLocation);
+         boolean deleted = file.delete();
+         System.out.println("file delete status is"+deleted);
+         return  deleted;
+     }
+     catch (Exception ex){
+         ex.printStackTrace();
+         return false;
+     }
     }
 
     public String readFromInternalFile(String fileName) {
