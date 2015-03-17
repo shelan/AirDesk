@@ -48,4 +48,8 @@ public class AbstractWorkspace {
         for(String fileName : names)
             fileNames.add(fileName);
     }
+
+    public void removeFile(String fileName) {
+        fileNames.remove(fileName);
+    }
 }

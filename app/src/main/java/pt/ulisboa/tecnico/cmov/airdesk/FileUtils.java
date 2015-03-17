@@ -34,7 +34,7 @@ public class FileUtils {
         outputStream.close();
     }
 
-    public static void deleteFolder(String path) {
+    public static boolean deleteFolder(String path) {
         File folder = new File(path);
         File[] files = folder.listFiles();
         if(files!=null) { //some JVMs return null for empty dirs
@@ -46,7 +46,7 @@ public class FileUtils {
                 }
             }
         }
-        folder.delete();
+        return folder.delete();
     }
 
     /**
@@ -56,13 +56,17 @@ public class FileUtils {
      * @return
      * @throws Exception
      */
-    public static boolean createFolder(File baseDir, String subDirName) throws Exception {
-        File workspaceDir = new File(baseDir, subDirName);
-        System.out.println("path------> " + workspaceDir.getAbsolutePath());
-        if(workspaceDir.exists())
-            throw new Exception("Folder already exists. " + workspaceDir.getAbsolutePath());
+    public static File createFolder(File baseDir, String subDirName) throws Exception {
+        File createdDir = new File(baseDir, subDirName);
+        System.out.println("path------> " + createdDir.getAbsolutePath());
+        if(createdDir.exists())
+            throw new Exception("Folder already exists. " + createdDir.getAbsolutePath());
 
-        return workspaceDir.mkdirs();
+        boolean isSuccessful = createdDir.mkdirs();
+        if(isSuccessful)
+            return createdDir;
+        else
+            return null;
     }
 
     public static boolean createWSFolder(String workspaceName){

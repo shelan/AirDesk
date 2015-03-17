@@ -18,16 +18,32 @@ import pt.ulisboa.tecnico.cmov.airdesk.context.AirDeskApp;
 public class StorageManager {
 
     private static HashMap<String, Boolean> fileWriteLock = new HashMap<String, Boolean>();
-    //TODO read from property file
-    private String ownedWorkspaceDir = Constants.OWNED_WORKSPACE_DIR;
+    Context appContext;
 
-    public boolean createDataFile(String workspaceName, String fileName) throws IOException {
-        String path =  ownedWorkspaceDir + workspaceName + "/" + fileName;
-        return new File(path).createNewFile();
+    public static final String OWNED_WORKSPACE_DIR = Constants.OWNED_WORKSPACE_DIR;
+    public static final String FOREIGN_WORKSPACE_DIR = Constants.FOREIGN_WORKSPACE_DIR;
+
+    public StorageManager() {
+         appContext = AirDeskApp.s_applicationContext;
     }
 
-    public synchronized FileInputStream getDataFile(String workspaceName, String fileName, boolean writeMode) throws WriteLockedException, IOException {
-        String path =  ownedWorkspaceDir + workspaceName + "/" + fileName;
+    public boolean createDataFile(String workspaceName, String fileName, String ownerId, boolean isOwned) throws Exception {
+        File baseDir;
+        File directory;
+
+        if (isOwned) {
+            baseDir = appContext.getDir(OWNED_WORKSPACE_DIR, appContext.MODE_PRIVATE);
+            directory = FileUtils.createFolder(baseDir, workspaceName);
+        } else {
+            baseDir = appContext.getDir(FOREIGN_WORKSPACE_DIR , appContext.MODE_PRIVATE);
+            directory = FileUtils.createFolder(baseDir, ownerId + "/" + workspaceName);
+        }
+        String filePath =  directory.getAbsolutePath() + "/" + fileName;
+        return new File(filePath).createNewFile();
+    }
+
+    public synchronized FileInputStream getDataFile(String workspaceName, String fileName, boolean writeMode, String ownerId, boolean isOwned) throws WriteLockedException, IOException {
+        String path =  OWNED_WORKSPACE_DIR + workspaceName + "/" + fileName;
 
         if(writeMode) {
             if(isWriteLocked(workspaceName, fileName))
@@ -41,14 +57,14 @@ public class StorageManager {
         return FileUtils.readFile(path);
     }
 
-    public void updateDataFile(String workspaceName, String fileName, FileInputStream inputStream) throws IOException {
-        String path =  ownedWorkspaceDir + workspaceName + "/" + fileName;
+    public void updateDataFile(String workspaceName, String fileName, FileInputStream inputStream, String ownerId, boolean isOwned) throws IOException {
+        String path =  OWNED_WORKSPACE_DIR + workspaceName + "/" + fileName;
         FileUtils.writeToFile(path, inputStream);
     }
 
-    public void deleteDataFile(String workspaceName, String fileName) throws IOException {
-        String path =  ownedWorkspaceDir + workspaceName + "/" + fileName;
-        FileUtils.deleteFolder(path);
+    public boolean deleteDataFile(String workspaceName, String fileName, String ownerId, boolean isOwned) throws IOException {
+        String path =  OWNED_WORKSPACE_DIR + workspaceName + "/" + fileName;
+        return FileUtils.deleteFolder(path);
     }
 
     private boolean isWriteLocked(String workspaceName, String fileName) {
@@ -59,10 +75,10 @@ public class StorageManager {
         fileWriteLock.put(workspaceName + "/" + fileName, new Boolean(true));
     }
 
-    public boolean createFolderStructureOnForeignWSAddition(String ownerId, String workspaceName) throws Exception {
-        Context appContext = AirDeskApp.s_applicationContext;
-        File parentDir = appContext.getDir(Constants.FOREIGN_WORKSPACE_DIR, appContext.MODE_PRIVATE);
+    public File createFolderStructureOnForeignWSAddition(String ownerId, String workspaceName) throws Exception {
+        File parentDir = appContext.getDir(FOREIGN_WORKSPACE_DIR, appContext.MODE_PRIVATE);
         String uniqueWorkspacePath = ownerId + "/" + workspaceName;
+        System.out.println("dir: " + parentDir.getAbsolutePath());
         return FileUtils.createFolder(parentDir, uniqueWorkspacePath);
     }
 

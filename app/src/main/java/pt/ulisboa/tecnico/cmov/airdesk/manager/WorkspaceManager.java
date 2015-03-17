@@ -133,7 +133,7 @@ public class WorkspaceManager {
         int availBlocks = stat.getFreeBlocks();
         int blockSize = stat.getBlockSize();
         double free_memory = (((long)availBlocks * (long)blockSize)/(double)Constants.BYTES_PER_KB);//available free memory on internal storage
-        System.out.println("free memory is "+free_memory);
+        System.out.println("free memory is " + free_memory);
         if(free_memory<quotaSize){
             return true;
         }
@@ -177,10 +177,13 @@ public class WorkspaceManager {
         return false;
     }
 
-    public void addDataFile(String workspace, String fileName,boolean isOwnedWorkspace) throws IOException {
-       boolean isCreate= storageManager.createDataFile(workspace, fileName);
-        if(isCreate){
-            if(isOwnedWorkspace){
+    public void addDataFile(String workspace, String fileName, String ownerId, boolean isOwned) throws Exception {
+
+        boolean isCreated= storageManager.createDataFile(workspace, fileName, ownerId, isOwned);
+
+        //updating metadata
+        if(isCreated){
+            if(isOwned){
                 OwnedWorkspace ownedWorkspace=metadataManager.getOwnedWorkspace(workspace);
                 ownedWorkspace.addFile(fileName);
                 metadataManager.saveOwnedWorkspace(ownedWorkspace);//add new file to metadata and save it
@@ -193,21 +196,35 @@ public class WorkspaceManager {
         }
     }
 
-    public FileInputStream getDataFile(String workspace, String fileName, boolean writeMode) throws IOException, WriteLockedException {
-        return storageManager.getDataFile(workspace, fileName, writeMode);
+    public FileInputStream getDataFile(String workspace, String fileName, boolean writeMode, String ownerId, boolean isOwned) throws IOException, WriteLockedException {
+        return storageManager.getDataFile(workspace, fileName, writeMode, ownerId, isOwned);
     }
 
-    public void updateDataFile(String workspace, String fileName, FileInputStream inputStream) throws IOException {
-        storageManager.updateDataFile(workspace, fileName, inputStream);
+    public void updateDataFile(String workspace, String fileName, FileInputStream inputStream, String ownerId, boolean isOwned) throws IOException {
+        storageManager.updateDataFile(workspace, fileName, inputStream, ownerId, isOwned);
     }
 
-    public void deleteDataFile(String workspace, String fileName) throws IOException {
-        storageManager.deleteDataFile(workspace, fileName);
+    public void deleteDataFile(String workspace, String fileName, String ownerId, boolean isOwned) throws IOException {
+        boolean isDeleted = storageManager.deleteDataFile(workspace, fileName, ownerId, isOwned);
+
+        //updating metadata
+        if(isDeleted){
+            if(isOwned){
+                OwnedWorkspace ownedWorkspace=metadataManager.getOwnedWorkspace(workspace);
+                ownedWorkspace.removeFile(fileName);
+                metadataManager.saveOwnedWorkspace(ownedWorkspace);//add new file to metadata and save it
+            }
+            else{
+                ForeignWorkspace foreignWorkspace=metadataManager.getForeignWorkspace(fileName);
+                foreignWorkspace.removeFile(fileName);
+                metadataManager.saveForeignWorkspace(foreignWorkspace);//add new file to metadata and save it
+            }
+        }
     }
 
     public void addToForeignWorkspace(String workspaceName, String ownerId, double quota, String[] fileNames) throws Exception {
-        boolean successfullyAdded = storageManager.createFolderStructureOnForeignWSAddition(ownerId, workspaceName);
-        if(successfullyAdded) {
+        File createdDir = storageManager.createFolderStructureOnForeignWSAddition(ownerId, workspaceName);
+        if(createdDir.exists()) {
             ForeignWorkspace workspace = new ForeignWorkspace(workspaceName, ownerId, quota);
             workspace.addFiles(fileNames);
             metadataManager.saveForeignWorkspace(workspace);

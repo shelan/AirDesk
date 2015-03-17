@@ -48,12 +48,12 @@ public class MetadataManager {
     public void saveForeignWorkspace(ForeignWorkspace workspace) {
         String jsonString = gson.toJson(workspace);
         System.out.println(jsonString);
-        String jsonWorkspaceFileName = workspace.getWorkspaceName() + Constants.FOREIGN_WS_SUFFIX;
+        String jsonWorkspaceFileName = workspace.getWorkspaceName() + Constants.FOREIGN_WORKSPACE_SUFFIX;
         saveToInternalFile(jsonString, jsonWorkspaceFileName);
     }
 
     public ForeignWorkspace getForeignWorkspace(String workspaceFileName) {
-        String workspaceJson = readFromInternalFile(workspaceFileName + Constants.FOREIGN_WS_SUFFIX);
+        String workspaceJson = readFromInternalFile(workspaceFileName + Constants.FOREIGN_WORKSPACE_SUFFIX);
         ForeignWorkspace workspace = gson.fromJson(workspaceJson, ForeignWorkspace.class);
         return workspace;
     }
