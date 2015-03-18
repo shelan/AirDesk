@@ -29,21 +29,41 @@ public class StorageManager {
 
     public boolean createDataFile(String workspaceName, String fileName, String ownerId, boolean isOwned) throws Exception {
         File baseDir;
-        File directory;
-
+        String pathToFile;
         if (isOwned) {
             baseDir = appContext.getDir(OWNED_WORKSPACE_DIR, appContext.MODE_PRIVATE);
-            directory = FileUtils.createFolder(baseDir, workspaceName);
+            pathToFile = baseDir.getAbsolutePath() + File.separator + workspaceName;
+
+            System.out.println("path to file: " + pathToFile);
+            if(!new File(pathToFile).exists()) {
+                File directory = FileUtils.createFolder(baseDir, workspaceName);
+                String filePath =  directory.getAbsolutePath() + File.separator + fileName;
+                return new File(filePath).createNewFile();
+            } else {
+                return new File(pathToFile + File.separator + fileName).createNewFile();
+            }
         } else {
             baseDir = appContext.getDir(FOREIGN_WORKSPACE_DIR , appContext.MODE_PRIVATE);
-            directory = FileUtils.createFolder(baseDir, ownerId + "/" + workspaceName);
+            pathToFile = baseDir.getAbsolutePath() + File.separator + ownerId + File.separator + workspaceName;
+
+            System.out.println("path to file: " + pathToFile);
+
+            if(!new File(pathToFile).exists()) {
+                File directory = FileUtils.createFolder(baseDir, ownerId + File.separator + workspaceName);
+                String filePath =  directory.getAbsolutePath() + "/" + fileName;
+                return new File(filePath).createNewFile();
+            } else {
+                return new File(pathToFile + File.separator + fileName).createNewFile();
+            }
         }
-        String filePath =  directory.getAbsolutePath() + "/" + fileName;
-        return new File(filePath).createNewFile();
     }
 
     public synchronized FileInputStream getDataFile(String workspaceName, String fileName, boolean writeMode, String ownerId, boolean isOwned) throws WriteLockedException, IOException {
-        String path =  OWNED_WORKSPACE_DIR + workspaceName + "/" + fileName;
+        String path;
+        if (isOwned)
+            path = OWNED_WORKSPACE_DIR + workspaceName + "/" + fileName;
+        else
+            path = FOREIGN_WORKSPACE_DIR + "/" + ownerId + "/" + workspaceName + "/" + fileName;
 
         if(writeMode) {
             if(isWriteLocked(workspaceName, fileName))
@@ -58,12 +78,22 @@ public class StorageManager {
     }
 
     public void updateDataFile(String workspaceName, String fileName, FileInputStream inputStream, String ownerId, boolean isOwned) throws IOException {
-        String path =  OWNED_WORKSPACE_DIR + workspaceName + "/" + fileName;
+        String path;
+        if (isOwned)
+            path = OWNED_WORKSPACE_DIR + workspaceName + "/" + fileName;
+        else
+            path = FOREIGN_WORKSPACE_DIR + "/" + ownerId + "/" + workspaceName + "/" + fileName;
+
         FileUtils.writeToFile(path, inputStream);
     }
 
     public boolean deleteDataFile(String workspaceName, String fileName, String ownerId, boolean isOwned) throws IOException {
-        String path =  OWNED_WORKSPACE_DIR + workspaceName + "/" + fileName;
+        String path;
+        if (isOwned)
+            path = OWNED_WORKSPACE_DIR + workspaceName + "/" + fileName;
+        else
+            path = FOREIGN_WORKSPACE_DIR + "/" + ownerId + "/" + workspaceName + "/" + fileName;
+
         return FileUtils.deleteFolder(path);
     }
 
