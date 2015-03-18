@@ -75,7 +75,6 @@ public class StorageManager {
         if (isOwned) {
             baseDir = appContext.getDir(OWNED_WORKSPACE_DIR, appContext.MODE_PRIVATE);
             pathToFile = baseDir.getAbsolutePath() + File.separator + workspaceName + File.separator + fileName;
-
         }
         else {
             baseDir = appContext.getDir(FOREIGN_WORKSPACE_DIR, appContext.MODE_PRIVATE);

@@ -19,7 +19,6 @@ public class FileUtils {
 
     public static FileInputStream readFile(String path) throws IOException {
         FileInputStream inputStream = new FileInputStream(path);
-        inputStream.close();
         return inputStream;
     }
 
