@@ -26,28 +26,41 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
 
     public void testDataFileLC() throws Exception {
 
+        StorageManager storageManager = new StorageManager();
         Context appContext = AirDeskApp.s_applicationContext;
         String owner = "owner1";
         String workspaceName = "ws2";
         String fileName = "file2";
+        File baseDir;
+        String pathToFile;
 
         //test for foreign workspace
 
-        String workspaceType = "foreignWorkspaces";
-
-        File baseDir = appContext.getDir(workspaceType, appContext.MODE_PRIVATE);
-        String pathToFile = baseDir.getAbsolutePath() + File.separator + owner + File.separator +
+       String workspaceType = "foreignWorkspaces";
+/*
+        baseDir = appContext.getDir(workspaceType, appContext.MODE_PRIVATE);
+        pathToFile = baseDir.getAbsolutePath() + File.separator + owner + File.separator +
                 workspaceName + File.separator + fileName;
 
-
-        StorageManager storageManager = new StorageManager();
         storageManager.createDataFile(workspaceName, fileName, owner, false);
         Assert.assertEquals(true, new File(pathToFile).exists());
 
-        System.out.println();
         storageManager.deleteDataFile(workspaceName, fileName, owner, false);
         Assert.assertEquals(false, new File(pathToFile).exists());
+*/
 
+        //test for owned workspace
+
+        workspaceType = "ownedWorkspaces";
+
+        baseDir = appContext.getDir(workspaceType, appContext.MODE_PRIVATE);
+        pathToFile = baseDir.getAbsolutePath() + File.separator + workspaceName + File.separator + fileName;
+
+        storageManager.createDataFile(workspaceName, fileName, owner, true);
+        Assert.assertEquals(true, new File(pathToFile).exists());
+
+        storageManager.deleteDataFile(workspaceName, fileName, owner, true);
+        Assert.assertEquals(false, new File(pathToFile).exists());
 
     }
 }
