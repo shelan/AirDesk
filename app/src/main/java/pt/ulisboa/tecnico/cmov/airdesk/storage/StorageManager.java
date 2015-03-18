@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.cmov.airdesk.storage;
 
 import android.content.Context;
+import android.provider.MediaStore;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,85 +30,114 @@ public class StorageManager {
 
     public boolean createDataFile(String workspaceName, String fileName, String ownerId, boolean isOwned) throws Exception {
         File baseDir;
-        String pathToFile;
+        String pathToDir;
+        String filePath;
         if (isOwned) {
             baseDir = appContext.getDir(OWNED_WORKSPACE_DIR, appContext.MODE_PRIVATE);
-            pathToFile = baseDir.getAbsolutePath() + File.separator + workspaceName;
+            pathToDir = baseDir.getAbsolutePath() + File.separator + workspaceName;
 
-            System.out.println("path to file: " + pathToFile);
-            if(!new File(pathToFile).exists()) {
+            System.out.println("path to file: " + pathToDir);
+            if(!new File(pathToDir).exists()) {
                 File directory = FileUtils.createFolder(baseDir, workspaceName);
-                String filePath =  directory.getAbsolutePath() + File.separator + fileName;
-                return new File(filePath).createNewFile();
+                filePath =  directory.getAbsolutePath() + File.separator + fileName;
             } else {
-                return new File(pathToFile + File.separator + fileName).createNewFile();
+                filePath = pathToDir + File.separator + fileName;
             }
+
+            if(new File(filePath).exists())
+                throw new Exception("Cannot create new file. File with the same name already exists. " + filePath);
+            else
+                return new File(filePath).createNewFile();
+
         } else {
             baseDir = appContext.getDir(FOREIGN_WORKSPACE_DIR , appContext.MODE_PRIVATE);
-            pathToFile = baseDir.getAbsolutePath() + File.separator + ownerId + File.separator + workspaceName;
+            pathToDir = baseDir.getAbsolutePath() + File.separator + ownerId + File.separator + workspaceName;
+            System.out.println("path to file: " + pathToDir);
 
-            System.out.println("path to file: " + pathToFile);
-
-            if(!new File(pathToFile).exists()) {
+            if(!new File(pathToDir).exists()) {
                 File directory = FileUtils.createFolder(baseDir, ownerId + File.separator + workspaceName);
-                String filePath =  directory.getAbsolutePath() + "/" + fileName;
-                return new File(filePath).createNewFile();
+                filePath =  directory.getAbsolutePath() + "/" + fileName;
             } else {
-                return new File(pathToFile + File.separator + fileName).createNewFile();
+                filePath = pathToDir + File.separator + fileName;
             }
+
+            if(new File(filePath).exists())
+                throw new Exception("Cannot create new file. File with the same name already exists. " + filePath);
+            else
+                return new File(filePath).createNewFile();
         }
     }
 
     public synchronized FileInputStream getDataFile(String workspaceName, String fileName, boolean writeMode, String ownerId, boolean isOwned) throws WriteLockedException, IOException {
-        String path;
-        if (isOwned)
-            path = OWNED_WORKSPACE_DIR + workspaceName + "/" + fileName;
-        else
-            path = FOREIGN_WORKSPACE_DIR + "/" + ownerId + "/" + workspaceName + "/" + fileName;
+        File baseDir;
+        String pathToFile;
+
+        if (isOwned) {
+            baseDir = appContext.getDir(OWNED_WORKSPACE_DIR, appContext.MODE_PRIVATE);
+            pathToFile = baseDir.getAbsolutePath() + File.separator + workspaceName + File.separator + fileName;
+
+        }
+        else {
+            baseDir = appContext.getDir(FOREIGN_WORKSPACE_DIR, appContext.MODE_PRIVATE);
+            pathToFile = baseDir.getAbsolutePath() + File.separator + ownerId + File.separator +
+                    workspaceName + File.separator + fileName;
+        }
 
         if(writeMode) {
             if(isWriteLocked(workspaceName, fileName))
                 throw new WriteLockedException("File is already write locked. Cannot open in write mode");
             else {
                 addWriteLock(workspaceName, fileName);
-                return FileUtils.readFile(path);
+                return FileUtils.readFile(pathToFile);
             }
         }
-
-        return FileUtils.readFile(path);
+        return FileUtils.readFile(pathToFile);
     }
 
     public void updateDataFile(String workspaceName, String fileName, FileInputStream inputStream, String ownerId, boolean isOwned) throws IOException {
-        String path;
-        if (isOwned)
-            path = OWNED_WORKSPACE_DIR + workspaceName + "/" + fileName;
-        else
-            path = FOREIGN_WORKSPACE_DIR + "/" + ownerId + "/" + workspaceName + "/" + fileName;
+        File baseDir;
+        String pathToFile;
 
-        FileUtils.writeToFile(path, inputStream);
+        if (isOwned) {
+            baseDir = appContext.getDir(OWNED_WORKSPACE_DIR, appContext.MODE_PRIVATE);
+            pathToFile = baseDir.getAbsolutePath() + File.separator + workspaceName + File.separator + fileName;
+        }
+        else {
+            baseDir = appContext.getDir(FOREIGN_WORKSPACE_DIR, appContext.MODE_PRIVATE);
+            pathToFile = baseDir.getAbsolutePath() + File.separator + ownerId + File.separator +
+                    workspaceName + File.separator + fileName;
+        }
+
+        FileUtils.writeToFile(pathToFile, inputStream);
     }
 
     public boolean deleteDataFile(String workspaceName, String fileName, String ownerId, boolean isOwned) throws IOException {
-        String path;
-        if (isOwned)
-            path = OWNED_WORKSPACE_DIR + workspaceName + "/" + fileName;
-        else
-            path = FOREIGN_WORKSPACE_DIR + "/" + ownerId + "/" + workspaceName + "/" + fileName;
-
-        return FileUtils.deleteFolder(path);
+        File baseDir;
+        String pathToFile;
+        if (isOwned) {
+            baseDir = appContext.getDir(OWNED_WORKSPACE_DIR, appContext.MODE_PRIVATE);
+            pathToFile = baseDir.getAbsolutePath() + File.separator + workspaceName + File.separator + fileName;
+        }
+        else {
+            baseDir = appContext.getDir(FOREIGN_WORKSPACE_DIR, appContext.MODE_PRIVATE);
+            pathToFile = baseDir.getAbsolutePath() + File.separator + ownerId + File.separator +
+                    workspaceName + File.separator + fileName;
+        }
+        System.out.println("file to del: "+ pathToFile);
+        return new File(pathToFile).delete();
     }
 
     private boolean isWriteLocked(String workspaceName, String fileName) {
-        return fileWriteLock.get(workspaceName + "/" + fileName);
+        return fileWriteLock.get(workspaceName + File.separator + fileName);
     }
 
     private void addWriteLock(String workspaceName, String fileName) {
-        fileWriteLock.put(workspaceName + "/" + fileName, new Boolean(true));
+        fileWriteLock.put(workspaceName + File.separator + fileName, new Boolean(true));
     }
 
     public File createFolderStructureOnForeignWSAddition(String ownerId, String workspaceName) throws Exception {
         File parentDir = appContext.getDir(FOREIGN_WORKSPACE_DIR, appContext.MODE_PRIVATE);
-        String uniqueWorkspacePath = ownerId + "/" + workspaceName;
+        String uniqueWorkspacePath = ownerId + File.separator + workspaceName;
         System.out.println("dir: " + parentDir.getAbsolutePath());
         return FileUtils.createFolder(parentDir, uniqueWorkspacePath);
     }

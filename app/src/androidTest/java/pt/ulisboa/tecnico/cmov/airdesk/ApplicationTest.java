@@ -25,39 +25,28 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
     }
 
     public void testDataFileLC() throws Exception {
-        System.out.println("rtttttt");
-        //String path = FileUtils.createFolder("aaaaaaa");
-        //new WorkspaceManager().addToForeignWorkspace("workspaceName", "owner", 2, new String[]{"f1", "f2"});
 
-       /* Context appContext = AirDeskApp.s_applicationContext;
-        File parentDir=appContext.getDir(Constants.FOREIGN_WORKSPACE_DIR,appContext.MODE_PRIVATE);
-        FileUtils.createFolder(parentDir, "owner/workspace");*/
+        Context appContext = AirDeskApp.s_applicationContext;
+        String owner = "owner1";
+        String workspaceName = "ws2";
+        String fileName = "file2";
 
-        //test foreign workspace scenario
+        //test for foreign workspace
 
-       /* OwnedWorkspace ws = new OwnedWorkspace("my_WS","me",2.0);
-        new WorkspaceManager().createWorkspace("my_WS", ws);*/
+        String workspaceType = "foreignWorkspaces";
+
+        File baseDir = appContext.getDir(workspaceType, appContext.MODE_PRIVATE);
+        String pathToFile = baseDir.getAbsolutePath() + File.separator + owner + File.separator +
+                workspaceName + File.separator + fileName;
+
 
         StorageManager storageManager = new StorageManager();
-        storageManager.createDataFile("ws2", "file2", "owner1", false);
-
-        /*FileInputStream fs = new FileInputStream("skdsl skd sk sd sdl sdl sd");
-        storageManager.updateDataFile("ws2" ,"file1", fs, "owner1",false);
-
-        FileInputStream is = storageManager.getDataFile("ws2" ,"file1", false, "owner1",false);
-        System.out.println(is.toString());
-
-        BufferedReader br =
-                new BufferedReader( new InputStreamReader(is ));
-        System.out.println(br.readLine());
-        System.out.println(br.readLine());*/
+        storageManager.createDataFile(workspaceName, fileName, owner, false);
+        Assert.assertEquals(true, new File(pathToFile).exists());
 
         System.out.println();
-
-        Assert.assertEquals(true, new File("/data/data/pt.ulisboa.tecnico.cmov.airdesk/app_foreignWorkspaces/owner1/ws2").exists());
-
-        storageManager.deleteDataFile("ws2", "file2", "owner1", false);
-        Assert.assertEquals(false, new File("/data/data/pt.ulisboa.tecnico.cmov.airdesk/app_foreignWorkspaces/owner1/ws2").exists());
+        storageManager.deleteDataFile(workspaceName, fileName, owner, false);
+        Assert.assertEquals(false, new File(pathToFile).exists());
 
 
     }
