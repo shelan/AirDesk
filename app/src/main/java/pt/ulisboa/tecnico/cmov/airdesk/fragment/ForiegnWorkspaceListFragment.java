@@ -1,26 +1,34 @@
 package pt.ulisboa.tecnico.cmov.airdesk.fragment;
 
 
+import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
 import pt.ulisboa.tecnico.cmov.airdesk.R;
+import pt.ulisboa.tecnico.cmov.airdesk.WorkspaceDetailViewActivity;
 
 /**
  * Created by shelan on 3/15/15.
  */
 public class ForiegnWorkspaceListFragment extends Fragment {
+
+    private ArrayAdapter<String> arrayAdapter;
+
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_foreign_workspace, container ,false);
+        View rootView = inflater.inflate(R.layout.fragment_foreign_workspace, container, false);
         ArrayList<String> dummyData = new ArrayList<String>();
         dummyData.add("Foreign workspace 1");
         dummyData.add("Foreign workspace 2");
@@ -32,7 +40,7 @@ public class ForiegnWorkspaceListFragment extends Fragment {
         dummyData.add("Foreign workspace 5");
 
 
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
+        arrayAdapter = new ArrayAdapter<String>(
                 getActivity(),
                 R.layout.list_item_workspace,
                 R.id.list_item_workspace,
@@ -42,6 +50,43 @@ public class ForiegnWorkspaceListFragment extends Fragment {
         ListView workspaceListView = (ListView) rootView.findViewById(R.id.listview_foreign_workspace);
         workspaceListView.setAdapter(arrayAdapter);
 
+        workspaceListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                // CursorAdapter returns a cursor at the correct position for getItem(), or null
+                // if it cannot seek to that position.
+
+                String workspace = arrayAdapter.getItem(position);
+                Intent intent = new Intent(getActivity(), WorkspaceDetailViewActivity.class)
+                        .putExtra(Intent.EXTRA_TEXT, workspace);
+
+                startActivity(intent);
+                Toast.makeText(getActivity(), "You are now in " + workspace,
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
         return rootView;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        updateWorkspaceList();
+    }
+
+    private void updateWorkspaceList() {
+
+    }
+
+    public class ForeignWorkspaceDataAsync extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            return null;
+        }
+
     }
 }

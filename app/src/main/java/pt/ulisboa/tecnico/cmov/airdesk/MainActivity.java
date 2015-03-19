@@ -5,14 +5,8 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import java.util.List;
-
-import pt.ulisboa.tecnico.cmov.airdesk.entity.User;
 import pt.ulisboa.tecnico.cmov.airdesk.fragment.ForiegnWorkspaceListFragment;
 import pt.ulisboa.tecnico.cmov.airdesk.fragment.MyWorkspaceListFragment;
-import pt.ulisboa.tecnico.cmov.airdesk.manager.MetadataManager;
-import pt.ulisboa.tecnico.cmov.airdesk.manager.UserManager;
-import pt.ulisboa.tecnico.cmov.airdesk.manager.WorkspaceManager;
 
 public class MainActivity extends ActionBarActivity {
 
@@ -27,6 +21,8 @@ public class MainActivity extends ActionBarActivity {
                     .commit();
 
         }
+
+        getSupportActionBar().setElevation(0f);
 
 
         //TODO move these tests and write proper tests in android test package
