@@ -30,7 +30,8 @@ public class WorkspaceManager {
     private UserManager userManager=new UserManager();
 
     //set all ui data other than owner data in workspace object
-    public WorkspaceCreateStatus createWorkspace(String workspaceName,OwnedWorkspace workspace){
+    public WorkspaceCreateStatus createWorkspace(OwnedWorkspace workspace){
+        String workspaceName=workspace.getWorkspaceName();
         boolean isMemoryNotSufficient=isNotSufficientMemory(workspace.getQuota());
         if(isMemoryNotSufficient){
             return WorkspaceCreateStatus.INSUFFICIENT_MEMORY;
