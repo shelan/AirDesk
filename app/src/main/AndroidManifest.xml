@@ -20,7 +20,6 @@
         <activity
             android:name=".WorkspaceDetailViewActivity"
             android:label="@string/title_activity_workspace_detail_view"
-            android:logo="@drawable/ic_home"
             android:parentActivityName=".MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
