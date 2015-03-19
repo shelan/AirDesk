@@ -1,8 +1,5 @@
 package pt.ulisboa.tecnico.cmov.airdesk;
 
-import android.test.ApplicationTestCase;
-
-import java.util.ArrayList;
 import java.util.List;
 
 import pt.ulisboa.tecnico.cmov.airdesk.manager.UserManager;
@@ -27,7 +24,6 @@ public class AirDeskManager {
 
     public List<String> getOwnedWorkspaces() {
         // TODO temp for testing
-        new PopulateData().populateOwnedWorkspaces();
         return userManager.getOwnedWorkspaces();
     }
 }

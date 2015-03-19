@@ -1,17 +1,17 @@
 package pt.ulisboa.tecnico.cmov.airdesk;
 
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.os.Build;
 import android.widget.TextView;
+
+import pt.ulisboa.tecnico.cmov.airdesk.entity.OwnedWorkspace;
 
 
 public class WorkspaceDetailViewActivity extends ActionBarActivity {
@@ -64,8 +64,14 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
             Intent intent = getActivity().getIntent();
             View rootView = inflater.inflate(R.layout.fragment_workspace_detail_view, container, false);
             TextView textView = (TextView) rootView.findViewById(R.id.detail_text);
-            if (intent != null && intent.hasExtra(Intent.EXTRA_TEXT))
-                textView.setText(intent.getStringExtra(Intent.EXTRA_TEXT));
+            if (intent != null) {
+                if (intent.hasExtra(Intent.EXTRA_TEXT))
+                    textView.setText(intent.getStringExtra(Intent.EXTRA_TEXT));
+                if (intent.hasExtra(Constants.WORKSPACE)) {
+                   OwnedWorkspace workspace = (OwnedWorkspace) intent.getSerializableExtra(Constants.WORKSPACE);
+                            textView.setText(workspace.getOwnerEmail());
+                }
+            }
 
             return rootView;
         }

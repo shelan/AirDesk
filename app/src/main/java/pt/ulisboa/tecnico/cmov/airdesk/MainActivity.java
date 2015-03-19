@@ -24,8 +24,11 @@ public class MainActivity extends ActionBarActivity {
 
         getSupportActionBar().setElevation(0f);
 
+        new PopulateData().populateOwnedWorkspaces();
 
         //TODO move these tests and write proper tests in android test package
+
+
 
        /* FileUtils.createFolderForOwnedWorkSpaces();
         FileUtils.createFolder("test");

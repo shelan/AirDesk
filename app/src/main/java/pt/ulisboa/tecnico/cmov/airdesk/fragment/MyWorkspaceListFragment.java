@@ -15,8 +15,10 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import pt.ulisboa.tecnico.cmov.airdesk.Constants;
 import pt.ulisboa.tecnico.cmov.airdesk.R;
 import pt.ulisboa.tecnico.cmov.airdesk.WorkspaceDetailViewActivity;
+import pt.ulisboa.tecnico.cmov.airdesk.manager.WorkspaceManager;
 
 /**
  * Created by shelan on 3/15/15.
@@ -25,15 +27,17 @@ public class MyWorkspaceListFragment extends Fragment {
 
     private ArrayAdapter<String> arrayAdapter;
 
+    private WorkspaceManager manager = new WorkspaceManager();
+
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_my_workspace, container ,false);
+        View rootView = inflater.inflate(R.layout.fragment_my_workspace, container, false);
         ArrayList<String> dummyData = new ArrayList<String>();
         dummyData.add("My workspace 1");
         dummyData.add("My workspace 2");
 
 
-         arrayAdapter = new ArrayAdapter<String>(
+        arrayAdapter = new ArrayAdapter<String>(
                 getActivity(),
                 R.layout.list_item_workspace,
                 R.id.list_item_workspace,
@@ -51,8 +55,11 @@ public class MyWorkspaceListFragment extends Fragment {
                 // if it cannot seek to that position.
 
                 String workspace = arrayAdapter.getItem(position);
+
+
                 Intent intent = new Intent(getActivity(), WorkspaceDetailViewActivity.class)
-                        .putExtra(Intent.EXTRA_TEXT, workspace);
+                        .putExtra(Intent.EXTRA_TEXT, workspace)
+                        .putExtra(Constants.WORKSPACE, manager.getWorkspace(workspace));
 
                 startActivity(intent);
                 Toast.makeText(getActivity(), "You are now in " + workspace,
@@ -72,15 +79,29 @@ public class MyWorkspaceListFragment extends Fragment {
 
     private void updateWorkspaceList() {
 
+        ForeignWorkspaceDataAsync foreignWorkspaceDataAsync = new ForeignWorkspaceDataAsync();
+        foreignWorkspaceDataAsync.execute();
 
     }
 
-    public class ForeignWorkspaceDataAsync extends AsyncTask<Void, Void, Void> {
+    public class ForeignWorkspaceDataAsync extends AsyncTask<Void, Void, ArrayList<String>> {
+
+        private final String LOG_TAG = ForeignWorkspaceDataAsync.class.getSimpleName();
 
         @Override
-        protected Void doInBackground(Void... params) {
+        protected ArrayList<String> doInBackground(Void... params) {
             return null;
         }
 
+        @Override
+        protected void onPostExecute(ArrayList<String> result) {
+           if(result != null){
+               arrayAdapter.clear();
+               for (String s : result) {
+                   arrayAdapter.add(s);
+               }
+           }
+
+        }
     }
 }

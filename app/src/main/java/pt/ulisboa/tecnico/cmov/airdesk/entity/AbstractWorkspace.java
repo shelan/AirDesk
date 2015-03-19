@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.cmov.airdesk.entity;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
@@ -7,7 +8,7 @@ import java.util.ArrayList;
  */
 
 //TODO rename this to workspace once workspace and its methods are refactored to ownedWS
-public class AbstractWorkspace {
+public class AbstractWorkspace implements Serializable {
 
     private String workspaceName;
     private double quota;
