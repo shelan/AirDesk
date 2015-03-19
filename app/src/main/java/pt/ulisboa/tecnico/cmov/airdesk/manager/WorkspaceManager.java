@@ -150,7 +150,7 @@ public class WorkspaceManager {
         return false;
     }
 
-    public void addUsersToAccessList(String workspace,String userId){
+    public void addUserToAccessList(String workspace,String userId){
         //Both from the subscription and adding email by owner
         //To simulate mount, add to foreign ws of same user.
         // TODO:Later change this to use wifidirect
@@ -174,11 +174,7 @@ public class WorkspaceManager {
         return  foreignWorkspace;
     }
 
-    public boolean addToForeignWorkspaces(OwnedWorkspace workspace){
-        return false;
-    }
-
-    public void addDataFile(String workspace, String fileName, String ownerId, boolean isOwned) throws Exception {
+    public void createDataFile(String workspace, String fileName, String ownerId, boolean isOwned) throws Exception {
 
         boolean isCreated= storageManager.createDataFile(workspace, fileName, ownerId, isOwned);
 
