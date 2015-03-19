@@ -30,7 +30,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
     WorkspaceManager workspaceManager;
     UserManager userManager;
     Context appContext;
-    String owner;
+    String ownerName;
     String workspaceName;
     String fileName;
 
@@ -42,7 +42,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         workspaceManager = new WorkspaceManager();
         userManager = new UserManager();
         appContext = AirDeskApp.s_applicationContext;
-        owner = "owner3";
+        ownerName = "owner3";
         workspaceName = "my_workspace";
         fileName = "file5";
 
@@ -50,13 +50,16 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         testCreateWorkspace();
         testGetOwnedWorkspaces();
         testOwnedWSDataFileLC();
+
 //        testWorkspaceEdit();
-//        testAddUserToWorkspace();
-//        testGetForeignWorkspaces();
+
+        testAddUserToWorkspace();
+
 //        testForeignWSDataFileLC();
+//        testDeleteUserFromAccessList();
 //        testSubscribeNEditTagsForeignWS();
 //        testDeleteOwnedWorkspace();
-//        testDeleteUser();
+        testDeleteUser();
     }
 
     private void createUser() {
@@ -67,7 +70,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
     }
 
     private void testCreateWorkspace() {
-        OwnedWorkspace workspace = new OwnedWorkspace("my_workspace", owner, 2.0);
+        OwnedWorkspace workspace = new OwnedWorkspace("my_workspace", ownerName, 2.0);
         Assert.assertEquals(WorkspaceCreateStatus.OK, workspaceManager.createWorkspace(workspace));
     }
 
@@ -89,17 +92,17 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         baseDir = appContext.getDir(workspaceType, appContext.MODE_PRIVATE);
         pathToFile = baseDir.getAbsolutePath() + File.separator + workspaceName + File.separator + fileName;
 
-        workspaceManager.createDataFile(workspaceName, fileName, owner, true);
+        workspaceManager.createDataFile(workspaceName, fileName, ownerName, true);
         Assert.assertEquals(true, new File(pathToFile).exists());
 
-        FileInputStream fis = workspaceManager.getDataFile(workspaceName, fileName, false, owner, true);
+        FileInputStream fis = workspaceManager.getDataFile(workspaceName, fileName, false, ownerName, true);
         Assert.assertEquals(-1, fis.read());
 
-        workspaceManager.updateDataFile(workspaceName, fileName, generateFileInputStream(), owner, true);
-        fis = workspaceManager.getDataFile(workspaceName, fileName, false, owner, true);
+        workspaceManager.updateDataFile(workspaceName, fileName, generateFileInputStream(), ownerName, true);
+        fis = workspaceManager.getDataFile(workspaceName, fileName, false, ownerName, true);
         Assert.assertNotSame(-1, fis.read());
 
-        workspaceManager.deleteDataFile(workspaceName, fileName, owner, true);
+        workspaceManager.deleteDataFile(workspaceName, fileName, ownerName, true);
         Assert.assertEquals(false, new File(pathToFile).exists());
 
     }
@@ -108,12 +111,10 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         //adding tags
     }
 
-    private void testAddUserToWorkspace() {
-        //adding user
-
-    }
-
-    private void testGetForeignWorkspaces() {
+    private void testAddUserToWorkspace() throws Exception {
+        workspaceManager.addUserToAccessList(workspaceName, ownerName);
+        List<String> foreignWS = userManager.getForeignWorkspaces();
+        Assert.assertTrue(foreignWS.contains(workspaceName));
     }
 
     private void testForeignWSDataFileLC() {
@@ -121,17 +122,21 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
 
 //        workspaceType = "foreignWorkspaces";
 //        baseDir = appContext.getDir(workspaceType, appContext.MODE_PRIVATE);
-//        pathToFile = baseDir.getAbsolutePath() + File.separator + owner + File.separator +
+//        pathToFile = baseDir.getAbsolutePath() + File.separator + ownerName + File.separator +
 //                workspaceName + File.separator + fileName;
 //
-//        workspaceManager.createDataFile(workspaceName, fileName, owner, false);
+//        workspaceManager.createDataFile(workspaceName, fileName, ownerName, false);
 //        Assert.assertEquals(true, new File(pathToFile).exists());
 //
-//        workspaceManager.deleteDataFile(workspaceName, fileName, owner, false);
+//        workspaceManager.deleteDataFile(workspaceName, fileName, ownerName, false);
 //        Assert.assertEquals(false, new File(pathToFile).exists());
     }
 
     private void testSubscribeNEditTagsForeignWS() {
+
+    }
+
+    private void testDeleteUserFromAccessList() {
 
     }
 
@@ -140,6 +145,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
     }
 
     private void testDeleteUser() {
+        userManager.deleteOwner(ownerName);
     }
 
     private FileInputStream generateFileInputStream() throws IOException {

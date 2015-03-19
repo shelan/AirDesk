@@ -73,6 +73,7 @@ public class MetadataManager {
      try{
          Context appContext = AirDeskApp.s_applicationContext;
          String absFileLocation=appContext.getFilesDir().getAbsolutePath()+"/"+fileName;
+         System.out.println("file to be deleted:" + absFileLocation);
          File file = new File(absFileLocation);
          boolean deleted = file.delete();
          System.out.println("file delete status is"+deleted);
