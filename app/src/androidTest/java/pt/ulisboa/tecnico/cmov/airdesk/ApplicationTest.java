@@ -9,6 +9,7 @@ import junit.framework.Assert;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.List;
 
 import pt.ulisboa.tecnico.cmov.airdesk.context.AirDeskApp;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.OwnedWorkspace;
@@ -28,9 +29,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
 
 
     public void testOwnedWSList(){
-        WorkspaceTest workspaceTest=new WorkspaceTest();
-      //  workspaceTest.populateOwnedWorkspaces();
-        workspaceTest.populateForeignWorkspaces();
+      new PopulateData().populateOwnedWorkspaces();
     }
     public void testDataFileLC() throws Exception {
         storageManager = new StorageManager();
@@ -77,6 +76,14 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         storageManager.deleteDataFile(workspaceName, fileName, owner, true);
         Assert.assertEquals(false, new File(pathToFile).exists());
 
+    }
+
+    public void testGetOwnedWorkspaces() {
+        List<String> wsList = new AirDeskManager().getOwnedWorkspaces();
+        System.out.println("########################");
+        for (String s : wsList) {
+            System.out.println(s);
+        }
     }
 
     private FileInputStream generateFileInputStream() throws IOException {

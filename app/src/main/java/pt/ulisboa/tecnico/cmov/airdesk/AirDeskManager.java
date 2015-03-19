@@ -7,7 +7,6 @@ import java.util.List;
 
 import pt.ulisboa.tecnico.cmov.airdesk.manager.UserManager;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.WorkspaceManager;
-import pt.ulisboa.tecnico.cmov.airdesk.test.WorkspaceTest;
 
 /**
  * Created by ashansa on 3/19/15.
@@ -28,7 +27,7 @@ public class AirDeskManager {
 
     public List<String> getOwnedWorkspaces() {
         // TODO temp for testing
-        new WorkspaceTest().populateOwnedWorkspaces();
+        new PopulateData().populateOwnedWorkspaces();
         return userManager.getOwnedWorkspaces();
     }
 }
