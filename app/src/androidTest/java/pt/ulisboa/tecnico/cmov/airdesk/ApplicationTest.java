@@ -25,6 +25,13 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
     StorageManager storageManager;
     Context appContext;
 
+
+
+    public void testOwnedWSList(){
+        WorkspaceTest workspaceTest=new WorkspaceTest();
+      //  workspaceTest.populateOwnedWorkspaces();
+        workspaceTest.populateForeignWorkspaces();
+    }
     public void testDataFileLC() throws Exception {
         storageManager = new StorageManager();
         appContext = AirDeskApp.s_applicationContext;
