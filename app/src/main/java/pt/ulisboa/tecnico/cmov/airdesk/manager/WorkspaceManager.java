@@ -169,7 +169,10 @@ public class WorkspaceManager {
         userManager.updateUser(user);
 
         ForeignWorkspace foreignWorkspace = new ForeignWorkspace(workspaceName, ownerId, quota);
+
+        if(fileNames!=null)
         foreignWorkspace.addFiles(fileNames);
+
         metadataManager.saveForeignWorkspace(foreignWorkspace);
 
         //TODO check whether we need this
