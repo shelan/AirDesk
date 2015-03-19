@@ -9,6 +9,7 @@ import junit.framework.Assert;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import pt.ulisboa.tecnico.cmov.airdesk.context.AirDeskApp;
@@ -43,11 +44,16 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         userManager = new UserManager();
         appContext = AirDeskApp.s_applicationContext;
         ownerName = "owner3";
-        workspaceName = "my_workspace";
+        workspaceName = "my_niceWS";
         fileName = "file5";
 
         createUser();
         testCreateWorkspace();
+        testWorkspaceEdit();
+
+        WorkspaceTest wsTest=new WorkspaceTest();
+        wsTest.populateForeignWorkspaces();
+
         testGetOwnedWorkspaces();
         testOwnedWSDataFileLC();
 
@@ -70,7 +76,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
     }
 
     private void testCreateWorkspace() {
-        OwnedWorkspace workspace = new OwnedWorkspace("my_workspace", ownerName, 2.0);
+        OwnedWorkspace workspace = new OwnedWorkspace(workspaceName, ownerName, 2.0);
         Assert.assertEquals(WorkspaceCreateStatus.OK, workspaceManager.createWorkspace(workspace));
     }
 
@@ -107,8 +113,31 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
 
     }
 
-    private void testWorkspaceEdit() {
-        //adding tags
+    public void testWorkspaceEdit() {
+        //adding tags,
+        OwnedWorkspace workspace = new OwnedWorkspace("lanchWS", ownerName, 2.0);
+        workspaceManager.createWorkspace(workspace);
+
+      /*  List<String>ws=userManager.getOwnedWorkspaces();
+        for(int i=0;i<ws.size();i++){
+            System
+        }*/
+
+        OwnedWorkspace ownedWorkspace=workspaceManager.getWorkspace("lanchWS");
+        List<String>newTags=new ArrayList<String>();
+        for(int i=0;i<8;i++){
+            newTags.add("my new tag"+i);
+        }
+        ownedWorkspace.addTags(newTags);
+        ownedWorkspace.setQuota(500);
+        ownedWorkspace.setPublic(true);
+        workspaceManager.editOwnedWorkspace(workspaceName,ownedWorkspace);
+        OwnedWorkspace renewedWS=workspaceManager.getWorkspace(workspaceName);
+        Assert.assertEquals((double)500,ownedWorkspace.getQuota());
+        Assert.assertEquals(ownedWorkspace.getTags().size(),renewedWS.getTags().size());
+        for (String tag:renewedWS.getTags()){
+            System.out.println("tags are "+tag);
+        }
     }
 
     private void testAddUserToWorkspace() throws Exception {
