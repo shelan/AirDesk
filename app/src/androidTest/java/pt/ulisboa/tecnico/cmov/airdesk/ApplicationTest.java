@@ -9,14 +9,10 @@ import junit.framework.Assert;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.List;
 
 import pt.ulisboa.tecnico.cmov.airdesk.context.AirDeskApp;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.OwnedWorkspace;
-import pt.ulisboa.tecnico.cmov.airdesk.entity.User;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.MetadataManager;
-import pt.ulisboa.tecnico.cmov.airdesk.manager.UserManager;
-import pt.ulisboa.tecnico.cmov.airdesk.manager.WorkspaceManager;
 import pt.ulisboa.tecnico.cmov.airdesk.storage.StorageManager;
 
 /**
@@ -29,31 +25,13 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
     StorageManager storageManager;
     Context appContext;
 
-    public void testWorkspaceCreation() {
-        User user = new User();
-        user.setEmail("abc@gmail.com");
-        user.setNickName("aaa");
-        new UserManager().createUser(user);
 
-        WorkspaceManager workspaceManager = new WorkspaceManager();
-        OwnedWorkspace workspace = new OwnedWorkspace("abc_ws", "aaa", 2.5);
-        workspaceManager.createWorkspace(workspace);
-        OwnedWorkspace workspace2 = new OwnedWorkspace("abc_ws2", "aaa", 2.5);
-        workspaceManager.createWorkspace(workspace2);
 
-        List<String> workspaceList =  new UserManager().getOwnedWorkspaces();
-        Assert.assertEquals(2, workspaceList.size());
-
+    public void testOwnedWSList(){
+        WorkspaceTest workspaceTest=new WorkspaceTest();
+      //  workspaceTest.populateOwnedWorkspaces();
+        workspaceTest.populateForeignWorkspaces();
     }
-
-    public void testGetOwnedWorkspaces() {
-        List<String> workspaceList = new AirDeskManager().getOwnedWorkspaces();
-        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-        for (String ws : workspaceList) {
-            System.out.println(ws);
-        }
-    }
-
     public void testDataFileLC() throws Exception {
         storageManager = new StorageManager();
         appContext = AirDeskApp.s_applicationContext;
