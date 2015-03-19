@@ -33,4 +33,28 @@ public class PopulateData {
 
         System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@");
     }
+
+
+    public void populateForeignWorkspaces(){
+        UserManager userManager=new UserManager();
+        WorkspaceManager workspaceManager=new WorkspaceManager();
+        try {
+            for (int i = 0; i < 10; i++) {
+                workspaceManager.addToForeignWorkspace("abc_ForeignWorkspace" + i, "aaa", 500, null);
+
+            }
+            List<String>foreignWS=userManager.getForeignWorkspaces();
+            System.out.println("foreign ws size "+foreignWS.size());
+            System.out.println("###########");
+            for(int i=0;i<foreignWS.size();i++){
+                System.out.println(foreignWS.get(i));
+            }
+
+            System.out.println("#########");
+        }
+        catch (Exception ex){
+            ex.printStackTrace();
+        }
+
+    }
 }
