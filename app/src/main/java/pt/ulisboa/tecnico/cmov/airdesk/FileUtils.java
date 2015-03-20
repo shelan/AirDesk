@@ -104,6 +104,7 @@ public class FileUtils {
 
 
     public static double folderSize(String workspaceName) {
+        System.out.println("WS name in fodler"+workspaceName);
         Context appContext = AirDeskApp.s_applicationContext;
         File parentDir=appContext.getDir(Constants.OWNED_WORKSPACE_DIR,appContext.MODE_PRIVATE);
         File workspaceDir = new File(parentDir.getAbsolutePath()+"/"+workspaceName);
