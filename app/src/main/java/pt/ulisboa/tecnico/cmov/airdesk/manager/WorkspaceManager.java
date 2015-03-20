@@ -17,6 +17,7 @@ import pt.ulisboa.tecnico.cmov.airdesk.entity.ForeignWorkspace;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.OwnedWorkspace;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.User;
 import pt.ulisboa.tecnico.cmov.airdesk.enums.WorkspaceCreateStatus;
+import pt.ulisboa.tecnico.cmov.airdesk.enums.WorkspaceEditStatus;
 import pt.ulisboa.tecnico.cmov.airdesk.storage.StorageManager;
 
 /**
@@ -44,7 +45,7 @@ public class WorkspaceManager {
             }
 
             user.addNewOwnedWorkspace(workspaceName);
-            userManager.createOwner(user);//update existing user with new workspace
+            userManager.createUser(user);//update existing user with new workspace
             System.out.println("------user created------");
 
             workspace.setOwnerName(user.getNickName());
@@ -77,15 +78,20 @@ public class WorkspaceManager {
         return metadataManager.getForeignWorkspace(workspaceName, ownerId);
     }
 
-    public boolean editOwnedWorkspace(String workspaceName, OwnedWorkspace editedWS){
+
+    public WorkspaceEditStatus editOwnedWorkspace(String workspaceName, OwnedWorkspace editedWS){
         boolean isQuotaSmallerThanUsage=isQuotaSmallerThanUsage(workspaceName, editedWS.getQuota());
+        boolean isMemoryNotSufficient=isNotSufficientMemory(editedWS.getQuota());
         if(isQuotaSmallerThanUsage){
-            return false;
+            return WorkspaceEditStatus.WORKSPACE_LARGER_THAN_QUOTA ;//current workspace occupied more than quota
+        }
+        else if(isMemoryNotSufficient){
+            return WorkspaceEditStatus.INSUFFICIENT_MEMORY;//devide memory is smaller than quota
         }
         else{
             metadataManager.saveOwnedWorkspace(editedWS);
             //TODO: to be notified to clients in same network about the edit
-            return true;
+            return WorkspaceEditStatus.OK;
         }
     }
 
@@ -115,7 +121,7 @@ public class WorkspaceManager {
          System.out.println("workspace folder delete status :owned"+statusOwned+" foreign"+statusForeign);
 
         //save user with new changes
-        userManager.createOwner(user);//save user with updated owned and foreign WS and updated deletedWSMap
+        userManager.createUser(user);//save user with updated owned and foreign WS and updated deletedWSMap
         return true;
     }
 
@@ -127,6 +133,7 @@ public class WorkspaceManager {
         }
         return clientList;
         }
+
 
     /*make this public if don't do a prevalidation on textbox*/
     public boolean isNotSufficientMemory(double quotaSize){
@@ -166,12 +173,6 @@ public class WorkspaceManager {
 
     public void deleteUserFromAccessList(String workspace, String userId){
 
-        //TODO: remove this after introducing wifidirect
-        User user=userManager.getOwner();
-        user.removeFromForeignWorkspaceList(workspace);
-        metadataManager.saveUser(user);
-
-
         //remove him from clients for workspace
         OwnedWorkspace ownedWorkspace=getOwnedWorkspace(workspace);
         ownedWorkspace.removeClient(userId);
@@ -184,10 +185,11 @@ public class WorkspaceManager {
 
     }
 
+
     public void addToForeignWorkspace(String workspaceName, String ownerId, double quota, String[] fileNames) throws Exception {
         User user = userManager.getOwner();
         user.addForeignWS(workspaceName);
-        userManager.updateOwner(user);
+        userManager.updateUser(user);
 
         ForeignWorkspace foreignWorkspace = new ForeignWorkspace(workspaceName, ownerId, quota);
 
@@ -204,7 +206,7 @@ public class WorkspaceManager {
     public void removeFromForeignWorkspace(String workspaceName,String nickName){
         User user = userManager.getOwner();
         user.removeFromForeignWorkspaceList(workspaceName);
-        userManager.updateOwner(user);
+        userManager.updateUser(user);
 
         metadataManager.deleteForeignWorkspace(workspaceName, nickName);
 
@@ -252,7 +254,7 @@ public class WorkspaceManager {
                 metadataManager.saveOwnedWorkspace(ownedWorkspace);//add new file to metadata and save it
             }
             else{
-                ForeignWorkspace foreignWorkspace=metadataManager.getForeignWorkspace(workspace, ownerId);
+                ForeignWorkspace foreignWorkspace=metadataManager.getForeignWorkspace(fileName, ownerId);
                 foreignWorkspace.removeFile(fileName);
                 metadataManager.saveForeignWorkspace(foreignWorkspace, ownerId);//add new file to metadata and save it
             }
