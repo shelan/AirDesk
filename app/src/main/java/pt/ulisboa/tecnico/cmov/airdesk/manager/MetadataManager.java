@@ -58,6 +58,11 @@ public class MetadataManager {
         return workspace;
     }
 
+    public boolean deleteForeignWorkspace(String workspaceName){
+        String ownedWSFileName=workspaceName+Constants.FOREIGN_WORKSPACE_SUFFIX;
+        return deleteFile(ownedWSFileName);
+    }
+
     public void saveUser(User user) {
         String jsonString = gson.toJson(user);
         saveToInternalFile(jsonString, Constants.USER_JSON_FILE_NAME);

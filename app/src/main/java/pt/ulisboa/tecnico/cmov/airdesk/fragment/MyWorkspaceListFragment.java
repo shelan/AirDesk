@@ -59,7 +59,7 @@ public class MyWorkspaceListFragment extends Fragment {
 
                 Intent intent = new Intent(getActivity(), WorkspaceDetailViewActivity.class)
                         .putExtra(Intent.EXTRA_TEXT, workspace)
-                        .putExtra(Constants.WORKSPACE, manager.getWorkspace(workspace));
+                        .putExtra(Constants.WORKSPACE, manager.getOwnedWorkspace(workspace));
 
                 startActivity(intent);
                 Toast.makeText(getActivity(), "You are now in " + workspace,

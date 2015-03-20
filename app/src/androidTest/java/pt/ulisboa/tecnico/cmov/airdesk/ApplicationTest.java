@@ -123,7 +123,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
             System
         }*/
 
-        OwnedWorkspace ownedWorkspace=workspaceManager.getWorkspace("lanchWS");
+        OwnedWorkspace ownedWorkspace=workspaceManager.getOwnedWorkspace("lanchWS");
         List<String>newTags=new ArrayList<String>();
         for(int i=0;i<8;i++){
             newTags.add("my new tag"+i);
@@ -132,7 +132,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         ownedWorkspace.setQuota(500);
         ownedWorkspace.setPublic(true);
         workspaceManager.editOwnedWorkspace(workspaceName,ownedWorkspace);
-        OwnedWorkspace renewedWS=workspaceManager.getWorkspace(workspaceName);
+        OwnedWorkspace renewedWS=workspaceManager.getOwnedWorkspace(workspaceName);
         Assert.assertEquals((double)500,ownedWorkspace.getQuota());
         Assert.assertEquals(ownedWorkspace.getTags().size(),renewedWS.getTags().size());
         for (String tag:renewedWS.getTags()){

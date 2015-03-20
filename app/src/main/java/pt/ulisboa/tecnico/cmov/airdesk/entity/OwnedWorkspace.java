@@ -15,6 +15,18 @@ public class OwnedWorkspace extends AbstractWorkspace {
     private String ownerName;
     private boolean isPublic;
     List<String> tags=new ArrayList<String>();
+    List<String>clientsRemovedAndNotInformed=new ArrayList<String>();
+
+    public void addClientToRemoveList(String clientId){//use when u remove a client from access List
+        clientsRemovedAndNotInformed.add(clientId);
+    }
+
+    public void removeClientFromRemoveList(String clientId){//call after notifying the client that he has removed
+        for(int i=0;i<clientsRemovedAndNotInformed.size();i++) {
+            if(clientsRemovedAndNotInformed.get(i).toLowerCase().equals(clientId.toLowerCase()))
+              clientsRemovedAndNotInformed.remove(i);
+        }
+    }
 
     public OwnedWorkspace(String workspaceName, String owner, double quota) {
         super(workspaceName, owner, quota);
