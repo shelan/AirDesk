@@ -45,21 +45,24 @@ public class MetadataManager {
         return deleteFile(ownedWSFileName);
     }
 
-    public void saveForeignWorkspace(ForeignWorkspace workspace) {
+    public void saveForeignWorkspace(ForeignWorkspace workspace, String owner) {
         String jsonString = gson.toJson(workspace);
         System.out.println(jsonString);
-        String jsonWorkspaceFileName = workspace.getWorkspaceName() + Constants.FOREIGN_WORKSPACE_SUFFIX;
+        String jsonWorkspaceFileName = owner + "-" + workspace.getWorkspaceName() +
+                Constants.FOREIGN_WORKSPACE_SUFFIX + Constants.JSON_SUFFIX;
         saveToInternalFile(jsonString, jsonWorkspaceFileName);
     }
 
-    public ForeignWorkspace getForeignWorkspace(String workspaceFileName) {
-        String workspaceJson = readFromInternalFile(workspaceFileName + Constants.FOREIGN_WORKSPACE_SUFFIX);
+    public ForeignWorkspace getForeignWorkspace(String workspaceFileName, String owner) {
+        String workspaceJson = readFromInternalFile(owner + "-" + workspaceFileName +
+                Constants.FOREIGN_WORKSPACE_SUFFIX + Constants.JSON_SUFFIX);
         ForeignWorkspace workspace = gson.fromJson(workspaceJson, ForeignWorkspace.class);
         return workspace;
     }
 
-    public boolean deleteForeignWorkspace(String workspaceName){
-        String ownedWSFileName=workspaceName+Constants.FOREIGN_WORKSPACE_SUFFIX;
+    public boolean deleteForeignWorkspace(String workspaceName, String owner) {
+        String ownedWSFileName = owner + "-" + workspaceName + Constants.FOREIGN_WORKSPACE_SUFFIX +
+                Constants.JSON_SUFFIX;
         return deleteFile(ownedWSFileName);
     }
 
