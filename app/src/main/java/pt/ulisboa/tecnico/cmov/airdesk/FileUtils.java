@@ -109,15 +109,19 @@ public class FileUtils {
         File workspaceDir = new File(parentDir.getAbsolutePath()+"/"+workspaceName);
         System.out.println("new work dir"+workspaceDir.getAbsolutePath());
         long length = 0;
+        File[] files = workspaceDir.listFiles();
 
-        for (File file : workspaceDir.listFiles()) {
-            if (file.isFile())
-                length += file.length();
-            else
-                length += folderSize(workspaceDir.getPath());
+        if(files!=null && files.length>0) {
+            for (File file : files) {
+                if (file.isFile())
+                    length += file.length();
+                else
+                    length += folderSize(workspaceDir.getPath());
+            }
         }
         System.out.println("folder size "+length);
-        double lengthInKB=length/Constants.BYTES_PER_KB;
+        double lengthInKB=length/(double)Constants.BYTES_PER_KB;
+        System.out.println("folder size in kb "+lengthInKB);
         return lengthInKB;
     }
 

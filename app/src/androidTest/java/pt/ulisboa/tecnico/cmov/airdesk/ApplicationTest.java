@@ -11,8 +11,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import pt.ulisboa.tecnico.cmov.airdesk.context.AirDeskApp;
+import pt.ulisboa.tecnico.cmov.airdesk.entity.ForeignWorkspace;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.OwnedWorkspace;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.User;
 import pt.ulisboa.tecnico.cmov.airdesk.enums.WorkspaceCreateStatus;
@@ -53,6 +55,10 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         testWorkspaceEdit();
         testGetOwnedWorkspaces();
         testOwnedWSDataFileLC();
+
+        testTooLargeForMemory();
+        testTooSmallerThanWorkspace();
+
         testAddUserToWorkspace();
 
         testForeignWSDataFileLC();
@@ -63,6 +69,28 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         testDeleteUser();
     }
 
+    public void testTooLargeForMemory(){
+        double quotaSize=50000000;
+        boolean isNotSufficientMemory=workspaceManager.isNotSufficientMemory(quotaSize);
+        Assert.assertTrue(isNotSufficientMemory);
+
+        quotaSize=5000;
+        isNotSufficientMemory=workspaceManager.isNotSufficientMemory(quotaSize);
+        Assert.assertFalse(isNotSufficientMemory);
+    }
+
+    public void testTooSmallerThanWorkspace() {
+        double quotaSize=FileUtils.folderSize(workspaceName);
+        System.out.println("folder size "+quotaSize);
+        quotaSize=quotaSize+1;
+        boolean  isTooSmallerThanWorkspace=workspaceManager.isQuotaSmallerThanUsage(workspaceName,quotaSize);
+        Assert.assertFalse(isTooSmallerThanWorkspace);
+
+        quotaSize=quotaSize-0.001;
+        System.out.println("reduced quota size is"+quotaSize);
+        isTooSmallerThanWorkspace=workspaceManager.isQuotaSmallerThanUsage(workspaceName,quotaSize);
+        Assert.assertTrue(isTooSmallerThanWorkspace);
+    }
     private void cleanWorkspaeDataNMetadata() {
         File workspaceDir = appContext.getDir(Constants.OWNED_WORKSPACE_DIR, appContext.MODE_PRIVATE);
         System.out.println("owned WS path:" + workspaceDir);
@@ -207,9 +235,27 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
 
     }
 
-    private void testDeleteUserFromAccessList() {
 
+    public void testDeleteUserFromAccessList() {
+        workspaceManager.deleteUserFromAccessList(workspaceName,ownerName);
+        Set<String> clients=workspaceManager.getOwnedWorkspace(workspaceName).getClients().keySet();
+        Assert.assertFalse(clients.contains(ownerName));
+
+        /*TODO:to be removed after introducing wifi direct  */
+        List<String>workspaces=userManager.getForeignWorkspaces();
+        Assert.assertFalse(workspaces.contains(workspaceName));
+
+        ForeignWorkspace foreignWS= workspaceManager.getForeignWorkspace(workspaceName,ownerName);
+
+
+        File parentDir=appContext.getDir(Constants.FOREIGN_WORKSPACE_DIR ,appContext.MODE_PRIVATE);
+        String fileName=parentDir.getAbsolutePath()+ "/" + userManager.getOwner().getNickName() + "/" + workspaceName;
+        File workspaceDir = new File(fileName);
+        Assert.assertEquals(false,workspaceDir.exists());
+
+        System.out.println("Delete user is successful");
     }
+
 
     private void testDeleteOwnedWorkspace() {
        // OwnedWorkspace ownedWorkspace=workspaceManager.getOwnedWorkspace(workspaceName);

@@ -17,6 +17,7 @@ import pt.ulisboa.tecnico.cmov.airdesk.entity.ForeignWorkspace;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.OwnedWorkspace;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.User;
 import pt.ulisboa.tecnico.cmov.airdesk.enums.WorkspaceCreateStatus;
+import pt.ulisboa.tecnico.cmov.airdesk.enums.WorkspaceEditStatus;
 import pt.ulisboa.tecnico.cmov.airdesk.storage.StorageManager;
 
 /**
@@ -78,15 +79,19 @@ public class WorkspaceManager {
     }
 
 
-    public boolean editOwnedWorkspace(String workspaceName, OwnedWorkspace editedWS){
+    public WorkspaceEditStatus editOwnedWorkspace(String workspaceName, OwnedWorkspace editedWS){
         boolean isQuotaSmallerThanUsage=isQuotaSmallerThanUsage(workspaceName, editedWS.getQuota());
+        boolean isMemoryNotSufficient=isNotSufficientMemory(editedWS.getQuota());
         if(isQuotaSmallerThanUsage){
-            return false;
+            return WorkspaceEditStatus.WORKSPACE_LARGER_THAN_QUOTA ;//current workspace occupied more than quota
+        }
+        else if(isMemoryNotSufficient){
+            return WorkspaceEditStatus.INSUFFICIENT_MEMORY;//devide memory is smaller than quota
         }
         else{
             metadataManager.saveOwnedWorkspace(editedWS);
             //TODO: to be notified to clients in same network about the edit
-            return true;
+            return WorkspaceEditStatus.OK;
         }
     }
 
@@ -167,12 +172,6 @@ public class WorkspaceManager {
     }
 
     public void deleteUserFromAccessList(String workspace, String userId){
-
-        //TODO: remove this after introducing wifidirect
-        User user=userManager.getOwner();
-        user.removeFromForeignWorkspaceList(workspace);
-        metadataManager.saveUser(user);
-
 
         //remove him from clients for workspace
         OwnedWorkspace ownedWorkspace=getOwnedWorkspace(workspace);
