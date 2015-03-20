@@ -34,8 +34,8 @@ public class PopulateData {
             OwnedWorkspace workspace = new OwnedWorkspace("abc_ws"+i, "aaa", 2.5);
             workspaceManager.createWorkspace(workspace);
             for (int j = 0; j < 5 ; j++) {
-                System.out.println("====== going to create " + workspace.getWorkspaceName() + " : file" + i);
-                workspaceManager.createDataFile(workspace.getWorkspaceName(), "file"+i, workspace.getOwnerId(), true);
+                System.out.println("====== going to create " + workspace.getWorkspaceName() + " : file" + j);
+                workspaceManager.createDataFile(workspace.getWorkspaceName(), "file"+j, workspace.getOwnerId(), true);
             }
         }
 
