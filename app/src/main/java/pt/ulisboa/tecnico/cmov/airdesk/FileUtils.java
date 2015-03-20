@@ -36,9 +36,9 @@ public class FileUtils {
     public static boolean deleteFolder(String path) {
         File folder = new File(path);
         File[] files = folder.listFiles();
-        if(files!=null) { //some JVMs return null for empty dirs
-            for(File f: files) {
-                if(f.isDirectory()) {
+        if (files != null) { //some JVMs return null for empty dirs
+            for (File f : files) {
+                if (f.isDirectory()) {
                     deleteFolder(f.getAbsolutePath());
                 } else {
                     f.delete();
@@ -68,31 +68,29 @@ public class FileUtils {
             return null;
     }
 
-    public static boolean createWSFolder(String workspaceName){
+    public static boolean createWSFolder(String workspaceName) {
         Context appContext = AirDeskApp.s_applicationContext;
-        File parentDir=appContext.getDir(Constants.OWNED_WORKSPACE_DIR,appContext.MODE_PRIVATE);
-        File workspaceDir = new File(parentDir.getAbsolutePath()+"/"+workspaceName);//create workspace inside WS dir
-        boolean status= workspaceDir.mkdir();
-        System.out.println("child folder created "+status);
+        File parentDir = appContext.getDir(Constants.OWNED_WORKSPACE_DIR, appContext.MODE_PRIVATE);
+        File workspaceDir = new File(parentDir.getAbsolutePath() + "/" + workspaceName);//create workspace inside WS dir
+        boolean status = workspaceDir.mkdir();
+        System.out.println("child folder created " + status);
         return true;
     }
 
-    public static void createFolderForOwnedWorkSpaces(){//all owned workspaces will be here
+    public static void createFolderForOwnedWorkSpaces() {//all owned workspaces will be here
         Context appContext = AirDeskApp.s_applicationContext;
-        File parentDir=appContext.getDir(Constants.OWNED_WORKSPACE_DIR, appContext.MODE_PRIVATE);
-        System.out.println("ws path"+parentDir.getAbsolutePath());
+        File parentDir = appContext.getDir(Constants.OWNED_WORKSPACE_DIR, appContext.MODE_PRIVATE);
+        System.out.println("ws path" + parentDir.getAbsolutePath());
     }
 
-
-
-    public static boolean deleteOwnedWorkspaceFolder(String workspaceName){
+    public static boolean deleteOwnedWorkspaceFolder(String workspaceName) {
         Context appContext = AirDeskApp.s_applicationContext;
-        File parentDir=appContext.getDir(Constants.OWNED_WORKSPACE_DIR,appContext.MODE_PRIVATE);
-        File workspaceDir = new File(parentDir.getAbsolutePath()+"/"+workspaceName);
+        File parentDir = appContext.getDir(Constants.OWNED_WORKSPACE_DIR, appContext.MODE_PRIVATE);
+        File workspaceDir = new File(parentDir.getAbsolutePath() + "/" + workspaceName);
         File[] files = workspaceDir.listFiles();
-        if(files!=null) { //some JVMs return null for empty dirs
-            for(File f: files) {
-                if(f.isDirectory()) {
+        if (files != null) { //some JVMs return null for empty dirs
+            for (File f : files) {
+                if (f.isDirectory()) {
                     deleteFolder(f.getAbsolutePath());
                 } else {
                     f.delete();
@@ -102,17 +100,16 @@ public class FileUtils {
         return workspaceDir.delete();
     }
 
-
     public static double folderSize(String workspaceName) {
-        System.out.println("WS name in fodler"+workspaceName);
+        System.out.println("WS name in fodler" + workspaceName);
         Context appContext = AirDeskApp.s_applicationContext;
-        File parentDir=appContext.getDir(Constants.OWNED_WORKSPACE_DIR,appContext.MODE_PRIVATE);
-        File workspaceDir = new File(parentDir.getAbsolutePath()+"/"+workspaceName);
-        System.out.println("new work dir"+workspaceDir.getAbsolutePath());
+        File parentDir = appContext.getDir(Constants.OWNED_WORKSPACE_DIR, appContext.MODE_PRIVATE);
+        File workspaceDir = new File(parentDir.getAbsolutePath() + "/" + workspaceName);
+        System.out.println("new work dir" + workspaceDir.getAbsolutePath());
         long length = 0;
         File[] files = workspaceDir.listFiles();
 
-        if(files!=null && files.length>0) {
+        if (files != null) {
             for (File file : files) {
                 if (file.isFile())
                     length += file.length();
@@ -120,21 +117,21 @@ public class FileUtils {
                     length += folderSize(workspaceDir.getPath());
             }
         }
-        System.out.println("folder size "+length);
-        double lengthInKB=length/(double)Constants.BYTES_PER_KB;
-        System.out.println("folder size in kb "+lengthInKB);
+        System.out.println("folder size " + length);
+        double lengthInKB = length / (double) Constants.BYTES_PER_KB;
+        System.out.println("folder size in kb " + lengthInKB);
         return lengthInKB;
     }
 
     public static boolean deleteForeignWorkspaceFolder(String workspaceName, String nickName) {
         Context appContext = AirDeskApp.s_applicationContext;
-        File parentDir=appContext.getDir(Constants.FOREIGN_WORKSPACE_DIR ,appContext.MODE_PRIVATE);
-        String fileName=parentDir.getAbsolutePath()+ "/" + nickName + "/" + workspaceName;
+        File parentDir = appContext.getDir(Constants.FOREIGN_WORKSPACE_DIR, appContext.MODE_PRIVATE);
+        String fileName = parentDir.getAbsolutePath() + "/" + nickName + "/" + workspaceName;
         File workspaceDir = new File(fileName);
         File[] files = workspaceDir.listFiles();
-        if(files!=null) { //some JVMs return null for empty dirs
-            for(File f: files) {
-                if(f.isDirectory()) {
+        if (files != null) { //some JVMs return null for empty dirs
+            for (File f : files) {
+                if (f.isDirectory()) {
                     deleteFolder(f.getAbsolutePath());
                 } else {
                     f.delete();

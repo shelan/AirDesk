@@ -83,7 +83,6 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
 
         File baseDir;
         String pathToFile;
-        String workspaceType = "ownedWorkspaces";
         baseDir = appContext.getDir(Constants.OWNED_WORKSPACE_DIR, appContext.MODE_PRIVATE);
         pathToFile = baseDir.getAbsolutePath() + File.separator + workspaceName + File.separator + fileName;
         workspaceManager.createDataFile(workspaceName, fileName, ownerName, true);
@@ -108,9 +107,9 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         File workspaceDir = appContext.getDir(Constants.OWNED_WORKSPACE_DIR, appContext.MODE_PRIVATE);
         System.out.println("owned WS path:" + workspaceDir);
         File[] files = workspaceDir.listFiles();
-        if(files!=null) { //some JVMs return null for empty dirs
-            for(File f: files) {
-                if(f.isDirectory()) {
+        if (files != null) { //some JVMs return null for empty dirs
+            for (File f : files) {
+                if (f.isDirectory()) {
                     deleteFolder(f.getAbsolutePath());
                 } else {
                     f.delete();
@@ -123,9 +122,9 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         workspaceDir = appContext.getDir("foreignWorkspaces", appContext.MODE_PRIVATE);
         System.out.println("foreignWS path:" + workspaceDir);
         files = workspaceDir.listFiles();
-        if(files!=null) { //some JVMs return null for empty dirs
-            for(File f: files) {
-                if(f.isDirectory()) {
+        if (files != null) { //some JVMs return null for empty dirs
+            for (File f : files) {
+                if (f.isDirectory()) {
                     deleteFolder(f.getAbsolutePath());
                 } else {
                     f.delete();
@@ -144,9 +143,9 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
     public static boolean deleteFolder(String path) {
         File folder = new File(path);
         File[] files = folder.listFiles();
-        if(files!=null) { //some JVMs return null for empty dirs
-            for(File f: files) {
-                if(f.isDirectory()) {
+        if (files != null) { //some JVMs return null for empty dirs
+            for (File f : files) {
+                if (f.isDirectory()) {
                     deleteFolder(f.getAbsolutePath());
                 } else {
                     f.delete();
@@ -177,9 +176,6 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         File baseDir;
         String pathToFile;
 
-        //test for owned workspace
-        String workspaceType = "ownedWorkspaces";
-
         baseDir = appContext.getDir(Constants.OWNED_WORKSPACE_DIR, appContext.MODE_PRIVATE);
         pathToFile = baseDir.getAbsolutePath() + File.separator + workspaceName + File.separator + fileName;
 
@@ -200,25 +196,21 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
 
     public void testWorkspaceEdit() {
         //adding tags,
-      /*  List<String>ws=userManager.getOwnedWorkspaces();
-        for(int i=0;i<ws.size();i++){
-            System
-        }*/
 
-        OwnedWorkspace ownedWorkspace=workspaceManager.getOwnedWorkspace(workspaceName);
-        List<String>newTags=new ArrayList<String>();
-        for(int i=0;i<8;i++){
-            newTags.add("my new tag"+i);
+        OwnedWorkspace ownedWorkspace = workspaceManager.getOwnedWorkspace(workspaceName);
+        List<String> newTags = new ArrayList<String>();
+        for (int i = 0; i < 8; i++) {
+            newTags.add("my new tag" + i);
         }
         ownedWorkspace.addTags(newTags);
         ownedWorkspace.setQuota(500);
         ownedWorkspace.setPublic(true);
-        workspaceManager.editOwnedWorkspace(workspaceName,ownedWorkspace);
-        OwnedWorkspace renewedWS=workspaceManager.getOwnedWorkspace(workspaceName);
-        Assert.assertEquals((double)500,ownedWorkspace.getQuota());
-        Assert.assertEquals(ownedWorkspace.getTags().size(),renewedWS.getTags().size());
-        for (String tag:renewedWS.getTags()){
-            System.out.println("tags are "+tag);
+        workspaceManager.editOwnedWorkspace(workspaceName, ownedWorkspace);
+        OwnedWorkspace renewedWS = workspaceManager.getOwnedWorkspace(workspaceName);
+        Assert.assertEquals((double) 500, ownedWorkspace.getQuota());
+        Assert.assertEquals(ownedWorkspace.getTags().size(), renewedWS.getTags().size());
+        for (String tag : renewedWS.getTags()) {
+            System.out.println("tags are " + tag);
         }
     }
 
@@ -257,55 +249,50 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
 
 
     public void testDeleteUserFromAccessList() {
-        workspaceManager.deleteUserFromAccessList(workspaceName,ownerName);
-        Set<String> clients=workspaceManager.getOwnedWorkspace(workspaceName).getClients().keySet();
+        workspaceManager.deleteUserFromAccessList(workspaceName, ownerName);
+        Set<String> clients = workspaceManager.getOwnedWorkspace(workspaceName).getClients().keySet();
         Assert.assertFalse(clients.contains(ownerName));
 
         /*TODO:to be removed after introducing wifi direct  */
-        List<String>workspaces=userManager.getForeignWorkspaces();
+        List<String> workspaces = userManager.getForeignWorkspaces();
         Assert.assertFalse(workspaces.contains(workspaceName));
 
-        ForeignWorkspace foreignWS= workspaceManager.getForeignWorkspace(workspaceName,ownerName);
-
-
-        File parentDir=appContext.getDir(Constants.FOREIGN_WORKSPACE_DIR ,appContext.MODE_PRIVATE);
-        String fileName=parentDir.getAbsolutePath()+ "/" + userManager.getOwner().getNickName() + "/" + workspaceName;
+        File parentDir = appContext.getDir(Constants.FOREIGN_WORKSPACE_DIR, appContext.MODE_PRIVATE);
+        String fileName = parentDir.getAbsolutePath() + "/" + userManager.getOwner().getNickName() + "/" + workspaceName;
         File workspaceDir = new File(fileName);
-        Assert.assertEquals(false,workspaceDir.exists());
+        Assert.assertEquals(false, workspaceDir.exists());
 
         System.out.println("Delete user is successful");
     }
 
 
     private void testDeleteOwnedWorkspace() {
-       // OwnedWorkspace ownedWorkspace=workspaceManager.getOwnedWorkspace(workspaceName);
-        List<String>workSpaces= userManager.getOwnedWorkspaces();
-        System.out.println("before "+workSpaces.contains(workspaceName));
+        // OwnedWorkspace ownedWorkspace=workspaceManager.getOwnedWorkspace(workspaceName);
+        List<String> workSpaces = userManager.getOwnedWorkspaces();
+        System.out.println("before " + workSpaces.contains(workspaceName));
 
-        for(int i=0;i<workSpaces.size();i++){
+        for (int i = 0; i < workSpaces.size(); i++) {
             System.out.println(workSpaces.get(i));
         }
         workspaceManager.deleteOwnedWorkspace(workspaceName);
-        workSpaces= userManager.getOwnedWorkspaces();
-        System.out.println("status in owned workspace "+workSpaces.contains(workspaceName));
-       Assert.assertEquals(false,workSpaces.contains(workspaceName));
+        workSpaces = userManager.getOwnedWorkspaces();
+        System.out.println("status in owned workspace " + workSpaces.contains(workspaceName));
+        Assert.assertEquals(false, workSpaces.contains(workspaceName));
 
-       workSpaces=userManager.getForeignWorkspaces();
-        System.out.println("status in foreign workspace "+workSpaces.contains(workspaceName));
-       Assert.assertEquals(false,workSpaces.contains(workspaceName));
+        workSpaces = userManager.getForeignWorkspaces();
+        System.out.println("status in foreign workspace " + workSpaces.contains(workspaceName));
+        Assert.assertEquals(false, workSpaces.contains(workspaceName));
 
-        File parentDir=appContext.getDir(Constants.OWNED_WORKSPACE_DIR,appContext.MODE_PRIVATE);
-        File workspaceDir = new File(parentDir.getAbsolutePath()+"/"+workspaceName);
-        System.out.println("is foreign ws folder available "+workSpaces.contains(workspaceName));
-        Assert.assertEquals(false,workspaceDir.exists());
+        File parentDir = appContext.getDir(Constants.OWNED_WORKSPACE_DIR, appContext.MODE_PRIVATE);
+        File workspaceDir = new File(parentDir.getAbsolutePath() + "/" + workspaceName);
+        System.out.println("is foreign ws folder available " + workSpaces.contains(workspaceName));
+        Assert.assertEquals(false, workspaceDir.exists());
 
-         parentDir=appContext.getDir(Constants.FOREIGN_WORKSPACE_DIR ,appContext.MODE_PRIVATE);
-        String fileName=parentDir.getAbsolutePath()+ "/" + userManager.getOwner().getNickName() + "/" + workspaceName;
+        parentDir = appContext.getDir(Constants.FOREIGN_WORKSPACE_DIR, appContext.MODE_PRIVATE);
+        String fileName = parentDir.getAbsolutePath() + "/" + userManager.getOwner().getNickName() + "/" + workspaceName;
         workspaceDir = new File(fileName);
-        System.out.println("is foreign ws folder available "+workSpaces.contains(workspaceName));
-        Assert.assertEquals(false,workspaceDir.exists());
-
-
+        System.out.println("is foreign ws folder available " + workSpaces.contains(workspaceName));
+        Assert.assertEquals(false, workspaceDir.exists());
 
     }
 
