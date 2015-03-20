@@ -177,8 +177,26 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         }
         workspaceManager.deleteOwnedWorkspace(workspaceName);
         workSpaces= userManager.getOwnedWorkspaces();
-        System.out.println("after "+workSpaces.contains(workspaceName));
+        System.out.println("status in owned workspace "+workSpaces.contains(workspaceName));
        Assert.assertEquals(false,workSpaces.contains(workspaceName));
+
+       workSpaces=userManager.getForeignWorkspaces();
+        System.out.println("status in foreign workspace "+workSpaces.contains(workspaceName));
+       Assert.assertEquals(false,workSpaces.contains(workspaceName));
+
+        File parentDir=appContext.getDir(Constants.OWNED_WORKSPACE_DIR,appContext.MODE_PRIVATE);
+        File workspaceDir = new File(parentDir.getAbsolutePath()+"/"+workspaceName);
+        System.out.println("is foreign ws folder available "+workSpaces.contains(workspaceName));
+        Assert.assertEquals(false,workspaceDir.exists());
+
+         parentDir=appContext.getDir(Constants.FOREIGN_WORKSPACE_DIR ,appContext.MODE_PRIVATE);
+        String fileName=parentDir.getAbsolutePath()+ "/" + userManager.getOwner().getNickName() + "/" + workspaceName;
+        workspaceDir = new File(fileName);
+        System.out.println("is foreign ws folder available "+workSpaces.contains(workspaceName));
+        Assert.assertEquals(false,workspaceDir.exists());
+
+
+
     }
 
     private void testDeleteUser() {
