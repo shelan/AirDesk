@@ -116,7 +116,7 @@ public class WorkspaceManager {
          boolean statusOwned=FileUtils.deleteOwnedWorkspaceFolder(workspaceName);
 
         //TODO: later change this to notify all clients about deletion
-
+         metadataManager.deleteForeignWorkspace(workspaceName,user.getNickName());
          boolean statusForeign=FileUtils.deleteForeignWorkspaceFolder(workspaceName,user.getNickName());  //only to simulate self mount. remove later
          System.out.println("workspace folder delete status :owned"+statusOwned+" foreign"+statusForeign);
 
