@@ -134,10 +134,9 @@ public class StorageManager {
         fileWriteLock.put(workspaceName + File.separator + fileName, new Boolean(true));
     }
 
-    public File createFolderStructureOnForeignWSAddition(String ownerId, String workspaceName) throws Exception {
+    public File createFolderForForeignWorkspace(String ownerId, String workspaceName) throws Exception {
         File parentDir = appContext.getDir(FOREIGN_WORKSPACE_DIR, appContext.MODE_PRIVATE);
         String uniqueWorkspacePath = ownerId + File.separator + workspaceName;
-        System.out.println("dir: " + parentDir.getAbsolutePath());
         return FileUtils.createFolder(parentDir, uniqueWorkspacePath);
     }
 

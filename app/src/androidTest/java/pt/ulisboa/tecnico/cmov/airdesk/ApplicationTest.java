@@ -43,30 +43,76 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         workspaceManager = new WorkspaceManager();
         userManager = new UserManager();
         appContext = AirDeskApp.s_applicationContext;
-        ownerName = "owner3";
-        workspaceName = "lanchWS3";
-        fileName = "file5";
+        ownerName = "owner";
+        workspaceName = "ws";
+        fileName = "file";
 
+        cleanWorkspaeDataNMetadata();
         createUser();
         testCreateWorkspace();
         testWorkspaceEdit();
-        testDeleteOwnedWorkspace();
-
-        WorkspaceTest wsTest=new WorkspaceTest();
-        wsTest.populateForeignWorkspaces();
-
         testGetOwnedWorkspaces();
         testOwnedWSDataFileLC();
-
-//        testWorkspaceEdit();
-
         testAddUserToWorkspace();
 
-//        testForeignWSDataFileLC();
+        testForeignWSDataFileLC();
 //        testDeleteUserFromAccessList();
 //        testSubscribeNEditTagsForeignWS();
-//        testDeleteOwnedWorkspace();
+
+        testDeleteOwnedWorkspace();
         testDeleteUser();
+    }
+
+    private void cleanWorkspaeDataNMetadata() {
+        File workspaceDir = appContext.getDir(Constants.OWNED_WORKSPACE_DIR, appContext.MODE_PRIVATE);
+        System.out.println("owned WS path:" + workspaceDir);
+        File[] files = workspaceDir.listFiles();
+        if(files!=null) { //some JVMs return null for empty dirs
+            for(File f: files) {
+                if(f.isDirectory()) {
+                    deleteFolder(f.getAbsolutePath());
+                } else {
+                    f.delete();
+                }
+            }
+        }
+
+        Assert.assertTrue(workspaceDir.listFiles().length == 0);
+
+        workspaceDir = appContext.getDir("foreignWorkspaces", appContext.MODE_PRIVATE);
+        System.out.println("foreignWS path:" + workspaceDir);
+        files = workspaceDir.listFiles();
+        if(files!=null) { //some JVMs return null for empty dirs
+            for(File f: files) {
+                if(f.isDirectory()) {
+                    deleteFolder(f.getAbsolutePath());
+                } else {
+                    f.delete();
+                }
+            }
+        }
+        Assert.assertTrue(workspaceDir.listFiles().length == 0);
+
+        for (File file : appContext.getFilesDir().listFiles()) {
+            file.delete();
+        }
+        Assert.assertTrue(appContext.getFilesDir().listFiles().length == 0);
+
+    }
+
+    public static boolean deleteFolder(String path) {
+        File folder = new File(path);
+        File[] files = folder.listFiles();
+        if(files!=null) { //some JVMs return null for empty dirs
+            for(File f: files) {
+                if(f.isDirectory()) {
+                    deleteFolder(f.getAbsolutePath());
+                } else {
+                    f.delete();
+                }
+            }
+        }
+        return folder.delete();
     }
 
     private void createUser() {
@@ -83,10 +129,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
 
     public void testGetOwnedWorkspaces() {
         List<String> wsList = userManager.getOwnedWorkspaces();
-        System.out.println("########################");
-        for (String s : wsList) {
-            System.out.println(s);
-        }
+        Assert.assertTrue(wsList.contains(workspaceName));
     }
 
     private void testOwnedWSDataFileLC() throws Exception {
@@ -140,21 +183,22 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
 
     private void testAddUserToWorkspace() throws Exception {
         workspaceManager.addUserToAccessList(workspaceName, ownerName);
+
+        //since we directly add this to foreign workspace for 1st iteration
         List<String> foreignWS = userManager.getForeignWorkspaces();
         Assert.assertTrue(foreignWS.contains(workspaceName));
     }
 
-    private void testForeignWSDataFileLC() {
-        //test for foreign workspace
+    private void testForeignWSDataFileLC() throws Exception {
 
-//        workspaceType = "foreignWorkspaces";
-//        baseDir = appContext.getDir(workspaceType, appContext.MODE_PRIVATE);
-//        pathToFile = baseDir.getAbsolutePath() + File.separator + ownerName + File.separator +
-//                workspaceName + File.separator + fileName;
-//
-//        workspaceManager.createDataFile(workspaceName, fileName, ownerName, false);
-//        Assert.assertEquals(true, new File(pathToFile).exists());
-//
+        String workspaceType = Constants.FOREIGN_WORKSPACE_DIR;
+        File baseDir = appContext.getDir(workspaceType, appContext.MODE_PRIVATE);
+        String pathToFile = baseDir.getAbsolutePath() + File.separator + ownerName + File.separator +
+                workspaceName + File.separator + fileName;
+
+        workspaceManager.createDataFile(workspaceName, fileName, ownerName, false);
+        Assert.assertEquals(true, new File(pathToFile).exists());
+
 //        workspaceManager.deleteDataFile(workspaceName, fileName, ownerName, false);
 //        Assert.assertEquals(false, new File(pathToFile).exists());
     }

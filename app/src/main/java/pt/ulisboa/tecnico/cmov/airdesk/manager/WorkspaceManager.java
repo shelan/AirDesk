@@ -73,8 +73,8 @@ public class WorkspaceManager {
         return workspace;
     }
 
-    public ForeignWorkspace getForeignWorkspace(String workspaceName){
-        return metadataManager.getForeignWorkspace(workspaceName);
+    public ForeignWorkspace getForeignWorkspace(String workspaceName, String ownerId){
+        return metadataManager.getForeignWorkspace(workspaceName, ownerId);
     }
 
 
@@ -197,15 +197,11 @@ public class WorkspaceManager {
         if(fileNames!=null)
         foreignWorkspace.addFiles(fileNames);
 
-        metadataManager.saveForeignWorkspace(foreignWorkspace);
+        metadataManager.saveForeignWorkspace(foreignWorkspace, ownerId);
 
-        //TODO check whether we need this
-        /*File createdDir = storageManager.createFolderStructureOnForeignWSAddition(ownerId, workspaceName);
-        if (createdDir.exists()) {
-            ForeignWorkspace workspace = new ForeignWorkspace(workspaceName, ownerId, quota);
-            workspace.addFiles(fileNames);
-            metadataManager.saveForeignWorkspace(workspace);
-        }*/
+        File createdDir = storageManager.createFolderForForeignWorkspace(ownerId, workspaceName);
+        if(createdDir == null)
+            throw new Exception("Could not create the foreign workspace directory : " + workspaceName);
     }
 
     public void removeFromForeignWorkspace(String workspaceName,String nickName){
@@ -213,10 +209,11 @@ public class WorkspaceManager {
         user.removeFromForeignWorkspaceList(workspaceName);
         userManager.updateUser(user);
 
-        metadataManager.deleteForeignWorkspace(workspaceName);
+        metadataManager.deleteForeignWorkspace(workspaceName, nickName);
 
         //TODO Check whether we need to delete the foreign_ws folder,
-        String foreignWSFolderPath=Constants.FOREIGN_WORKSPACE_DIR+File.separator+nickName + File.separator + workspaceName;
+        String foreignWSFolderPath=Constants.FOREIGN_WORKSPACE_DIR+File.separator+nickName +
+                File.separator + workspaceName;
         FileUtils.deleteFolder(foreignWSFolderPath);
     }
 
@@ -224,7 +221,7 @@ public class WorkspaceManager {
 
         boolean isCreated= storageManager.createDataFile(workspace, fileName, ownerId, isOwned);
 
-        //updating metadata
+        //add new file to metadata and save it
         if(isCreated){
             if(isOwned){
                 OwnedWorkspace ownedWorkspace=metadataManager.getOwnedWorkspace(workspace);
@@ -232,9 +229,9 @@ public class WorkspaceManager {
                 metadataManager.saveOwnedWorkspace(ownedWorkspace);//add new file to metadata and save it
             }
             else{
-                ForeignWorkspace foreignWorkspace=metadataManager.getForeignWorkspace(fileName);
+                ForeignWorkspace foreignWorkspace=metadataManager.getForeignWorkspace(workspace, ownerId);
                 foreignWorkspace.addFile(fileName);
-                metadataManager.saveForeignWorkspace(foreignWorkspace);//add new file to metadata and save it
+                metadataManager.saveForeignWorkspace(foreignWorkspace, ownerId);
             }
         }
     }
@@ -250,7 +247,7 @@ public class WorkspaceManager {
     public void deleteDataFile(String workspace, String fileName, String ownerId, boolean isOwned) throws IOException {
         boolean isDeleted = storageManager.deleteDataFile(workspace, fileName, ownerId, isOwned);
 
-        //updating metadata
+        //delete file from metadata and save it
         if(isDeleted){
             if(isOwned){
                 OwnedWorkspace ownedWorkspace=metadataManager.getOwnedWorkspace(workspace);
@@ -258,9 +255,9 @@ public class WorkspaceManager {
                 metadataManager.saveOwnedWorkspace(ownedWorkspace);//add new file to metadata and save it
             }
             else{
-                ForeignWorkspace foreignWorkspace=metadataManager.getForeignWorkspace(fileName);
+                ForeignWorkspace foreignWorkspace=metadataManager.getForeignWorkspace(fileName, ownerId);
                 foreignWorkspace.removeFile(fileName);
-                metadataManager.saveForeignWorkspace(foreignWorkspace);//add new file to metadata and save it
+                metadataManager.saveForeignWorkspace(foreignWorkspace, ownerId);//add new file to metadata and save it
             }
         }
     }
