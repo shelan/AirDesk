@@ -9,12 +9,16 @@ import junit.framework.Assert;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import pt.ulisboa.tecnico.cmov.airdesk.context.AirDeskApp;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.OwnedWorkspace;
+import pt.ulisboa.tecnico.cmov.airdesk.entity.User;
+import pt.ulisboa.tecnico.cmov.airdesk.enums.WorkspaceCreateStatus;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.MetadataManager;
-import pt.ulisboa.tecnico.cmov.airdesk.storage.StorageManager;
+import pt.ulisboa.tecnico.cmov.airdesk.manager.UserManager;
+import pt.ulisboa.tecnico.cmov.airdesk.manager.WorkspaceManager;
 
 /**
  * <a href="http://d.android.com/tools/testing/testing_android.html">Testing Fundamentals</a>
@@ -23,67 +27,154 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
     public ApplicationTest() {
         super(Application.class);
     }
-    StorageManager storageManager;
+
+    WorkspaceManager workspaceManager;
+    UserManager userManager;
     Context appContext;
-
-
+    String ownerName;
+    String workspaceName;
+    String fileName;
 
     public void testOwnedWSList(){
       new PopulateData().populateOwnedWorkspaces();
     }
-    public void testDataFileLC() throws Exception {
-        storageManager = new StorageManager();
+
+    public void testApp() throws Exception {
+        workspaceManager = new WorkspaceManager();
+        userManager = new UserManager();
         appContext = AirDeskApp.s_applicationContext;
+        ownerName = "owner3";
+        workspaceName = "my_niceWS";
+        fileName = "file5";
 
-        String owner = "owner1";
-        String workspaceName = "ws2";
-        String fileName = "file2";
-        File baseDir;
-        String pathToFile;
+        createUser();
+        testCreateWorkspace();
+        testWorkspaceEdit();
 
-        //test for foreign workspace
+        WorkspaceTest wsTest=new WorkspaceTest();
+        wsTest.populateForeignWorkspaces();
 
-        String workspaceType = "foreignWorkspaces";
-        baseDir = appContext.getDir(workspaceType, appContext.MODE_PRIVATE);
-        pathToFile = baseDir.getAbsolutePath() + File.separator + owner + File.separator +
-                workspaceName + File.separator + fileName;
+        testGetOwnedWorkspaces();
+        testOwnedWSDataFileLC();
 
-        storageManager.createDataFile(workspaceName, fileName, owner, false);
-        Assert.assertEquals(true, new File(pathToFile).exists());
+//        testWorkspaceEdit();
 
-        storageManager.deleteDataFile(workspaceName, fileName, owner, false);
-        Assert.assertEquals(false, new File(pathToFile).exists());
+        testAddUserToWorkspace();
 
+//        testForeignWSDataFileLC();
+//        testDeleteUserFromAccessList();
+//        testSubscribeNEditTagsForeignWS();
+//        testDeleteOwnedWorkspace();
+        testDeleteUser();
+    }
 
+    private void createUser() {
+        User user = new User();
+        user.setEmail("owner3@gmail.com");
+        user.setNickName("owner3");
+        userManager.createUser(user);
+    }
 
-        //test for owned workspace
-
-        workspaceType = "ownedWorkspaces";
-
-        baseDir = appContext.getDir(workspaceType, appContext.MODE_PRIVATE);
-        pathToFile = baseDir.getAbsolutePath() + File.separator + workspaceName + File.separator + fileName;
-
-        storageManager.createDataFile(workspaceName, fileName, owner, true);
-        Assert.assertEquals(true, new File(pathToFile).exists());
-
-        FileInputStream fis = storageManager.getDataFile(workspaceName, fileName, false, owner, true);
-        Assert.assertEquals(-1, fis.read());
-
-        storageManager.updateDataFile(workspaceName, fileName, generateFileInputStream(), owner, true);
-        fis = storageManager.getDataFile(workspaceName, fileName, false, owner, true);
-        Assert.assertNotSame(-1, fis.read());
-
-        storageManager.deleteDataFile(workspaceName, fileName, owner, true);
-        Assert.assertEquals(false, new File(pathToFile).exists());
-
+    private void testCreateWorkspace() {
+        OwnedWorkspace workspace = new OwnedWorkspace(workspaceName, ownerName, 2.0);
+        Assert.assertEquals(WorkspaceCreateStatus.OK, workspaceManager.createWorkspace(workspace));
     }
 
     public void testGetOwnedWorkspaces() {
-        List<String> wsList = new AirDeskManager().getOwnedWorkspaces();
+        List<String> wsList = userManager.getOwnedWorkspaces();
         System.out.println("########################");
         for (String s : wsList) {
             System.out.println(s);
         }
+    }
+
+    private void testOwnedWSDataFileLC() throws Exception {
+        File baseDir;
+        String pathToFile;
+
+        //test for owned workspace
+        String workspaceType = "ownedWorkspaces";
+
+        baseDir = appContext.getDir(workspaceType, appContext.MODE_PRIVATE);
+        pathToFile = baseDir.getAbsolutePath() + File.separator + workspaceName + File.separator + fileName;
+
+        workspaceManager.createDataFile(workspaceName, fileName, ownerName, true);
+        Assert.assertEquals(true, new File(pathToFile).exists());
+
+        FileInputStream fis = workspaceManager.getDataFile(workspaceName, fileName, false, ownerName, true);
+        Assert.assertEquals(-1, fis.read());
+
+        workspaceManager.updateDataFile(workspaceName, fileName, generateFileInputStream(), ownerName, true);
+        fis = workspaceManager.getDataFile(workspaceName, fileName, false, ownerName, true);
+        Assert.assertNotSame(-1, fis.read());
+
+        workspaceManager.deleteDataFile(workspaceName, fileName, ownerName, true);
+        Assert.assertEquals(false, new File(pathToFile).exists());
+
+    }
+
+    public void testWorkspaceEdit() {
+        //adding tags,
+        OwnedWorkspace workspace = new OwnedWorkspace("lanchWS", ownerName, 2.0);
+        workspaceManager.createWorkspace(workspace);
+
+      /*  List<String>ws=userManager.getOwnedWorkspaces();
+        for(int i=0;i<ws.size();i++){
+            System
+        }*/
+
+        OwnedWorkspace ownedWorkspace=workspaceManager.getOwnedWorkspace("lanchWS");
+        List<String>newTags=new ArrayList<String>();
+        for(int i=0;i<8;i++){
+            newTags.add("my new tag"+i);
+        }
+        ownedWorkspace.addTags(newTags);
+        ownedWorkspace.setQuota(500);
+        ownedWorkspace.setPublic(true);
+        workspaceManager.editOwnedWorkspace(workspaceName,ownedWorkspace);
+        OwnedWorkspace renewedWS=workspaceManager.getOwnedWorkspace(workspaceName);
+        Assert.assertEquals((double)500,ownedWorkspace.getQuota());
+        Assert.assertEquals(ownedWorkspace.getTags().size(),renewedWS.getTags().size());
+        for (String tag:renewedWS.getTags()){
+            System.out.println("tags are "+tag);
+        }
+    }
+
+    private void testAddUserToWorkspace() throws Exception {
+        workspaceManager.addUserToAccessList(workspaceName, ownerName);
+        List<String> foreignWS = userManager.getForeignWorkspaces();
+        Assert.assertTrue(foreignWS.contains(workspaceName));
+    }
+
+    private void testForeignWSDataFileLC() {
+        //test for foreign workspace
+
+//        workspaceType = "foreignWorkspaces";
+//        baseDir = appContext.getDir(workspaceType, appContext.MODE_PRIVATE);
+//        pathToFile = baseDir.getAbsolutePath() + File.separator + ownerName + File.separator +
+//                workspaceName + File.separator + fileName;
+//
+//        workspaceManager.createDataFile(workspaceName, fileName, ownerName, false);
+//        Assert.assertEquals(true, new File(pathToFile).exists());
+//
+//        workspaceManager.deleteDataFile(workspaceName, fileName, ownerName, false);
+//        Assert.assertEquals(false, new File(pathToFile).exists());
+    }
+
+    private void testSubscribeNEditTagsForeignWS() {
+
+    }
+
+    private void testDeleteUserFromAccessList() {
+
+    }
+
+    private void testDeleteOwnedWorkspace() {
+
+    }
+
+    private void testDeleteUser() {
+        userManager.deleteOwner(ownerName);
     }
 
     private FileInputStream generateFileInputStream() throws IOException {

@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -69,9 +68,13 @@ public class WorkspaceManager {
     }
 
     //ui need this before editing ws details, to populate view. Use this object before editing ws
-    public OwnedWorkspace getWorkspace(String workspaceName){
+    public OwnedWorkspace getOwnedWorkspace(String workspaceName){
         OwnedWorkspace workspace=metadataManager.getOwnedWorkspace(workspaceName);
         return workspace;
+    }
+
+    public ForeignWorkspace getForeignWorkspace(String workspaceName){
+        return metadataManager.getForeignWorkspace(workspaceName);
     }
 
 
@@ -97,7 +100,7 @@ public class WorkspaceManager {
         //
          user.removeFromForeignWorkspaceList(workspaceName);//TODO:has to be removed later
 
-        OwnedWorkspace ownedWorkspace=getWorkspace(workspaceName);
+        OwnedWorkspace ownedWorkspace= getOwnedWorkspace(workspaceName);
         Set<String> clients=ownedWorkspace.getClients().keySet();
         List<String>accessList=getClientList(clients);
         user.addClientsToDeletedWorkspacesMap(workspaceName, accessList);//to send notifications for deleted workspaces
@@ -150,35 +153,74 @@ public class WorkspaceManager {
         return false;
     }
 
-    public void addUsersToAccessList(String workspace,String userId){
+    public void addUserToAccessList(String workspace,String userId) throws Exception {
         //Both from the subscription and adding email by owner
         //To simulate mount, add to foreign ws of same user.
         // TODO:Later change this to use wifidirect
-        OwnedWorkspace ownedWorkspace=getWorkspace(workspace);
+        OwnedWorkspace ownedWorkspace= getOwnedWorkspace(workspace);
         ownedWorkspace.addClient(userId,false);//still client is inactive
 
         //TODO:notify user background job to send workspace to inactive clients, when they receive msg, make them active
         //TODO: received clients should add that workspace to their foreign space, and to their foreign workspace list
+
+        addToForeignWorkspace(workspace,ownedWorkspace.getOwnerId(),ownedWorkspace.getQuota(),ownedWorkspace.getFileNames().toArray(new String[ownedWorkspace.getFileNames().size()]));
+    }
+
+    public void deleteUserFromAccessList(String workspace, String userId){
+
+        //TODO: remove this after introducing wifidirect
         User user=userManager.getOwner();
-        user.addForeignWS(workspace);
-        ForeignWorkspace foreignWorkspace=cloneOwnedWorkspaceToForeign(ownedWorkspace);
+        user.removeFromForeignWorkspaceList(workspace);
+        metadataManager.saveUser(user);
+
+
+        //remove him from clients for workspace
+        OwnedWorkspace ownedWorkspace=getOwnedWorkspace(workspace);
+        ownedWorkspace.removeClient(userId);
+        ownedWorkspace.addClientToRemoveList(userId);//this list will be used by wifidirect to notify removed users
+
+        //because of the self mount we have to remove him from foreign ws
+        //TODO: remove this after introducing wifidirect
+        //delete foreignWS folder and files, delete foreignWS metadata
+        removeFromForeignWorkspace(workspace,userId);
+
+    }
+
+
+    public void addToForeignWorkspace(String workspaceName, String ownerId, double quota, String[] fileNames) throws Exception {
+        User user = userManager.getOwner();
+        user.addForeignWS(workspaceName);
+        userManager.updateUser(user);
+
+        ForeignWorkspace foreignWorkspace = new ForeignWorkspace(workspaceName, ownerId, quota);
+
+        if(fileNames!=null)
+        foreignWorkspace.addFiles(fileNames);
+
         metadataManager.saveForeignWorkspace(foreignWorkspace);
-       // addToForeignWorkspace(workspace,foreignWorkspace.getOwnerId(),foreignWorkspace.getQuota(),foreignWorkspace.getFileNames().toArray(new String[foreignWorkspace.getFileNames().size()]));
+
+        //TODO check whether we need this
+        /*File createdDir = storageManager.createFolderStructureOnForeignWSAddition(ownerId, workspaceName);
+        if (createdDir.exists()) {
+            ForeignWorkspace workspace = new ForeignWorkspace(workspaceName, ownerId, quota);
+            workspace.addFiles(fileNames);
+            metadataManager.saveForeignWorkspace(workspace);
+        }*/
     }
 
-    private ForeignWorkspace cloneOwnedWorkspaceToForeign(OwnedWorkspace ownedWorkspace) {
-      ForeignWorkspace foreignWorkspace=new ForeignWorkspace(ownedWorkspace.getWorkspaceName(),ownedWorkspace.getOwnerId(),ownedWorkspace.getQuota());
+    public void removeFromForeignWorkspace(String workspaceName,String nickName){
+        User user = userManager.getOwner();
+        user.removeFromForeignWorkspaceList(workspaceName);
+        userManager.updateUser(user);
 
-        List<String>files=ownedWorkspace.getFileNames();
-        foreignWorkspace.addFiles(files.toArray((new String[files.size()])));;
-        return  foreignWorkspace;
+        metadataManager.deleteForeignWorkspace(workspaceName);
+
+        //TODO Check whether we need to delete the foreign_ws folder,
+        String foreignWSFolderPath=Constants.FOREIGN_WORKSPACE_DIR+File.separator+nickName + File.separator + workspaceName;
+        FileUtils.deleteFolder(foreignWSFolderPath);
     }
 
-    public boolean addToForeignWorkspaces(OwnedWorkspace workspace){
-        return false;
-    }
-
-    public void addDataFile(String workspace, String fileName, String ownerId, boolean isOwned) throws Exception {
+    public void createDataFile(String workspace, String fileName, String ownerId, boolean isOwned) throws Exception {
 
         boolean isCreated= storageManager.createDataFile(workspace, fileName, ownerId, isOwned);
 
@@ -223,12 +265,4 @@ public class WorkspaceManager {
         }
     }
 
-    public void addToForeignWorkspace(String workspaceName, String ownerId, double quota, String[] fileNames) throws Exception {
-        File createdDir = storageManager.createFolderStructureOnForeignWSAddition(ownerId, workspaceName);
-        if(createdDir.exists()) {
-            ForeignWorkspace workspace = new ForeignWorkspace(workspaceName, ownerId, quota);
-            workspace.addFiles(fileNames);
-            metadataManager.saveForeignWorkspace(workspace);
-        }
-    }
 }
