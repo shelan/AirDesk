@@ -37,10 +37,6 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
     String workspaceName;
     String fileName;
 
-    public void testOwnedWSList(){
-      new PopulateData().populateOwnedWorkspaces();
-    }
-
     public void testApp() throws Exception {
         workspaceManager = new WorkspaceManager();
         userManager = new UserManager();
