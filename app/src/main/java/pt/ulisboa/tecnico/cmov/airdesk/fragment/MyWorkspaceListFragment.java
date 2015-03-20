@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
@@ -20,6 +21,7 @@ import java.util.Map;
 
 import pt.ulisboa.tecnico.cmov.airdesk.AirDeskManager;
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
+import pt.ulisboa.tecnico.cmov.airdesk.CreateWorkspaceActivity;
 import pt.ulisboa.tecnico.cmov.airdesk.R;
 import pt.ulisboa.tecnico.cmov.airdesk.WorkspaceDetailViewActivity;
 
@@ -70,6 +72,16 @@ public class MyWorkspaceListFragment extends Fragment {
                 startActivity(intent);
                 Toast.makeText(getActivity(), "You are now in " + workspace,
                         Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
+        ImageView imageView = (ImageView) rootView.findViewById(R.id.addImage);
+        imageView.setOnClickListener(new ImageView.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), CreateWorkspaceActivity.class);
+                startActivity(intent);
             }
         });
 
