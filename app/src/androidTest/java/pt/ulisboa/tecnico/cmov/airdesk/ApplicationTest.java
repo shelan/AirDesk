@@ -56,8 +56,8 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         testAddUserToWorkspace();
 
         testForeignWSDataFileLC();
-//        testDeleteUserFromAccessList();
-//        testSubscribeNEditTagsForeignWS();
+        testDeleteUserFromAccessList();
+        testSubscribeNEditTagsForeignWS();
 
         testDeleteOwnedWorkspace();
         testDeleteUser();
@@ -119,7 +119,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         User user = new User();
         user.setEmail("owner3@gmail.com");
         user.setNickName("owner3");
-        userManager.createUser(user);
+        userManager.createOwner(user);
     }
 
     private void testCreateWorkspace() {
@@ -199,12 +199,19 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         workspaceManager.createDataFile(workspaceName, fileName, ownerName, false);
         Assert.assertEquals(true, new File(pathToFile).exists());
 
-//        workspaceManager.deleteDataFile(workspaceName, fileName, ownerName, false);
-//        Assert.assertEquals(false, new File(pathToFile).exists());
+        workspaceManager.deleteDataFile(workspaceName, fileName, ownerName, false);
+        Assert.assertEquals(false, new File(pathToFile).exists());
     }
 
     private void testSubscribeNEditTagsForeignWS() {
+        String[] tags = new String[]{"tag1", "tag2"};
+        userManager.subscribeToTags(tags);
+        Assert.assertTrue(userManager.getOwner().getSubscribedTags().contains("tag1"));
+        Assert.assertTrue(userManager.getOwner().getSubscribedTags().contains("tag2"));
 
+        userManager.unsubscribeFromTags(new String[]{"tag1"});
+        Assert.assertFalse(userManager.getOwner().getSubscribedTags().contains("tag1"));
+        Assert.assertTrue(userManager.getOwner().getSubscribedTags().contains("tag2"));
     }
 
     private void testDeleteUserFromAccessList() {

@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.cmov.airdesk.manager;
 
+import java.security.acl.Owner;
 import java.util.List;
 
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
@@ -11,11 +12,11 @@ import pt.ulisboa.tecnico.cmov.airdesk.entity.User;
 public class UserManager {
     MetadataManager metaManager=new MetadataManager();
 
-    public void createUser(User user) {
+    public void createOwner(User user) {
         metaManager.saveUser(user);
     }
 
-    public void updateUser(User user) {
+    public void updateOwner(User user) {
         metaManager.saveUser(user);
     }
 
@@ -45,5 +46,15 @@ public class UserManager {
         //
     }
 
+    public void subscribeToTags(String[] tags) {
+        User owner = getOwner();
+        owner.addSubscriptionTags(tags);
+        updateOwner(owner);
+    }
 
+    public void unsubscribeFromTags(String[] tags) {
+        User owner = getOwner();
+        owner.removeSubscription(tags);
+        updateOwner(owner);
+    }
 }

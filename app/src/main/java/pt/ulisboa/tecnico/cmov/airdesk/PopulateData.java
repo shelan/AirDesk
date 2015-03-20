@@ -17,7 +17,7 @@ public class PopulateData {
         user.setEmail("abc@gmail.com");
         user.setNickName("aaa");
         UserManager userManager=new UserManager();
-        userManager.createUser(user);
+        userManager.createOwner(user);
 
         WorkspaceManager workspaceManager = new WorkspaceManager();
 

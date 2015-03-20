@@ -94,7 +94,7 @@ public class MainActivity extends ActionBarActivity {
         User user = new User();
         user.setEmail("lanch.gune@gmail.com");
         user.setNickName("junda");
-        manager.createUser(user);
+        manager.createOwner(user);
 
     }
 */

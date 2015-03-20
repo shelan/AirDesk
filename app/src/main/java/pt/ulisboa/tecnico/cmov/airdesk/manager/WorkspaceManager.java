@@ -44,7 +44,7 @@ public class WorkspaceManager {
             }
 
             user.addNewOwnedWorkspace(workspaceName);
-            userManager.createUser(user);//update existing user with new workspace
+            userManager.createOwner(user);//update existing user with new workspace
             System.out.println("------user created------");
 
             workspace.setOwnerName(user.getNickName());
@@ -76,7 +76,6 @@ public class WorkspaceManager {
     public ForeignWorkspace getForeignWorkspace(String workspaceName, String ownerId){
         return metadataManager.getForeignWorkspace(workspaceName, ownerId);
     }
-
 
     public boolean editOwnedWorkspace(String workspaceName, OwnedWorkspace editedWS){
         boolean isQuotaSmallerThanUsage=isQuotaSmallerThanUsage(workspaceName, editedWS.getQuota());
@@ -116,7 +115,7 @@ public class WorkspaceManager {
          System.out.println("workspace folder delete status :owned"+statusOwned+" foreign"+statusForeign);
 
         //save user with new changes
-        userManager.createUser(user);//save user with updated owned and foreign WS and updated deletedWSMap
+        userManager.createOwner(user);//save user with updated owned and foreign WS and updated deletedWSMap
         return true;
     }
 
@@ -128,7 +127,6 @@ public class WorkspaceManager {
         }
         return clientList;
         }
-
 
     /*make this public if don't do a prevalidation on textbox*/
     public boolean isNotSufficientMemory(double quotaSize){
@@ -186,11 +184,10 @@ public class WorkspaceManager {
 
     }
 
-
     public void addToForeignWorkspace(String workspaceName, String ownerId, double quota, String[] fileNames) throws Exception {
         User user = userManager.getOwner();
         user.addForeignWS(workspaceName);
-        userManager.updateUser(user);
+        userManager.updateOwner(user);
 
         ForeignWorkspace foreignWorkspace = new ForeignWorkspace(workspaceName, ownerId, quota);
 
@@ -207,7 +204,7 @@ public class WorkspaceManager {
     public void removeFromForeignWorkspace(String workspaceName,String nickName){
         User user = userManager.getOwner();
         user.removeFromForeignWorkspaceList(workspaceName);
-        userManager.updateUser(user);
+        userManager.updateOwner(user);
 
         metadataManager.deleteForeignWorkspace(workspaceName, nickName);
 
@@ -255,7 +252,7 @@ public class WorkspaceManager {
                 metadataManager.saveOwnedWorkspace(ownedWorkspace);//add new file to metadata and save it
             }
             else{
-                ForeignWorkspace foreignWorkspace=metadataManager.getForeignWorkspace(fileName, ownerId);
+                ForeignWorkspace foreignWorkspace=metadataManager.getForeignWorkspace(workspace, ownerId);
                 foreignWorkspace.removeFile(fileName);
                 metadataManager.saveForeignWorkspace(foreignWorkspace, ownerId);//add new file to metadata and save it
             }

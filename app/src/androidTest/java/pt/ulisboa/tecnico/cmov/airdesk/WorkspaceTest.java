@@ -2,7 +2,6 @@ package pt.ulisboa.tecnico.cmov.airdesk;
 
 import java.util.List;
 
-import pt.ulisboa.tecnico.cmov.airdesk.entity.ForeignWorkspace;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.OwnedWorkspace;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.User;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.UserManager;
@@ -17,7 +16,7 @@ public class WorkspaceTest {
         user.setEmail("abc@gmail.com");
         user.setNickName("aaa");
         UserManager userManager=new UserManager();
-        userManager.createUser(user);
+        userManager.createOwner(user);
 
         WorkspaceManager workspaceManager = new WorkspaceManager();
 
