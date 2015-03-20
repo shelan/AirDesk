@@ -44,12 +44,13 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         userManager = new UserManager();
         appContext = AirDeskApp.s_applicationContext;
         ownerName = "owner3";
-        workspaceName = "my_niceWS";
+        workspaceName = "lanchWS3";
         fileName = "file5";
 
         createUser();
         testCreateWorkspace();
         testWorkspaceEdit();
+        testDeleteOwnedWorkspace();
 
         WorkspaceTest wsTest=new WorkspaceTest();
         wsTest.populateForeignWorkspaces();
@@ -115,15 +116,12 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
 
     public void testWorkspaceEdit() {
         //adding tags,
-        OwnedWorkspace workspace = new OwnedWorkspace("lanchWS", ownerName, 2.0);
-        workspaceManager.createWorkspace(workspace);
-
       /*  List<String>ws=userManager.getOwnedWorkspaces();
         for(int i=0;i<ws.size();i++){
             System
         }*/
 
-        OwnedWorkspace ownedWorkspace=workspaceManager.getOwnedWorkspace("lanchWS");
+        OwnedWorkspace ownedWorkspace=workspaceManager.getOwnedWorkspace(workspaceName);
         List<String>newTags=new ArrayList<String>();
         for(int i=0;i<8;i++){
             newTags.add("my new tag"+i);
@@ -170,6 +168,34 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
     }
 
     private void testDeleteOwnedWorkspace() {
+       // OwnedWorkspace ownedWorkspace=workspaceManager.getOwnedWorkspace(workspaceName);
+        List<String>workSpaces= userManager.getOwnedWorkspaces();
+        System.out.println("before "+workSpaces.contains(workspaceName));
+
+        for(int i=0;i<workSpaces.size();i++){
+            System.out.println(workSpaces.get(i));
+        }
+        workspaceManager.deleteOwnedWorkspace(workspaceName);
+        workSpaces= userManager.getOwnedWorkspaces();
+        System.out.println("status in owned workspace "+workSpaces.contains(workspaceName));
+       Assert.assertEquals(false,workSpaces.contains(workspaceName));
+
+       workSpaces=userManager.getForeignWorkspaces();
+        System.out.println("status in foreign workspace "+workSpaces.contains(workspaceName));
+       Assert.assertEquals(false,workSpaces.contains(workspaceName));
+
+        File parentDir=appContext.getDir(Constants.OWNED_WORKSPACE_DIR,appContext.MODE_PRIVATE);
+        File workspaceDir = new File(parentDir.getAbsolutePath()+"/"+workspaceName);
+        System.out.println("is foreign ws folder available "+workSpaces.contains(workspaceName));
+        Assert.assertEquals(false,workspaceDir.exists());
+
+         parentDir=appContext.getDir(Constants.FOREIGN_WORKSPACE_DIR ,appContext.MODE_PRIVATE);
+        String fileName=parentDir.getAbsolutePath()+ "/" + userManager.getOwner().getNickName() + "/" + workspaceName;
+        workspaceDir = new File(fileName);
+        System.out.println("is foreign ws folder available "+workSpaces.contains(workspaceName));
+        Assert.assertEquals(false,workspaceDir.exists());
+
+
 
     }
 
