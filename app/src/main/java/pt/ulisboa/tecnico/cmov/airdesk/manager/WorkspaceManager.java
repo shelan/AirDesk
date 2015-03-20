@@ -60,7 +60,7 @@ public class WorkspaceManager {
 
     private boolean isWorkspaceAlreadyExists(String workspaceName, List<String> ownedWorkspaces) {
         for (int i = 0; i <ownedWorkspaces.size() ; i++) {
-          if(ownedWorkspaces.get(i).toLowerCase().equals(workspaceName)){
+          if(ownedWorkspaces.get(i).toLowerCase().equals(workspaceName.toLowerCase())){
               return true;
           }
         }
