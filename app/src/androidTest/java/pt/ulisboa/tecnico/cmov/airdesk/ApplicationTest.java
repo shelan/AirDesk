@@ -79,18 +79,31 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         Assert.assertFalse(isNotSufficientMemory);
     }
 
-    public void testTooSmallerThanWorkspace() {
+    public void testTooSmallerThanWorkspace() throws Exception{
+
+        File baseDir;
+        String pathToFile;
+        String workspaceType = "ownedWorkspaces";
+        baseDir = appContext.getDir(Constants.OWNED_WORKSPACE_DIR, appContext.MODE_PRIVATE);
+        pathToFile = baseDir.getAbsolutePath() + File.separator + workspaceName + File.separator + fileName;
+        workspaceManager.createDataFile(workspaceName, fileName, ownerName, true);
+        FileInputStream fis = workspaceManager.getDataFile(workspaceName, fileName, false, ownerName, true);
+        workspaceManager.updateDataFile(workspaceName, fileName, generateFileInputStream(), ownerName, true);
+
+
         double quotaSize=FileUtils.folderSize(workspaceName);
         System.out.println("folder size "+quotaSize);
         quotaSize=quotaSize+1;
         boolean  isTooSmallerThanWorkspace=workspaceManager.isQuotaSmallerThanUsage(workspaceName,quotaSize);
         Assert.assertFalse(isTooSmallerThanWorkspace);
 
+        quotaSize=FileUtils.folderSize(workspaceName);
         quotaSize=quotaSize-0.001;
         System.out.println("reduced quota size is"+quotaSize);
         isTooSmallerThanWorkspace=workspaceManager.isQuotaSmallerThanUsage(workspaceName,quotaSize);
         Assert.assertTrue(isTooSmallerThanWorkspace);
     }
+
     private void cleanWorkspaeDataNMetadata() {
         File workspaceDir = appContext.getDir(Constants.OWNED_WORKSPACE_DIR, appContext.MODE_PRIVATE);
         System.out.println("owned WS path:" + workspaceDir);
@@ -167,7 +180,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         //test for owned workspace
         String workspaceType = "ownedWorkspaces";
 
-        baseDir = appContext.getDir(workspaceType, appContext.MODE_PRIVATE);
+        baseDir = appContext.getDir(Constants.OWNED_WORKSPACE_DIR, appContext.MODE_PRIVATE);
         pathToFile = baseDir.getAbsolutePath() + File.separator + workspaceName + File.separator + fileName;
 
         workspaceManager.createDataFile(workspaceName, fileName, ownerName, true);
