@@ -5,26 +5,41 @@
     android:layout_height="0dp"
     android:layout_weight="1"
     android:orientation="vertical"
-    tools:context=".MainActivity$PlaceholderFragment"
-    android:padding="10dp">
+    tools:context=".MainActivity$PlaceholderFragment">
 
-    <TextView
-        android:id="@+id/foreign_workspace_header"
-        android:layout_width="fill_parent"
+    <RelativeLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/foreign_workspace_header"
-        android:textAlignment="center"
-        android:fontFamily="sans-serif-condensed"
-        android:textSize="25sp"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        style="@style/AppTheme" />
+        android:background="@color/airdesk_grey">
+
+        <TextView
+            android:id="@+id/foreign_workspace_header"
+            style="@style/AppTheme"
+            android:padding="10dp"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-condensed"
+            android:text="@string/foreign_workspace_header"
+            android:textAlignment="center"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textSize="25sp" />
+
+        <ImageView
+            android:id="@+id/imageButton"
+            android:padding="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_gravity="right"
+            android:src="@drawable/search" />
+    </RelativeLayout>
 
     <GridView
         android:id="@+id/owned_folder_view"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:padding="28dp"
-        android:numColumns="3" />
+        android:numColumns="3"
+        android:padding="24dp" />
 
 
 </LinearLayout>
