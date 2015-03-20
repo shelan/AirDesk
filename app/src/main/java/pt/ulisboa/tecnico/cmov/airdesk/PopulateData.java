@@ -1,7 +1,13 @@
 package pt.ulisboa.tecnico.cmov.airdesk;
 
+import android.content.Context;
+
+import junit.framework.Assert;
+
+import java.io.File;
 import java.util.List;
 
+import pt.ulisboa.tecnico.cmov.airdesk.context.AirDeskApp;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.OwnedWorkspace;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.User;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.UserManager;
@@ -12,7 +18,10 @@ import pt.ulisboa.tecnico.cmov.airdesk.manager.WorkspaceManager;
  */
 public class PopulateData {
 
-    public void populateOwnedWorkspaces(){
+    public void populateOwnedWorkspaces() throws Exception {
+
+        cleanWorkspaeDataNMetadata();
+
         User user = new User();
         user.setEmail("abc@gmail.com");
         user.setNickName("aaa");
@@ -23,12 +32,10 @@ public class PopulateData {
 
         for(int i=0;i<10;i++) {
             OwnedWorkspace workspace = new OwnedWorkspace("abc_ws"+i, "aaa", 2.5);
-            workspace.addFile("file1");
-            workspace.addFile("file2");
-            workspace.addFile("file3");
-            workspace.addFile("file4");
-            workspace.addFile("file5");
             workspaceManager.createWorkspace(workspace);
+            for (int j = 0; j < 5 ; j++) {
+                workspaceManager.createDataFile(workspace.getWorkspaceName(), "file"+i, workspace.getOwnerId(), true);
+            }
         }
 
         System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@");
@@ -61,5 +68,59 @@ public class PopulateData {
             ex.printStackTrace();
         }
 
+    }
+
+    private void cleanWorkspaeDataNMetadata() {
+        Context appContext = AirDeskApp.s_applicationContext;
+
+        File workspaceDir = appContext.getDir(Constants.OWNED_WORKSPACE_DIR, appContext.MODE_PRIVATE);
+        System.out.println("owned WS path:" + workspaceDir);
+        File[] files = workspaceDir.listFiles();
+        if (files != null) { //some JVMs return null for empty dirs
+            for (File f : files) {
+                if (f.isDirectory()) {
+                    deleteFolder(f.getAbsolutePath());
+                } else {
+                    f.delete();
+                }
+            }
+        }
+
+        Assert.assertTrue(workspaceDir.listFiles().length == 0);
+
+        workspaceDir = appContext.getDir("foreignWorkspaces", appContext.MODE_PRIVATE);
+        System.out.println("foreignWS path:" + workspaceDir);
+        files = workspaceDir.listFiles();
+        if (files != null) { //some JVMs return null for empty dirs
+            for (File f : files) {
+                if (f.isDirectory()) {
+                    deleteFolder(f.getAbsolutePath());
+                } else {
+                    f.delete();
+                }
+            }
+        }
+        Assert.assertTrue(workspaceDir.listFiles().length == 0);
+
+        for (File file : appContext.getFilesDir().listFiles()) {
+            file.delete();
+        }
+        Assert.assertTrue(appContext.getFilesDir().listFiles().length == 0);
+
+    }
+
+    public static boolean deleteFolder(String path) {
+        File folder = new File(path);
+        File[] files = folder.listFiles();
+        if (files != null) { //some JVMs return null for empty dirs
+            for (File f : files) {
+                if (f.isDirectory()) {
+                    deleteFolder(f.getAbsolutePath());
+                } else {
+                    f.delete();
+                }
+            }
+        }
+        return folder.delete();
     }
 }
