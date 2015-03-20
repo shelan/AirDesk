@@ -23,6 +23,11 @@ public class PopulateData {
 
         for(int i=0;i<10;i++) {
             OwnedWorkspace workspace = new OwnedWorkspace("abc_ws"+i, "aaa", 2.5);
+            workspace.addFile("file1");
+            workspace.addFile("file2");
+            workspace.addFile("file3");
+            workspace.addFile("file4");
+            workspace.addFile("file5");
             workspaceManager.createWorkspace(workspace);
         }
 

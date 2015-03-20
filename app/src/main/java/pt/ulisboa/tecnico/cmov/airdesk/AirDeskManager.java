@@ -2,6 +2,7 @@ package pt.ulisboa.tecnico.cmov.airdesk;
 
 import java.util.List;
 
+import pt.ulisboa.tecnico.cmov.airdesk.entity.OwnedWorkspace;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.UserManager;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.WorkspaceManager;
 
@@ -26,4 +27,9 @@ public class AirDeskManager {
         // TODO temp for testing
         return userManager.getOwnedWorkspaces();
     }
+
+    public OwnedWorkspace getOwnedWorkspace(String workspaceName){
+       return workspaceManager.getWorkspace(workspaceName);
+    }
+
 }

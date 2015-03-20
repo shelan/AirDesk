@@ -9,57 +9,63 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import android.widget.GridView;
+import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import pt.ulisboa.tecnico.cmov.airdesk.AirDeskManager;
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
 import pt.ulisboa.tecnico.cmov.airdesk.R;
 import pt.ulisboa.tecnico.cmov.airdesk.WorkspaceDetailViewActivity;
-import pt.ulisboa.tecnico.cmov.airdesk.manager.WorkspaceManager;
 
 /**
  * Created by shelan on 3/15/15.
  */
 public class MyWorkspaceListFragment extends Fragment {
 
-    private ArrayAdapter<String> arrayAdapter;
+    private ArrayList<String> workspaceList = new ArrayList<>();
 
-    private WorkspaceManager manager = new WorkspaceManager();
+    private AirDeskManager manager = new AirDeskManager();
+
+    private SimpleAdapter adapter;
+
+    private List<Map<String, Object>> data = new ArrayList<>();
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_my_workspace, container, false);
-        ArrayList<String> dummyData = new ArrayList<String>();
-        dummyData.add("My workspace 1");
-        dummyData.add("My workspace 2");
+        data = fillDataAdapter(workspaceList);
 
+        GridView gridView = (GridView) rootView.findViewById(R.id.owned_folder_view);
 
-        arrayAdapter = new ArrayAdapter<String>(
-                getActivity(),
-                R.layout.list_item_workspace,
-                R.id.list_item_workspace,
-                dummyData);
+        adapter = new SimpleAdapter(getActivity(), data, R.layout.workspace_folder,
+                new String[]{"fileIcon", "workspaceName"},
+                new int[]{R.id.file_image, R.id.file_name});
 
         // Get a reference to the ListView, and attach this adapter to it.
-        ListView workspaceListView = (ListView) rootView.findViewById(R.id.listview_workspace);
-        workspaceListView.setAdapter(arrayAdapter);
+       /* ListView workspaceListView = (ListView) rootView.findViewById(R.id.listview_workspace);
+        workspaceListView.setAdapter(adapter);*/
 
-        workspaceListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        gridView.setAdapter(adapter);
+
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 // CursorAdapter returns a cursor at the correct position for getItem(), or null
                 // if it cannot seek to that position.
 
-                String workspace = arrayAdapter.getItem(position);
-
+                Map<String, Object> item = (Map<String, Object>) adapter.getItem(position);
+                String workspace = (String) item.get("workspaceName");
 
                 Intent intent = new Intent(getActivity(), WorkspaceDetailViewActivity.class)
                         .putExtra(Intent.EXTRA_TEXT, workspace)
-                        .putExtra(Constants.WORKSPACE, manager.getWorkspace(workspace));
+                        .putExtra(Constants.WORKSPACE, manager.getOwnedWorkspace(workspace));
 
                 startActivity(intent);
                 Toast.makeText(getActivity(), "You are now in " + workspace,
@@ -77,30 +83,41 @@ public class MyWorkspaceListFragment extends Fragment {
         updateWorkspaceList();
     }
 
+    private List<Map<String, Object>> fillDataAdapter(ArrayList<String> dataList) {
+        for (String file : dataList) {
+            Map map = new HashMap();
+            map.put("fileIcon", R.drawable.home_blue);
+            map.put("workspaceName", file);
+            data.add(map);
+        }
+        return data;
+    }
+
     private void updateWorkspaceList() {
 
-        ForeignWorkspaceDataAsync foreignWorkspaceDataAsync = new ForeignWorkspaceDataAsync();
-        foreignWorkspaceDataAsync.execute();
+        MyWorkspaceListDataAsync myWorkspaceListDataAsync = new MyWorkspaceListDataAsync();
+        myWorkspaceListDataAsync.execute();
 
     }
 
-    public class ForeignWorkspaceDataAsync extends AsyncTask<Void, Void, ArrayList<String>> {
+    public class MyWorkspaceListDataAsync extends AsyncTask<Void, Void, List<String>> {
 
-        private final String LOG_TAG = ForeignWorkspaceDataAsync.class.getSimpleName();
+        private final String LOG_TAG = MyWorkspaceListDataAsync.class.getSimpleName();
 
         @Override
-        protected ArrayList<String> doInBackground(Void... params) {
-            return null;
+        protected List<String> doInBackground(Void... params) {
+            return manager.getOwnedWorkspaces();
         }
 
         @Override
-        protected void onPostExecute(ArrayList<String> result) {
-           if(result != null){
-               arrayAdapter.clear();
-               for (String s : result) {
-                   arrayAdapter.add(s);
-               }
-           }
+        protected void onPostExecute(List<String> result) {
+            if (result != null) {
+                workspaceList.clear();
+                for (String s : result) {
+                    workspaceList.add(s);
+                }
+            }
+            fillDataAdapter(workspaceList);
 
         }
     }
