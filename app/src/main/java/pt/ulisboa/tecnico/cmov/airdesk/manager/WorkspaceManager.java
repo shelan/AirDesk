@@ -199,13 +199,9 @@ public class WorkspaceManager {
 
         metadataManager.saveForeignWorkspace(foreignWorkspace);
 
-        //TODO check whether we need this
-        /*File createdDir = storageManager.createFolderStructureOnForeignWSAddition(ownerId, workspaceName);
-        if (createdDir.exists()) {
-            ForeignWorkspace workspace = new ForeignWorkspace(workspaceName, ownerId, quota);
-            workspace.addFiles(fileNames);
-            metadataManager.saveForeignWorkspace(workspace);
-        }*/
+        File createdDir = storageManager.createFolderForForeignWorkspace(ownerId, workspaceName);
+        if(createdDir == null)
+            throw new Exception("Could not create the foreign workspace directory : " + workspaceName);
     }
 
     public void removeFromForeignWorkspace(String workspaceName,String nickName){
