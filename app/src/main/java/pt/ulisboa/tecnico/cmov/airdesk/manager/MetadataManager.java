@@ -36,6 +36,11 @@ public class MetadataManager {
     public OwnedWorkspace getOwnedWorkspace(String workspaceFileName) {
         String ownedWSFileName = workspaceFileName + Constants.OWNED_SUFFIX + Constants.JSON_SUFFIX;
         String workspaceJson = readFromInternalFile(ownedWSFileName);
+
+        if(workspaceJson==null||workspaceJson.equals("")){//this should never happen if workspace exists
+            return null;
+        }
+
         OwnedWorkspace workspace = gson.fromJson(workspaceJson, OwnedWorkspace.class);
         return workspace;
     }
