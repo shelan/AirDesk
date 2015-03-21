@@ -22,14 +22,11 @@ public class FileUtils {
         return inputStream;
     }
 
-    public static void writeToFile(String path, FileInputStream inputStream) throws IOException {
+    public static void writeToFile(String path, String content) throws IOException {
 
         OutputStream outputStream = new FileOutputStream(path);
-        int c;
-        while ((c = inputStream.read()) != -1) {
-            outputStream.write(c);
-        }
-        inputStream.close();
+        outputStream.write(content.getBytes());
+        outputStream.flush();
         outputStream.close();
     }
 
