@@ -37,10 +37,6 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
     String workspaceName;
     String fileName;
 
-    public void testOwnedWSList(){
-      new PopulateData().populateOwnedWorkspaces();
-    }
-
     public void testApp() throws Exception {
         workspaceManager = new WorkspaceManager();
         userManager = new UserManager();
@@ -87,7 +83,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         pathToFile = baseDir.getAbsolutePath() + File.separator + workspaceName + File.separator + fileName;
         workspaceManager.createDataFile(workspaceName, fileName, ownerName, true);
         FileInputStream fis = workspaceManager.getDataFile(workspaceName, fileName, false, ownerName, true);
-        workspaceManager.updateDataFile(workspaceName, fileName, generateFileInputStream(), ownerName, true);
+        workspaceManager.updateDataFile(workspaceName, fileName, "my file content", ownerName, true);
 
 
         double quotaSize=FileUtils.folderSize(workspaceName);
@@ -185,7 +181,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         FileInputStream fis = workspaceManager.getDataFile(workspaceName, fileName, false, ownerName, true);
         Assert.assertEquals(-1, fis.read());
 
-        workspaceManager.updateDataFile(workspaceName, fileName, generateFileInputStream(), ownerName, true);
+        workspaceManager.updateDataFile(workspaceName, fileName, "my file content", ownerName, true);
         fis = workspaceManager.getDataFile(workspaceName, fileName, false, ownerName, true);
         Assert.assertNotSame(-1, fis.read());
 

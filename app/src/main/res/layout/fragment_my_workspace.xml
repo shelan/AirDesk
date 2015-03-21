@@ -32,8 +32,9 @@
             android:layout_height="wrap_content"
             android:layout_gravity="right"
             android:layout_alignParentRight="true"
-            android:id="@+id/imageButton"
-            android:src="@drawable/add" />
+            android:id="@+id/addImage"
+            android:src="@drawable/add"
+            android:clickable="true" />
     </RelativeLayout>
 
     <GridView

@@ -10,7 +10,7 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name">
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -24,6 +24,22 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="pt.ulisboa.tecnico.cmov.airdesk.MainActivity" />
+        </activity>
+        <activity
+            android:name=".CreateWorkspaceActivity"
+            android:label="@string/title_activity_create_workspace"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="pt.ulisboa.tecnico.cmov.airdesk.MainActivity" />
+        </activity>
+        <activity
+            android:name=".TextFileEditActivity"
+            android:label="@string/title_activity_text_file_edit"
+            android:parentActivityName=".WorkspaceDetailViewActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="pt.ulisboa.tecnico.cmov.airdesk.WorkspaceDetailViewActivity" />
         </activity>
     </application>
 

@@ -93,7 +93,7 @@ public class StorageManager {
         return FileUtils.readFile(pathToFile);
     }
 
-    public void updateDataFile(String workspaceName, String fileName, FileInputStream inputStream, String ownerId, boolean isOwned) throws IOException {
+    public void updateDataFile(String workspaceName, String fileName, String content, String ownerId, boolean isOwned) throws IOException {
         File baseDir;
         String pathToFile;
 
@@ -107,7 +107,7 @@ public class StorageManager {
                     workspaceName + File.separator + fileName;
         }
 
-        FileUtils.writeToFile(pathToFile, inputStream);
+        FileUtils.writeToFile(pathToFile, content);
     }
 
     public boolean deleteDataFile(String workspaceName, String fileName, String ownerId, boolean isOwned) throws IOException {

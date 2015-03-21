@@ -9,8 +9,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.SimpleAdapter;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,6 +22,8 @@ import pt.ulisboa.tecnico.cmov.airdesk.entity.OwnedWorkspace;
 
 
 public class WorkspaceDetailViewActivity extends ActionBarActivity {
+
+    static OwnedWorkspace workspace ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,8 +76,6 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
 
             GridView gridView = (GridView) rootView.findViewById(R.id.folder_view);
 
-            OwnedWorkspace workspace = null;
-
             if (intent != null) {
 
                 if (intent.hasExtra(Constants.WORKSPACE)) {
@@ -82,28 +84,44 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
                 }
             }
 
-            if(workspace == null){
+            if (workspace == null) {
                 //should do something here. because this is a terrible position to be :(
             }
 
-
             ArrayList<Map<String, Object>> list = new ArrayList<>();
 
-            for(String file : workspace.getFileNames()) {
+            for (String file : workspace.getFileNames()) {
                 Map map = new HashMap();
                 map.put("fileIcon", R.drawable.file);
                 map.put("fileName", file);
                 list.add(map);
             }
 
-
-            SimpleAdapter adapter = new SimpleAdapter(getActivity(),list,
-                    R.layout.workspace_folder, new String[] { "fileIcon", "fileName" },
-                    new int[] {R.id.file_image, R.id.file_name });
-
-
+            final SimpleAdapter adapter = new SimpleAdapter(getActivity(), list,
+                    R.layout.workspace_folder, new String[]{"fileIcon", "fileName"},
+                    new int[]{R.id.file_image, R.id.file_name});
 
             gridView.setAdapter(adapter);
+
+            final OwnedWorkspace finalWorkspace = workspace;
+
+            gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                    Map<String, Object> item = (Map<String, Object>) adapter.getItem(position);
+                    String fileName = (String) item.get("fileName");
+
+                    Intent intent = new Intent(getActivity(), TextFileEditActivity.class)
+                            .putExtra(Constants.FILENAME, fileName)
+                            .putExtra(Constants.WORKSPACE, finalWorkspace.getWorkspaceName())
+                            .putExtra(Constants.OWNER, finalWorkspace.getOwnerName());
+
+                    startActivity(intent);
+                    Toast.makeText(getActivity(), "Opening file " + fileName,
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
 
             return rootView;
         }

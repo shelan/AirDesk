@@ -239,8 +239,8 @@ public class WorkspaceManager {
         return storageManager.getDataFile(workspace, fileName, writeMode, ownerId, isOwned);
     }
 
-    public void updateDataFile(String workspace, String fileName, FileInputStream inputStream, String ownerId, boolean isOwned) throws IOException {
-        storageManager.updateDataFile(workspace, fileName, inputStream, ownerId, isOwned);
+    public void updateDataFile(String workspace, String fileName, String content, String ownerId, boolean isOwned) throws IOException {
+        storageManager.updateDataFile(workspace, fileName, content, ownerId, isOwned);
     }
 
     public void deleteDataFile(String workspace, String fileName, String ownerId, boolean isOwned) throws IOException {

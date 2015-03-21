@@ -16,4 +16,6 @@ public class Constants {
     public static final String JSON_SUFFIX=".json";
 
     public static final String WORKSPACE = "workspace";
+    public static final String FILENAME = "filename";
+    public static final String OWNER = "owner";
 }

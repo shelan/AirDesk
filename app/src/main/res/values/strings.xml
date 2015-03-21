@@ -7,4 +7,6 @@
     <string name="foreign_workspace_header">Client Workspaces</string>
     <string name="title_activity_workspace_detail_view">WorkspaceDetailView</string>
     <string name="action_refresh">Refresh</string>
+    <string name="title_activity_create_workspace">CreateWorkspaceActivity</string>
+    <string name="title_activity_text_file_edit">TextFileEdit</string>
 </resources>
