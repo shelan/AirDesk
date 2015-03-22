@@ -8,8 +8,7 @@
         android:title="@string/action_settings"
         app:showAsAction="never" />
     <item
-        android:id="@+id/action_search"
-        android:icon="@drawable/ic_refresh"
-        app:showAsAction="ifRoom"
-        android:title="" />
+        android:id="@+id/action_populate"
+        app:showAsAction="never"
+        android:title="Populate Data" />
 </menu>

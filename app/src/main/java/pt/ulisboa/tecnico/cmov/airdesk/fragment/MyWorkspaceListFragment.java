@@ -96,8 +96,10 @@ public class MyWorkspaceListFragment extends Fragment {
     }
 
     private List<Map<String, Object>> fillDataAdapter(ArrayList<String> dataList) {
+        data.clear();
         for (String file : dataList) {
             Map map = new HashMap();
+
             map.put("fileIcon", R.drawable.home_blue);
             map.put("workspaceName", file);
             data.add(map);
@@ -105,7 +107,7 @@ public class MyWorkspaceListFragment extends Fragment {
         return data;
     }
 
-    private void updateWorkspaceList() {
+    public void updateWorkspaceList() {
 
         MyWorkspaceListDataAsync myWorkspaceListDataAsync = new MyWorkspaceListDataAsync();
         myWorkspaceListDataAsync.execute();
@@ -130,7 +132,7 @@ public class MyWorkspaceListFragment extends Fragment {
                 }
             }
             fillDataAdapter(workspaceList);
-
+            adapter.notifyDataSetChanged();
         }
     }
 }

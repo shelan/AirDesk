@@ -14,6 +14,7 @@ import android.widget.GridView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,15 +24,19 @@ import pt.ulisboa.tecnico.cmov.airdesk.entity.OwnedWorkspace;
 
 public class WorkspaceDetailViewActivity extends ActionBarActivity {
 
-    static OwnedWorkspace workspace ;
+    static OwnedWorkspace workspace;
+    private WorkspaceDetailFragment workspaceDetailFragment;
+    static SimpleAdapter adapter;
+    static ArrayList<Map<String, Object>> list = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_workspace_grid_view);
         if (savedInstanceState == null) {
+            workspaceDetailFragment =new WorkspaceDetailFragment() ;
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new PlaceholderFragment())
+                    .add(R.id.container, new WorkspaceDetailFragment())
                     .commit();
         }
     }
@@ -55,16 +60,30 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
         if (id == R.id.action_settings) {
             return true;
         }
+        if (id == R.id.add_file) {
+            Intent intent = new Intent(this, CreateFileActivity.class);
+            intent.putExtra(Constants.WORKSPACE, workspace.getWorkspaceName())
+                    .putExtra(Constants.OWNER, workspace.getOwnerName())
+                    .putExtra("fragment",workspaceDetailFragment)
+            //TODO:we need to get whether owner or not
+            ;
+            startActivity(intent);
+            finish();
+        }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public WorkspaceDetailFragment getWorkspaceDetailFragment() {
+        return workspaceDetailFragment;
     }
 
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class PlaceholderFragment extends Fragment {
+    public static class WorkspaceDetailFragment extends Fragment implements Serializable {
 
-        public PlaceholderFragment() {
+        public WorkspaceDetailFragment() {
         }
 
         @Override
@@ -88,7 +107,7 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
                 //should do something here. because this is a terrible position to be :(
             }
 
-            ArrayList<Map<String, Object>> list = new ArrayList<>();
+            list.clear();
 
             for (String file : workspace.getFileNames()) {
                 Map map = new HashMap();
@@ -97,7 +116,7 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
                 list.add(map);
             }
 
-            final SimpleAdapter adapter = new SimpleAdapter(getActivity(), list,
+             adapter = new SimpleAdapter(getActivity(), list,
                     R.layout.workspace_folder, new String[]{"fileIcon", "fileName"},
                     new int[]{R.id.file_image, R.id.file_name});
 
@@ -124,6 +143,20 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
             });
 
             return rootView;
+        }
+        public void refresh(){
+            if(workspace != null){
+                list.clear();
+                for (String file : workspace.getFileNames()) {
+                    HashMap map = new HashMap();
+                    map.put("fileIcon", R.drawable.file);
+                    map.put("fileName", file);
+                    list.add(map);
+                }
+            }
+            Toast.makeText(getActivity(), "Refresing  file list " ,
+                    Toast.LENGTH_SHORT).show();
+            adapter.notifyDataSetChanged();
         }
     }
 

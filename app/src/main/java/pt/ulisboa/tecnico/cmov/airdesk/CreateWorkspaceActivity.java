@@ -8,8 +8,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
+
+import java.util.Arrays;
+
+import pt.ulisboa.tecnico.cmov.airdesk.entity.OwnedWorkspace;
+import pt.ulisboa.tecnico.cmov.airdesk.manager.WorkspaceManager;
 
 
 public class CreateWorkspaceActivity extends ActionBarActivity {
@@ -24,7 +30,6 @@ public class CreateWorkspaceActivity extends ActionBarActivity {
                     .commit();
         }
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -58,24 +63,43 @@ public class CreateWorkspaceActivity extends ActionBarActivity {
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
+                                 final Bundle savedInstanceState) {
             final View rootView = inflater.inflate(R.layout.fragment_create_workspace, container, false);
             CheckBox publicCheckBox = (CheckBox) rootView.findViewById(R.id.is_public_checkbx);
             publicCheckBox.setOnClickListener(new CheckBox.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    CheckBox checkBox = (CheckBox)v;
+                    CheckBox checkBox = (CheckBox) v;
                     TextView tagText = (TextView) rootView.findViewById(R.id.tag_text);
-                    if(checkBox.isChecked()){
+                    if (checkBox.isChecked()) {
                         tagText.setVisibility(View.VISIBLE);
-                    }else{
+                    } else {
                         tagText.setVisibility(View.INVISIBLE);
                     }
                 }
             });
 
-            return rootView;
+            Button button = (Button) rootView.findViewById(R.id.create_btn);
+            button.setOnClickListener(new Button.OnClickListener() {
 
+                @Override
+                public void onClick(View v) {
+                    String name = String.valueOf(((TextView) rootView.findViewById(R.id.ws_name)).getText()).trim();
+                    String email = String.valueOf(((TextView) rootView.findViewById(R.id.ws_email)).getText()).trim();
+                    String tags = String.valueOf(((TextView) rootView.findViewById(R.id.tag_text)).getText()).trim();
+                    String quota = String.valueOf(((TextView) rootView.findViewById(R.id.quota)).getText()).trim();
+
+
+                    WorkspaceManager manager = new WorkspaceManager();
+                    OwnedWorkspace ownedWorkspace = new OwnedWorkspace(name,
+                            email, Double.parseDouble(quota));
+
+                    ownedWorkspace.addTags(Arrays.asList(tags.split(",")));
+                    manager.createWorkspace(ownedWorkspace);
+                    getActivity().finish();
+                }
+            });
+            return rootView;
 
 
         }

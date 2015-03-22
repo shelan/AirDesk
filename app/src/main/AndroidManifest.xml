@@ -41,6 +41,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="pt.ulisboa.tecnico.cmov.airdesk.WorkspaceDetailViewActivity" />
         </activity>
+        <activity
+            android:name=".CreateFileActivity"
+            android:label="@string/title_activity_create_file"
+            android:parentActivityName=".WorkspaceDetailViewActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="pt.ulisboa.tecnico.cmov.airdesk.WorkspaceDetailViewActivity" />
+        </activity>
     </application>
 
 </manifest>

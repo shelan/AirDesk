@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Set;
 
 import pt.ulisboa.tecnico.cmov.airdesk.context.AirDeskApp;
-import pt.ulisboa.tecnico.cmov.airdesk.entity.ForeignWorkspace;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.OwnedWorkspace;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.User;
 import pt.ulisboa.tecnico.cmov.airdesk.enums.WorkspaceCreateStatus;
@@ -46,7 +45,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         fileName = "file";
 
         cleanWorkspaeDataNMetadata();
-        createUser();
+        /*createUser();
         testCreateWorkspace();
         testWorkspaceEdit();
         testGetOwnedWorkspaces();
@@ -62,7 +61,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         testSubscribeNEditTagsForeignWS();
 
         testDeleteOwnedWorkspace();
-        testDeleteUser();
+        testDeleteUser();*/
     }
 
     public void testTooLargeForMemory(){

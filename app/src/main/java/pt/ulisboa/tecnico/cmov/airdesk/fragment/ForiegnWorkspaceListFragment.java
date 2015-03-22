@@ -88,16 +88,18 @@ public class ForiegnWorkspaceListFragment extends Fragment {
     }
 
     private List<Map<String, Object>> fillDataAdapter(ArrayList<String> dataList) {
+        data.clear();
         for (String file : dataList) {
             Map map = new HashMap();
             map.put("fileIcon", R.drawable.foreign_workspace);
             map.put("workspaceName", file);
+
             data.add(map);
         }
         return data;
     }
 
-    private void updateWorkspaceList() {
+    public void updateWorkspaceList() {
 
         ForeignWorkspaceDataAsync foreignWorkspaceDataAsync = new ForeignWorkspaceDataAsync();
         foreignWorkspaceDataAsync.execute();
@@ -122,7 +124,7 @@ public class ForiegnWorkspaceListFragment extends Fragment {
                 }
             }
             fillDataAdapter(workspaceList);
-
+            adapter.notifyDataSetChanged();
         }
     }
 }
