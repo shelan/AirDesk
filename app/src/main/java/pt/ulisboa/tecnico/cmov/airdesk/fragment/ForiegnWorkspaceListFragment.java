@@ -24,6 +24,7 @@ import pt.ulisboa.tecnico.cmov.airdesk.AirDeskManager;
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
 import pt.ulisboa.tecnico.cmov.airdesk.R;
 import pt.ulisboa.tecnico.cmov.airdesk.WorkspaceDetailViewActivity;
+import pt.ulisboa.tecnico.cmov.airdesk.manager.UserManager;
 
 /**
  * Created by shelan on 3/15/15.
@@ -112,7 +113,7 @@ public class ForiegnWorkspaceListFragment extends Fragment {
 
         @Override
         protected List<String> doInBackground(Void... params) {
-            return manager.getOwnedWorkspaces();
+            return new UserManager().getForeignWorkspaces();
         }
 
         @Override

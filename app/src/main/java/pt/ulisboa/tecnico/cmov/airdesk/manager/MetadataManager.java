@@ -37,7 +37,7 @@ public class MetadataManager {
         String ownedWSFileName = workspaceFileName + Constants.OWNED_SUFFIX + Constants.JSON_SUFFIX;
         String workspaceJson = readFromInternalFile(ownedWSFileName);
 
-        if(workspaceJson==null||workspaceJson.equals("")){//this should never happen if workspace exists
+        if (workspaceJson == null || workspaceJson.isEmpty()) {//this should never happen if workspace exists
             return null;
         }
 
@@ -45,8 +45,8 @@ public class MetadataManager {
         return workspace;
     }
 
-    public boolean deleteOwnedWorkspace(String workspaceName){
-        String ownedWSFileName=workspaceName+Constants.OWNED_SUFFIX+Constants.JSON_SUFFIX;
+    public boolean deleteOwnedWorkspace(String workspaceName) {
+        String ownedWSFileName = workspaceName + Constants.OWNED_SUFFIX + Constants.JSON_SUFFIX;
         return deleteFile(ownedWSFileName);
     }
 
@@ -82,20 +82,19 @@ public class MetadataManager {
         return user;
     }
 
-    public boolean deleteFile(String fileName ){
-     try{
-         Context appContext = AirDeskApp.s_applicationContext;
-         String absFileLocation=appContext.getFilesDir().getAbsolutePath()+"/"+fileName;
-         System.out.println("file to be deleted:" + absFileLocation);
-         File file = new File(absFileLocation);
-         boolean deleted = file.delete();
-         System.out.println("file delete status is"+deleted);
-         return  deleted;
-     }
-     catch (Exception ex){
-         ex.printStackTrace();
-         return false;
-     }
+    public boolean deleteFile(String fileName) {
+        try {
+            Context appContext = AirDeskApp.s_applicationContext;
+            String absFileLocation = appContext.getFilesDir().getAbsolutePath() + "/" + fileName;
+            System.out.println("file to be deleted:" + absFileLocation);
+            File file = new File(absFileLocation);
+            boolean deleted = file.delete();
+            System.out.println("file delete status is" + deleted);
+            return deleted;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
     }
 
     public String readFromInternalFile(String fileName) {
