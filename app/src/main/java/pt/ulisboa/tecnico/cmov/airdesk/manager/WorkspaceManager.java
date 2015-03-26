@@ -80,7 +80,7 @@ public class WorkspaceManager {
     }
 
 
-    public WorkspaceEditStatus editOwnedWorkspace(String workspaceName, OwnedWorkspace editedWS){
+    public WorkspaceEditStatus editOwnedWorkspace(String workspaceName, OwnedWorkspace editedWS, boolean tagsChange){
         boolean isQuotaSmallerThanUsage=isQuotaSmallerThanUsage(workspaceName, editedWS.getQuota());
         boolean isMemoryNotSufficient=isNotSufficientMemory(editedWS.getQuota());
         if(isQuotaSmallerThanUsage){
@@ -91,8 +91,8 @@ public class WorkspaceManager {
         }
         else{
             metadataManager.saveOwnedWorkspace(editedWS);
-            //TODO check whether tags are changed. (pass from UI or check here)
-            publishTags(editedWS.getTags().toArray(new String[editedWS.getTags().size()]));
+            if(tagsChange)
+                publishTags(editedWS.getTags().toArray(new String[editedWS.getTags().size()]));
 
             //TODO: to be notified to clients in same network about the edit
             return WorkspaceEditStatus.OK;
