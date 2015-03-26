@@ -100,7 +100,34 @@ public class WorkspaceManager {
     }
 
     private void publishTags(String[] tags) {
+        //TODO call through network
         userManager.receivePublishedTags(userManager.getOwner().getNickName(), tags);
+    }
+
+    public void getPublicWorkspacesForTags(String[] subscribedTags) {
+        OwnedWorkspace workspace;
+        for (String workspaceName : userManager.getOwnedWorkspaces()) {
+            workspace = getOwnedWorkspace(workspaceName);
+            if(workspace.isPublic()) {
+                boolean isTagMatching = false;
+                for (String subscribedTag : subscribedTags) {
+                    if(workspace.getTags().contains(subscribedTag)) {
+                        isTagMatching = true;
+                        break;
+                    }
+                }
+                //TODO call in Network
+                if(isTagMatching) {
+                    try {
+                        addToForeignWorkspace(workspaceName, workspace.getOwnerId(), workspace.getQuota(),
+                                workspace.getFileNames().toArray(new String[workspace.getFileNames().size()]));
+                    } catch (Exception e) {
+                        System.out.println("Could not add the workspace " + workspaceName + " to foreign workspace");
+                    }
+                }
+
+            }
+        }
     }
 
     public boolean deleteOwnedWorkspace(String workspaceName){
