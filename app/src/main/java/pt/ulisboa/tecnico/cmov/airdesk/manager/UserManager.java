@@ -57,4 +57,8 @@ public class UserManager {
         owner.removeSubscription(tags);
         updateOwner(owner);
     }
+
+    public void receivePublishedTags(String ownerId, String[] tags) {
+        //match to subscribed tags n request Workspace
+    }
 }

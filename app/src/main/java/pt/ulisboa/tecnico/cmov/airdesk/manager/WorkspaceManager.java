@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
 import pt.ulisboa.tecnico.cmov.airdesk.Exception.WriteLockedException;
@@ -90,9 +91,16 @@ public class WorkspaceManager {
         }
         else{
             metadataManager.saveOwnedWorkspace(editedWS);
+            //TODO check whether tags are changed. (pass from UI or check here)
+            publishTags(editedWS.getTags().toArray(new String[editedWS.getTags().size()]));
+
             //TODO: to be notified to clients in same network about the edit
             return WorkspaceEditStatus.OK;
         }
+    }
+
+    private void publishTags(String[] tags) {
+        userManager.receivePublishedTags(userManager.getOwner().getNickName(), tags);
     }
 
     public boolean deleteOwnedWorkspace(String workspaceName){
