@@ -21,9 +21,9 @@ import java.util.Map;
 
 import pt.ulisboa.tecnico.cmov.airdesk.AirDeskManager;
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
-import pt.ulisboa.tecnico.cmov.airdesk.CreateWorkspaceActivity;
+import pt.ulisboa.tecnico.cmov.airdesk.activity.CreateWorkspaceActivity;
 import pt.ulisboa.tecnico.cmov.airdesk.R;
-import pt.ulisboa.tecnico.cmov.airdesk.WorkspaceDetailViewActivity;
+import pt.ulisboa.tecnico.cmov.airdesk.activity.WorkspaceDetailViewActivity;
 
 /**
  * Created by shelan on 3/15/15.

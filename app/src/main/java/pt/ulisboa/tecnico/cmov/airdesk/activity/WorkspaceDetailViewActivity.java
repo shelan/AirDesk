@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.cmov.airdesk;
+package pt.ulisboa.tecnico.cmov.airdesk.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -19,6 +19,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import pt.ulisboa.tecnico.cmov.airdesk.Constants;
+import pt.ulisboa.tecnico.cmov.airdesk.R;
+import pt.ulisboa.tecnico.cmov.airdesk.activity.CreateFileActivity;
+import pt.ulisboa.tecnico.cmov.airdesk.activity.TextFileEditActivity;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.OwnedWorkspace;
 
 

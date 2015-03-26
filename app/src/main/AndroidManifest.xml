@@ -9,7 +9,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".MainActivity"
+            android:name=".activity.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -18,36 +18,36 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".WorkspaceDetailViewActivity"
+            android:name=".activity.WorkspaceDetailViewActivity"
             android:label="@string/title_activity_workspace_detail_view"
-            android:parentActivityName=".MainActivity" >
+            android:parentActivityName=".activity.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="pt.ulisboa.tecnico.cmov.airdesk.MainActivity" />
+                android:value=".activity.MainActivity" />
         </activity>
         <activity
-            android:name=".CreateWorkspaceActivity"
+            android:name=".activity.CreateWorkspaceActivity"
             android:label="@string/title_activity_create_workspace"
-            android:parentActivityName=".MainActivity" >
+            android:parentActivityName=".activity.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="pt.ulisboa.tecnico.cmov.airdesk.MainActivity" />
+                android:value=".activity.MainActivity" />
         </activity>
         <activity
-            android:name=".TextFileEditActivity"
+            android:name=".activity.TextFileEditActivity"
             android:label="@string/title_activity_text_file_edit"
-            android:parentActivityName=".WorkspaceDetailViewActivity" >
+            android:parentActivityName=".activity.WorkspaceDetailViewActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="pt.ulisboa.tecnico.cmov.airdesk.WorkspaceDetailViewActivity" />
+                android:value=".activity.WorkspaceDetailViewActivity" />
         </activity>
         <activity
-            android:name=".CreateFileActivity"
+            android:name=".activity.CreateFileActivity"
             android:label="@string/title_activity_create_file"
-            android:parentActivityName=".WorkspaceDetailViewActivity" >
+            android:parentActivityName=".activity.WorkspaceDetailViewActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="pt.ulisboa.tecnico.cmov.airdesk.WorkspaceDetailViewActivity" />
+                android:value=".activity.WorkspaceDetailViewActivity" />
         </activity>
     </application>
 

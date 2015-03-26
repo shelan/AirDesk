@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.cmov.airdesk;
+package pt.ulisboa.tecnico.cmov.airdesk.activity;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -7,6 +7,8 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import pt.ulisboa.tecnico.cmov.airdesk.PopulateData;
+import pt.ulisboa.tecnico.cmov.airdesk.R;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.User;
 import pt.ulisboa.tecnico.cmov.airdesk.fragment.ForiegnWorkspaceListFragment;
 import pt.ulisboa.tecnico.cmov.airdesk.fragment.MyWorkspaceListFragment;
@@ -32,7 +34,6 @@ public class MainActivity extends ActionBarActivity {
                     .commit();
 
         }
-
 
         UserManager manager = new UserManager();
 
@@ -107,8 +108,8 @@ public class MainActivity extends ActionBarActivity {
 
         @Override
         protected void onResume () {
-            myWorkspacesFragment.updateWorkspaceList();
-            foreignWorkspacesFragment.updateWorkspaceList();
+           // myWorkspacesFragment.updateWorkspaceList();
+            //foreignWorkspacesFragment.updateWorkspaceList();
 
             super.onResume();
         }
