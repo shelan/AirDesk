@@ -7,6 +7,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -101,7 +103,23 @@ public class WorkspaceManager {
 
     private void publishTags(String[] tags) {
         //TODO call through network
-        userManager.receivePublishedTags(userManager.getOwner().getNickName(), tags);
+        receivePublishedTags(userManager.getOwner().getNickName(), tags);
+    }
+
+    public void receivePublishedTags(String ownerId, String[] tags) {
+        //match to subscribed tags n request Workspace
+        boolean hasMatchingTags = false;
+        HashSet<String> subscribedTags =  userManager.getOwner().getSubscribedTags();
+        for (String tag : subscribedTags) {
+            if(Arrays.asList(tags).contains(tag)) {
+                hasMatchingTags = true;
+                break;
+            }
+        }
+        if(hasMatchingTags) {
+            //TODO call through network
+            getPublicWorkspacesForTags(subscribedTags.toArray(new String[subscribedTags.size()]));
+        }
     }
 
     public void getPublicWorkspacesForTags(String[] subscribedTags) {
@@ -128,6 +146,15 @@ public class WorkspaceManager {
 
             }
         }
+    }
+
+    public void subscribeToTags(String[] tags) {
+        userManager.subscribeToTags(tags);
+        getPublicWorkspacesForTags(tags);
+    }
+
+    public void unsubscribeFromTags(String[] tags) {
+        userManager.unsubscribeFromTags(tags);
     }
 
     public boolean deleteOwnedWorkspace(String workspaceName){

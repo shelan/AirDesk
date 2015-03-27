@@ -13,7 +13,7 @@ import pt.ulisboa.tecnico.cmov.airdesk.entity.User;
 public class UserManager {
 
     MetadataManager metaManager = new MetadataManager();
-   // WorkspaceManager workspaceManager = new WorkspaceManager();
+    WorkspaceManager workspaceManager = new WorkspaceManager();
 
     public void createOwner(User user) {
         metaManager.saveUser(user);
@@ -49,12 +49,14 @@ public class UserManager {
         //
     }
 
+    //use the method in workspace manager for this
     public void subscribeToTags(String[] tags) {
         User owner = getOwner();
         owner.addSubscriptionTags(tags);
         updateOwner(owner);
     }
 
+    //use the method in workspace manager for this
     public void unsubscribeFromTags(String[] tags) {
         User owner = getOwner();
         owner.removeSubscription(tags);

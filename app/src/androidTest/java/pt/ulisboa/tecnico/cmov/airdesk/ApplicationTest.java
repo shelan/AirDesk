@@ -45,7 +45,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         fileName = "file";
 
         cleanWorkspaeDataNMetadata();
-        /*createUser();
+        createUser();
         testCreateWorkspace();
         testWorkspaceEdit();
         testGetOwnedWorkspaces();
@@ -61,7 +61,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         testSubscribeNEditTagsForeignWS();
 
         testDeleteOwnedWorkspace();
-        testDeleteUser();*/
+        testDeleteUser();
     }
 
     public void testTooLargeForMemory(){
@@ -233,11 +233,11 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
 
     private void testSubscribeNEditTagsForeignWS() {
         String[] tags = new String[]{"tag1", "tag2"};
-        userManager.subscribeToTags(tags);
+        workspaceManager.subscribeToTags(tags);
         Assert.assertTrue(userManager.getOwner().getSubscribedTags().contains("tag1"));
         Assert.assertTrue(userManager.getOwner().getSubscribedTags().contains("tag2"));
 
-        userManager.unsubscribeFromTags(new String[]{"tag1"});
+        workspaceManager.unsubscribeFromTags(new String[]{"tag1"});
         Assert.assertFalse(userManager.getOwner().getSubscribedTags().contains("tag1"));
         Assert.assertTrue(userManager.getOwner().getSubscribedTags().contains("tag2"));
     }
