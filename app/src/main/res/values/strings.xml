@@ -10,4 +10,6 @@
     <string name="title_activity_create_workspace">CreateWorkspaceActivity</string>
     <string name="title_activity_text_file_edit">TextFileEdit</string>
     <string name="title_activity_create_file">CreateFileActivity</string>
+    <string name="add_to_acess_list">Add to Access List</string>
+    <string name="clear">Clear</string>
 </resources>

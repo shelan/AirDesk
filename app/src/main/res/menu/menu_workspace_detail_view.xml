@@ -9,4 +9,9 @@
         android:icon="@drawable/add"
         app:showAsAction="always"
         android:title="" />
+    <item
+        android:id="@+id/add_user"
+        android:icon="@drawable/add_user"
+        app:showAsAction="never"
+        android:title="Add User" />
 </menu>

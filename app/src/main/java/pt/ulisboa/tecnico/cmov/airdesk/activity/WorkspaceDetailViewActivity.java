@@ -1,5 +1,7 @@
 package pt.ulisboa.tecnico.cmov.airdesk.activity;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -10,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
@@ -71,6 +74,35 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
             //TODO:we need to get whether owner or not
             ;
             startActivity(intent);
+        }
+        if(id == R.id.add_user) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+            final EditText input = new EditText(this);
+            input.setHint("Username");
+            builder.setIcon(R.id.add_user);
+            builder.setTitle("User Access List");
+            builder.setView(input);
+            builder.setPositiveButton(R.string.add_to_acess_list, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    WorkspaceManager workspaceManager = new WorkspaceManager();
+                    try {
+                        workspaceManager.addUserToAccessList(workspace.getWorkspaceName(),
+                                String.valueOf(input.getText()).trim());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+            builder.setNegativeButton(DialogInterface.BUTTON_NEGATIVE, new DialogInterface.OnClickListener(){
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                }
+            });
+
+            builder.show();
         }
 
         return super.onOptionsItemSelected(item);
