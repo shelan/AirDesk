@@ -50,31 +50,17 @@ public class UserManager {
         //
     }
 
+    //use the method in workspace manager for this
     public void subscribeToTags(String[] tags) {
         User owner = getOwner();
         owner.addSubscriptionTags(tags);
         updateOwner(owner);
     }
 
+    //use the method in workspace manager for this
     public void unsubscribeFromTags(String[] tags) {
         User owner = getOwner();
         owner.removeSubscription(tags);
         updateOwner(owner);
-    }
-
-    public void receivePublishedTags(String ownerId, String[] tags) {
-        //match to subscribed tags n request Workspace
-        boolean hasMatchingTags = false;
-        HashSet<String> subscribedTags =  getOwner().getSubscribedTags();
-        for (String tag : subscribedTags) {
-            if(Arrays.asList(tags).contains(tag)) {
-                hasMatchingTags = true;
-                break;
-            }
-        }
-        if(hasMatchingTags) {
-            //TODO call through network
-            workspaceManager.getPublicWorkspacesForTags(subscribedTags.toArray(new String[subscribedTags.size()]));
-        }
     }
 }
