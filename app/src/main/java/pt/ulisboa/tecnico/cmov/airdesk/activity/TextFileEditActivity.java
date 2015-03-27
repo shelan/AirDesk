@@ -36,7 +36,7 @@ public class TextFileEditActivity extends ActionBarActivity {
         setContentView(R.layout.activity_text_file_edit);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new PlaceholderFragment())
+                    .add(R.id.container, new FileEditFragment())
                     .commit();
         }
     }
@@ -66,11 +66,11 @@ public class TextFileEditActivity extends ActionBarActivity {
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class PlaceholderFragment extends Fragment {
+    public static class FileEditFragment extends Fragment {
 
-        private final String LOG_TAG = PlaceholderFragment.class.getSimpleName();
+        private final String LOG_TAG = FileEditFragment.class.getSimpleName();
 
-        public PlaceholderFragment() {
+        public FileEditFragment() {
         }
 
         @Override
@@ -83,10 +83,6 @@ public class TextFileEditActivity extends ActionBarActivity {
             TextFile file = new TextFile();
 
             if (intent != null) {
-
-                String workspace;
-                String fileName;
-                String owner;
 
                 if (intent.hasExtra(Constants.WORKSPACE)) {
                     file.setWorkspace(intent.getStringExtra(Constants.WORKSPACE));

@@ -21,24 +21,24 @@ import java.util.Map;
 
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
 import pt.ulisboa.tecnico.cmov.airdesk.R;
-import pt.ulisboa.tecnico.cmov.airdesk.activity.CreateFileActivity;
-import pt.ulisboa.tecnico.cmov.airdesk.activity.TextFileEditActivity;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.OwnedWorkspace;
+import pt.ulisboa.tecnico.cmov.airdesk.manager.WorkspaceManager;
 
 
 public class WorkspaceDetailViewActivity extends ActionBarActivity {
 
     static OwnedWorkspace workspace;
+
     private WorkspaceDetailFragment workspaceDetailFragment;
-    static SimpleAdapter adapter;
     static ArrayList<Map<String, Object>> list = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_workspace_grid_view);
         if (savedInstanceState == null) {
-            workspaceDetailFragment =new WorkspaceDetailFragment() ;
+            workspaceDetailFragment = new WorkspaceDetailFragment();
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, new WorkspaceDetailFragment())
                     .commit();
@@ -68,11 +68,9 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
             Intent intent = new Intent(this, CreateFileActivity.class);
             intent.putExtra(Constants.WORKSPACE, workspace.getWorkspaceName())
                     .putExtra(Constants.OWNER, workspace.getOwnerName())
-                    .putExtra("fragment",workspaceDetailFragment)
             //TODO:we need to get whether owner or not
             ;
             startActivity(intent);
-            finish();
         }
 
         return super.onOptionsItemSelected(item);
@@ -86,8 +84,11 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
      * A placeholder fragment containing a simple view.
      */
     public static class WorkspaceDetailFragment extends Fragment implements Serializable {
+        private SimpleAdapter adapter;
+        private WorkspaceManager workspaceManager;
 
         public WorkspaceDetailFragment() {
+            workspaceManager = new WorkspaceManager();
         }
 
         @Override
@@ -120,7 +121,7 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
                 list.add(map);
             }
 
-             adapter = new SimpleAdapter(getActivity(), list,
+            adapter = new SimpleAdapter(getActivity(), list,
                     R.layout.workspace_folder, new String[]{"fileIcon", "fileName"},
                     new int[]{R.id.file_image, R.id.file_name});
 
@@ -148,9 +149,19 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
 
             return rootView;
         }
-        public void refresh(){
-            if(workspace != null){
+
+        @Override
+        public void onResume() {
+            super.onResume();
+            refresh();
+        }
+
+        public void refresh() {
+            if (workspace != null) {
                 list.clear();
+
+                workspace = workspaceManager.getOwnedWorkspace(workspace.getWorkspaceName());
+
                 for (String file : workspace.getFileNames()) {
                     HashMap map = new HashMap();
                     map.put("fileIcon", R.drawable.file);
@@ -158,8 +169,9 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
                     list.add(map);
                 }
             }
-            Toast.makeText(getActivity(), "Refresing  file list " ,
+            Toast.makeText(getActivity(), "Refresing  file list ",
                     Toast.LENGTH_SHORT).show();
+
             adapter.notifyDataSetChanged();
         }
     }
