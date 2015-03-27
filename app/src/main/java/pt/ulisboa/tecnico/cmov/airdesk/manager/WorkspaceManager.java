@@ -58,6 +58,11 @@ public class WorkspaceManager {
             System.out.println("----ws metadata------");
             boolean create= FileUtils.createWSFolder(workspaceName);
             System.out.println("file created "+create);
+
+            List<String> tags = workspace.getTags();
+            if(tags.size() > 0) {
+                publishTags( tags.toArray(new String[tags.size()]));
+            }
             return WorkspaceCreateStatus.OK;
         }
     }
@@ -150,6 +155,7 @@ public class WorkspaceManager {
 
     public void subscribeToTags(String[] tags) {
         userManager.subscribeToTags(tags);
+        //Do with wifi direct to all other available users
         getPublicWorkspacesForTags(tags);
     }
 
@@ -220,7 +226,7 @@ public class WorkspaceManager {
         return false;
     }
 
-    public void addUserToAccessList(String workspace,String userId) throws Exception {
+    public void addClientToWorkspace(String workspace, String userId) throws Exception {
         //Both from the subscription and adding email by owner
         //To simulate mount, add to foreign ws of same user.
         // TODO:Later change this to use wifidirect

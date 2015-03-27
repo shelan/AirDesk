@@ -87,7 +87,7 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
                 public void onClick(DialogInterface dialog, int id) {
                     WorkspaceManager workspaceManager = new WorkspaceManager();
                     try {
-                        workspaceManager.addUserToAccessList(workspace.getWorkspaceName(),
+                        workspaceManager.addClientToWorkspace(workspace.getWorkspaceName(),
                                 String.valueOf(input.getText()).trim());
                     } catch (Exception e) {
                         e.printStackTrace();

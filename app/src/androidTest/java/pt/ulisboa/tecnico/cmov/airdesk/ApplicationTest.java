@@ -47,7 +47,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         cleanWorkspaeDataNMetadata();
         createUser();
         testCreateWorkspace();
-        testWorkspaceEdit();
+        //testWorkspaceEdit();
         testGetOwnedWorkspaces();
         testOwnedWSDataFileLC();
 
@@ -59,6 +59,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         testForeignWSDataFileLC();
         testDeleteUserFromAccessList();
         testSubscribeNEditTagsForeignWS();
+        testPublicWorkspaceTagAddition();
 
         testDeleteOwnedWorkspace();
         testDeleteUser();
@@ -210,7 +211,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
     }
 
     private void testAddUserToWorkspace() throws Exception {
-        workspaceManager.addUserToAccessList(workspaceName, ownerName);
+        workspaceManager.addClientToWorkspace(workspaceName, ownerName);
 
         //since we directly add this to foreign workspace for 1st iteration
         List<String> foreignWS = userManager.getForeignWorkspaces();
@@ -240,6 +241,41 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         workspaceManager.unsubscribeFromTags(new String[]{"tag1"});
         Assert.assertFalse(userManager.getOwner().getSubscribedTags().contains("tag1"));
         Assert.assertTrue(userManager.getOwner().getSubscribedTags().contains("tag2"));
+    }
+
+    private void testPublicWorkspaceTagAddition() {
+        String publicWorkspaceName = workspaceName + "-public1";
+
+        //when a workspace owner add a tag that matches with a user subscription tag, the workspace
+        //should be added to users foreign workspaces
+        OwnedWorkspace workspace = new OwnedWorkspace(publicWorkspaceName, ownerName, 2.0);
+        Assert.assertFalse(userManager.getForeignWorkspaces().contains(publicWorkspaceName));
+
+        workspace.setPublic(true);
+        List<String> tags = new ArrayList<>();
+        tags.add("tag");
+        tags.add("tag2");
+        workspace.addTags(tags);
+        workspaceManager.createWorkspace(workspace);
+
+        //user is subscribed to tag2
+        Assert.assertTrue(userManager.getForeignWorkspaces().contains(publicWorkspaceName));
+
+        //when a user add a tag and any others has a workspace matching to that tag, that workspace
+        //should be added to users foreign workspaces
+
+        publicWorkspaceName = publicWorkspaceName + "2";
+        OwnedWorkspace workspace2 = new OwnedWorkspace(publicWorkspaceName, ownerName, 2.0);
+        workspace2.setPublic(true);
+        List<String> tags2 = new ArrayList<>();
+        tags2.add("tag5");
+        tags2.add("tag6");
+        workspace2.addTags(tags2);
+        workspaceManager.createWorkspace(workspace2);
+        Assert.assertFalse(userManager.getForeignWorkspaces().contains(publicWorkspaceName));
+
+        workspaceManager.subscribeToTags(new String[]{"tag5"});
+        Assert.assertTrue(userManager.getForeignWorkspaces().contains(publicWorkspaceName));
     }
 
 
