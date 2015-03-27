@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
 import pt.ulisboa.tecnico.cmov.airdesk.Exception.WriteLockedException;
@@ -79,7 +80,7 @@ public class WorkspaceManager {
     }
 
 
-    public WorkspaceEditStatus editOwnedWorkspace(String workspaceName, OwnedWorkspace editedWS){
+    public WorkspaceEditStatus editOwnedWorkspace(String workspaceName, OwnedWorkspace editedWS, boolean tagsChange){
         boolean isQuotaSmallerThanUsage=isQuotaSmallerThanUsage(workspaceName, editedWS.getQuota());
         boolean isMemoryNotSufficient=isNotSufficientMemory(editedWS.getQuota());
         if(isQuotaSmallerThanUsage){
@@ -90,8 +91,42 @@ public class WorkspaceManager {
         }
         else{
             metadataManager.saveOwnedWorkspace(editedWS);
+            if(tagsChange)
+                publishTags(editedWS.getTags().toArray(new String[editedWS.getTags().size()]));
+
             //TODO: to be notified to clients in same network about the edit
             return WorkspaceEditStatus.OK;
+        }
+    }
+
+    private void publishTags(String[] tags) {
+        //TODO call through network
+        userManager.receivePublishedTags(userManager.getOwner().getNickName(), tags);
+    }
+
+    public void getPublicWorkspacesForTags(String[] subscribedTags) {
+        OwnedWorkspace workspace;
+        for (String workspaceName : userManager.getOwnedWorkspaces()) {
+            workspace = getOwnedWorkspace(workspaceName);
+            if(workspace.isPublic()) {
+                boolean isTagMatching = false;
+                for (String subscribedTag : subscribedTags) {
+                    if(workspace.getTags().contains(subscribedTag)) {
+                        isTagMatching = true;
+                        break;
+                    }
+                }
+                //TODO call in Network
+                if(isTagMatching) {
+                    try {
+                        addToForeignWorkspace(workspaceName, workspace.getOwnerId(), workspace.getQuota(),
+                                workspace.getFileNames().toArray(new String[workspace.getFileNames().size()]));
+                    } catch (Exception e) {
+                        System.out.println("Could not add the workspace " + workspaceName + " to foreign workspace");
+                    }
+                }
+
+            }
         }
     }
 

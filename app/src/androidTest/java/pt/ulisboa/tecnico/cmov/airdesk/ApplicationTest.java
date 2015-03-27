@@ -200,7 +200,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         ownedWorkspace.addTags(newTags);
         ownedWorkspace.setQuota(500);
         ownedWorkspace.setPublic(true);
-        workspaceManager.editOwnedWorkspace(workspaceName, ownedWorkspace);
+        workspaceManager.editOwnedWorkspace(workspaceName, ownedWorkspace, true);
         OwnedWorkspace renewedWS = workspaceManager.getOwnedWorkspace(workspaceName);
         Assert.assertEquals((double) 500, ownedWorkspace.getQuota());
         Assert.assertEquals(ownedWorkspace.getTags().size(), renewedWS.getTags().size());

@@ -1,6 +1,8 @@
 package pt.ulisboa.tecnico.cmov.airdesk.manager;
 
 import java.security.acl.Owner;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
@@ -10,7 +12,9 @@ import pt.ulisboa.tecnico.cmov.airdesk.entity.User;
  * Created by Chathuri on 3/14/2015.
  */
 public class UserManager {
-    MetadataManager metaManager=new MetadataManager();
+
+    MetadataManager metaManager = new MetadataManager();
+    WorkspaceManager workspaceManager = new WorkspaceManager();
 
     public void createOwner(User user) {
         metaManager.saveUser(user);
@@ -56,5 +60,21 @@ public class UserManager {
         User owner = getOwner();
         owner.removeSubscription(tags);
         updateOwner(owner);
+    }
+
+    public void receivePublishedTags(String ownerId, String[] tags) {
+        //match to subscribed tags n request Workspace
+        boolean hasMatchingTags = false;
+        HashSet<String> subscribedTags =  getOwner().getSubscribedTags();
+        for (String tag : subscribedTags) {
+            if(Arrays.asList(tags).contains(tag)) {
+                hasMatchingTags = true;
+                break;
+            }
+        }
+        if(hasMatchingTags) {
+            //TODO call through network
+            workspaceManager.getPublicWorkspacesForTags(subscribedTags.toArray(new String[subscribedTags.size()]));
+        }
     }
 }
