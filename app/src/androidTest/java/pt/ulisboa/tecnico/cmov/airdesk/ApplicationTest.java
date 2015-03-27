@@ -220,16 +220,25 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
 
     private void testForeignWSDataFileLC() throws Exception {
 
+        String foreignFile = fileName + "foreign";
         String workspaceType = Constants.FOREIGN_WORKSPACE_DIR;
         File baseDir = appContext.getDir(workspaceType, appContext.MODE_PRIVATE);
         String pathToFile = baseDir.getAbsolutePath() + File.separator + ownerName + File.separator +
-                workspaceName + File.separator + fileName;
+                workspaceName + File.separator + foreignFile;
 
-        workspaceManager.createDataFile(workspaceName, fileName, ownerName, false);
-        Assert.assertEquals(true, new File(pathToFile).exists());
+        workspaceManager.createDataFile(workspaceName, foreignFile, ownerName, false);
+        Assert.assertTrue(new File(pathToFile).exists());
 
-        workspaceManager.deleteDataFile(workspaceName, fileName, ownerName, false);
-        Assert.assertEquals(false, new File(pathToFile).exists());
+        //file should be added to workspace owners place too
+        String ownerPath = appContext.getDir(Constants.OWNED_WORKSPACE_DIR, appContext.MODE_PRIVATE).getAbsolutePath() +
+                File.separator + workspaceName + File.separator + foreignFile;
+        Assert.assertTrue(new File(ownerPath).exists());
+
+        workspaceManager.deleteDataFile(workspaceName, foreignFile, ownerName, false);
+        Assert.assertFalse(new File(pathToFile).exists());
+
+        Assert.assertFalse(new File(ownerPath).exists());
+
     }
 
     private void testSubscribeNEditTagsForeignWS() {

@@ -299,8 +299,21 @@ public class WorkspaceManager {
                 ForeignWorkspace foreignWorkspace=metadataManager.getForeignWorkspace(workspace, ownerId);
                 foreignWorkspace.addFile(fileName);
                 metadataManager.saveForeignWorkspace(foreignWorkspace, ownerId);
+                //notify owner about file creation
+                //TODO: do with wifi direct
+                receiveFileCreateEvent(workspace, fileName);
             }
         }
+    }
+
+    /**
+     * If a client create a file in a foreign workspace, he should call this method for workspace owner
+     * @param workspace
+     * @param fileName
+     * @throws Exception
+     */
+    public void receiveFileCreateEvent(String workspace, String fileName) throws Exception {
+        createDataFile(workspace, fileName, userManager.getOwner().getEmail(), true);
     }
 
     public FileInputStream getDataFile(String workspace, String fileName, boolean writeMode, String ownerId, boolean isOwned) throws IOException, WriteLockedException {
@@ -309,6 +322,15 @@ public class WorkspaceManager {
 
     public void updateDataFile(String workspace, String fileName, String content, String ownerId, boolean isOwned) throws IOException {
         storageManager.updateDataFile(workspace, fileName, content, ownerId, isOwned);
+        if(!isOwned) {
+            //notify owner about file update
+            //TODO: do with wifi direct
+            receiveFileUpdateEvent(workspace, fileName, content);
+        }
+    }
+
+    public void receiveFileUpdateEvent(String workspace, String fileName, String content) throws IOException {
+        updateDataFile(workspace, fileName, content, userManager.getOwner().getEmail(), true);
     }
 
     public void deleteDataFile(String workspace, String fileName, String ownerId, boolean isOwned) throws IOException {
@@ -325,8 +347,15 @@ public class WorkspaceManager {
                 ForeignWorkspace foreignWorkspace=metadataManager.getForeignWorkspace(workspace, ownerId);
                 foreignWorkspace.removeFile(fileName);
                 metadataManager.saveForeignWorkspace(foreignWorkspace, ownerId);//add new file to metadata and save it
+                //notify owner about file deletion
+                //TODO: do with wifi direct
+                receiveFileDeletionEvent(workspace, fileName);
             }
         }
+    }
+
+    public void receiveFileDeletionEvent(String workspace, String fileName) throws IOException {
+        deleteDataFile(workspace, fileName, userManager.getOwner().getEmail(), true);
     }
 
 }
