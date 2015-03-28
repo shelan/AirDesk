@@ -11,7 +11,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
 import pt.ulisboa.tecnico.cmov.airdesk.Exception.WriteLockedException;
@@ -52,7 +51,7 @@ public class WorkspaceManager {
             System.out.println("------user created------");
 
             workspace.setOwnerName(user.getNickName());
-            workspace.setOwnerEmail(user.getEmail());
+            workspace.setOwnerEmail(user.getUserId());
             metadataManager.saveOwnedWorkspace(workspace);
 
             System.out.println("----ws metadata------");
@@ -313,7 +312,7 @@ public class WorkspaceManager {
      * @throws Exception
      */
     public void receiveFileCreateEvent(String workspace, String fileName) throws Exception {
-        createDataFile(workspace, fileName, userManager.getOwner().getEmail(), true);
+        createDataFile(workspace, fileName, userManager.getOwner().getUserId(), true);
     }
 
     public FileInputStream getDataFile(String workspace, String fileName, boolean writeMode, String ownerId, boolean isOwned) throws IOException, WriteLockedException {
@@ -330,7 +329,7 @@ public class WorkspaceManager {
     }
 
     public void receiveFileUpdateEvent(String workspace, String fileName, String content) throws IOException {
-        updateDataFile(workspace, fileName, content, userManager.getOwner().getEmail(), true);
+        updateDataFile(workspace, fileName, content, userManager.getOwner().getUserId(), true);
     }
 
     public void deleteDataFile(String workspace, String fileName, String ownerId, boolean isOwned) throws IOException {
@@ -355,7 +354,7 @@ public class WorkspaceManager {
     }
 
     public void receiveFileDeletionEvent(String workspace, String fileName) throws IOException {
-        deleteDataFile(workspace, fileName, userManager.getOwner().getEmail(), true);
+        deleteDataFile(workspace, fileName, userManager.getOwner().getUserId(), true);
     }
 
 }

@@ -153,7 +153,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
 
     private void createUser() {
         User user = new User();
-        user.setEmail("owner3@gmail.com");
+        user.setUserId("owner3@gmail.com");
         user.setNickName("owner3");
         userManager.createOwner(user);
     }

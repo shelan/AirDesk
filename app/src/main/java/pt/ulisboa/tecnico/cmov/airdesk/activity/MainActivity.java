@@ -40,7 +40,7 @@ public class MainActivity extends ActionBarActivity {
         if (manager.getOwner() == null) {
             User user = new User();
             user.setNickName("aaa");
-            user.setEmail("testuser@gmail.com");
+            user.setUserId("testuser@gmail.com");
             manager.createOwner(user);
         }
 
@@ -147,7 +147,7 @@ public class MainActivity extends ActionBarActivity {
     private void testAddUser() {
         UserManager manager = new UserManager();
         User user = new User();
-        user.setEmail("lanch.gune@gmail.com");
+        user.setUserId("lanch.gune@gmail.com");
         user.setNickName("junda");
         manager.createOwner(user);
 

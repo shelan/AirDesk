@@ -13,7 +13,7 @@ import pt.ulisboa.tecnico.cmov.airdesk.manager.WorkspaceManager;
 public class WorkspaceTest {
     public void populateOwnedWorkspaces(){
         User user = new User();
-        user.setEmail("abc@gmail.com");
+        user.setUserId("abc@gmail.com");
         user.setNickName("aaa");
         UserManager userManager=new UserManager();
         userManager.createOwner(user);

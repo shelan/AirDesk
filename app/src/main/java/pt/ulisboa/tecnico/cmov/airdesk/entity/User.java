@@ -5,15 +5,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
 
 /**
  * Created by Chathuri on 3/14/2015.
  */
 public class User {
     private String nickName;
-    private String email;
+    private String userId;
     private List<String> ownedWorkspaces=new ArrayList<String>();
     private List<String>foreignWorkspaces=new ArrayList<>();
     private Map<String, List<String>> deletedWorkspaces = new HashMap<String, List<String>>();//whenever notidication is received removefrom this
@@ -45,12 +43,12 @@ public class User {
         this.nickName = nickName;
     }
 
-    public String getEmail() {
-        return email;
+    public String getUserId() {
+        return userId;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
 

@@ -23,7 +23,7 @@ public class PopulateData {
         cleanWorkspaeDataNMetadata();
 
         User user = new User();
-        user.setEmail("abc@gmail.com");
+        user.setUserId("abc@gmail.com");
         user.setNickName("aaa");
         UserManager userManager=new UserManager();
         userManager.createOwner(user);
