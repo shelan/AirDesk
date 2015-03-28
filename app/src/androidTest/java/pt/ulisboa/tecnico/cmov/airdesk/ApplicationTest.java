@@ -41,7 +41,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         userManager = new UserManager();
         appContext = AirDeskApp.s_applicationContext;
         ownerId = "owner3@gmail.com";
-        workspaceName = "ws";
+        workspaceName = "gayya";
         fileName = "file";
 
         cleanWorkspaeDataNMetadata();
@@ -57,7 +57,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         testAddUserToWorkspace();
 
         testForeignWSDataFileLC();
-        testDeleteUserFromAccessList();
+      //  testDeleteUserFromAccessList();
         testSubscribeNEditTagsForeignWS();
         testPublicWorkspaceTagAddition();
 

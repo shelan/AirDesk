@@ -18,19 +18,10 @@ public class User {
     private HashSet<String> subscribedTags = new HashSet<String>();
 
 
-    public void addClientsToDeletedWorkspacesMap(String workspaceName, List<String> accessList){
+    public void updateDeletedWorkspacesMap(String workspaceName, List<String> accessList){
         deletedWorkspaces.put(workspaceName,accessList);
     }
 
-    public void removeClientFromDeletedMap(String workspaceName,String clientId){//should be called after sending delete msg to client
-        List<String>accessList=deletedWorkspaces.get(workspaceName);
-        for (int i = 0; i <accessList.size() ; i++) {
-            if(accessList.get(i).toLowerCase().equals(clientId.toLowerCase())){
-                accessList.remove(i);
-                deletedWorkspaces.put(workspaceName,accessList);
-            }
-        }
-    }
 
     public Map<String,List<String>> getDeletedWorkspacesMap(){
         return deletedWorkspaces;

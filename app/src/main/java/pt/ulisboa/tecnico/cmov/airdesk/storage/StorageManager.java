@@ -146,4 +146,9 @@ public class StorageManager {
         return FileUtils.createFolder(parentDir, uniqueWorkspacePath);
     }
 
+    public boolean deleteFolderForForeignWorkspace(String workspaceName,String ownerId){
+        ownerId = FileUtils.getFileNameForUserId(ownerId);
+        return FileUtils.deleteForeignWorkspaceFolder(workspaceName,ownerId);
+    }
+
 }

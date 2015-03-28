@@ -175,7 +175,7 @@ public class WorkspaceManager {
         OwnedWorkspace ownedWorkspace= getOwnedWorkspace(workspaceName);
         Set<String> clients=ownedWorkspace.getClients().keySet();
         List<String>accessList=getClientList(clients);
-        user.addClientsToDeletedWorkspacesMap(workspaceName, accessList);//to send notifications for deleted workspaces
+        user.updateDeletedWorkspacesMap(workspaceName, accessList);//to send notifications for deleted workspaces
 
          metadataManager.deleteOwnedWorkspace(workspaceName);
 
@@ -184,7 +184,7 @@ public class WorkspaceManager {
 
         //TODO: later change this to notify all clients about deletion
          metadataManager.deleteForeignWorkspace(workspaceName,user.getUserId());
-         boolean statusForeign=FileUtils.deleteForeignWorkspaceFolder(workspaceName,user.getUserId());  //only to simulate self mount. remove later
+         boolean statusForeign=storageManager.deleteFolderForForeignWorkspace(workspaceName,user.getUserId());  //only to simulate self mount. remove later
          System.out.println("workspace folder delete status :owned"+statusOwned+" foreign"+statusForeign);
 
         //save user with new changes

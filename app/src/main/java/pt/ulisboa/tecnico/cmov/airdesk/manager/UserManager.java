@@ -46,6 +46,18 @@ public class UserManager {
         //
     }
 
+    //TODO://should be called after sending delete msg to client
+    public void removeClientFromDeletedMap(String workspaceName,String clientId){
+      User user=getOwner();
+        List<String>accessList=user.getDeletedWorkspacesMap().get(workspaceName);
+        for (int i = 0; i <accessList.size() ; i++) {
+            if(accessList.get(i).toLowerCase().equals(clientId.toLowerCase())){
+                accessList.remove(i);
+                user.updateDeletedWorkspacesMap(workspaceName, accessList);
+            }
+        }
+    }
+
     //use the method in workspace manager for this
     public void subscribeToTags(String[] tags) {
         User owner = getOwner();
@@ -59,5 +71,7 @@ public class UserManager {
         owner.removeSubscription(tags);
         updateOwner(owner);
     }
+
+
 
 }
