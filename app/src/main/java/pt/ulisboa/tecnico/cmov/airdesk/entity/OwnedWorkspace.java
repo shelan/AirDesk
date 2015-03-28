@@ -10,7 +10,6 @@ import java.util.Map;
  */
 public class OwnedWorkspace extends AbstractWorkspace {
 
-    private String ownerEmail;
     private HashMap<String,Boolean> clients=new HashMap<String,Boolean>();
     private String ownerName;
     private boolean isPublic;
@@ -50,14 +49,6 @@ public class OwnedWorkspace extends AbstractWorkspace {
 
     public void removeClient(String clientName) {
         clients.remove(clientName);
-    }
-
-    public String getOwnerEmail() {
-        return ownerEmail;
-    }
-
-    public void setOwnerEmail(String ownerEmail) {
-        this.ownerEmail = ownerEmail;
     }
 
     public void setOwnerName(String ownerName) {

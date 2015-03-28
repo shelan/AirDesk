@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
+import pt.ulisboa.tecnico.cmov.airdesk.FileUtils;
 import pt.ulisboa.tecnico.cmov.airdesk.context.AirDeskApp;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.ForeignWorkspace;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.OwnedWorkspace;
@@ -50,23 +51,26 @@ public class MetadataManager {
         return deleteFile(ownedWSFileName);
     }
 
-    public void saveForeignWorkspace(ForeignWorkspace workspace, String owner) {
+    public void saveForeignWorkspace(ForeignWorkspace workspace, String ownerId) {
         String jsonString = gson.toJson(workspace);
         System.out.println(jsonString);
-        String jsonWorkspaceFileName = owner + "-" + workspace.getWorkspaceName() +
+        ownerId = FileUtils.getFileNameForUserId(ownerId);
+        String jsonWorkspaceFileName = ownerId + "-" + workspace.getWorkspaceName() +
                 Constants.FOREIGN_WORKSPACE_SUFFIX + Constants.JSON_SUFFIX;
         saveToInternalFile(jsonString, jsonWorkspaceFileName);
     }
 
-    public ForeignWorkspace getForeignWorkspace(String workspaceFileName, String owner) {
-        String workspaceJson = readFromInternalFile(owner + "-" + workspaceFileName +
+    public ForeignWorkspace getForeignWorkspace(String workspaceFileName, String ownerID) {
+        ownerID = FileUtils.getFileNameForUserId(ownerID);
+        String workspaceJson = readFromInternalFile(ownerID + "-" + workspaceFileName +
                 Constants.FOREIGN_WORKSPACE_SUFFIX + Constants.JSON_SUFFIX);
         ForeignWorkspace workspace = gson.fromJson(workspaceJson, ForeignWorkspace.class);
         return workspace;
     }
 
-    public boolean deleteForeignWorkspace(String workspaceName, String owner) {
-        String ownedWSFileName = owner + "-" + workspaceName + Constants.FOREIGN_WORKSPACE_SUFFIX +
+    public boolean deleteForeignWorkspace(String workspaceName, String ownerID) {
+        ownerID = FileUtils.getFileNameForUserId(ownerID);
+        String ownedWSFileName = ownerID + "-" + workspaceName + Constants.FOREIGN_WORKSPACE_SUFFIX +
                 Constants.JSON_SUFFIX;
         return deleteFile(ownedWSFileName);
     }

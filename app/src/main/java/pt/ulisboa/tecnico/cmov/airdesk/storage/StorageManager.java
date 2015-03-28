@@ -32,6 +32,7 @@ public class StorageManager {
         File baseDir;
         String pathToDir;
         String filePath;
+        ownerId = FileUtils.getFileNameForUserId(ownerId);
         if (isOwned) {
             baseDir = appContext.getDir(OWNED_WORKSPACE_DIR, appContext.MODE_PRIVATE);
             pathToDir = baseDir.getAbsolutePath() + File.separator + workspaceName;
@@ -71,6 +72,7 @@ public class StorageManager {
     public synchronized FileInputStream getDataFile(String workspaceName, String fileName, boolean writeMode, String ownerId, boolean isOwned) throws WriteLockedException, IOException {
         File baseDir;
         String pathToFile;
+        ownerId = FileUtils.getFileNameForUserId(ownerId);
 
         if (isOwned) {
             baseDir = appContext.getDir(OWNED_WORKSPACE_DIR, appContext.MODE_PRIVATE);
@@ -96,6 +98,7 @@ public class StorageManager {
     public void updateDataFile(String workspaceName, String fileName, String content, String ownerId, boolean isOwned) throws IOException {
         File baseDir;
         String pathToFile;
+        ownerId = FileUtils.getFileNameForUserId(ownerId);
 
         if (isOwned) {
             baseDir = appContext.getDir(OWNED_WORKSPACE_DIR, appContext.MODE_PRIVATE);
@@ -113,6 +116,8 @@ public class StorageManager {
     public boolean deleteDataFile(String workspaceName, String fileName, String ownerId, boolean isOwned) throws IOException {
         File baseDir;
         String pathToFile;
+        ownerId = FileUtils.getFileNameForUserId(ownerId);
+
         if (isOwned) {
             baseDir = appContext.getDir(OWNED_WORKSPACE_DIR, appContext.MODE_PRIVATE);
             pathToFile = baseDir.getAbsolutePath() + File.separator + workspaceName + File.separator + fileName;
@@ -135,6 +140,7 @@ public class StorageManager {
     }
 
     public File createFolderForForeignWorkspace(String ownerId, String workspaceName) throws Exception {
+        ownerId = FileUtils.getFileNameForUserId(ownerId);
         File parentDir = appContext.getDir(FOREIGN_WORKSPACE_DIR, appContext.MODE_PRIVATE);
         String uniqueWorkspacePath = ownerId + File.separator + workspaceName;
         return FileUtils.createFolder(parentDir, uniqueWorkspacePath);

@@ -137,4 +137,10 @@ public class FileUtils {
         }
         return workspaceDir.delete();
     }
+
+    public static String getFileNameForUserId(String userId) {
+        userId = userId.replace("@" , "__");
+        userId = userId.replace(".", "__");
+        return userId;
+    }
 }

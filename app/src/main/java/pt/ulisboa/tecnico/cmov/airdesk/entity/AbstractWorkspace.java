@@ -37,6 +37,10 @@ public class AbstractWorkspace implements Serializable {
         return ownerId;
     }
 
+    public void setOwnerId(String ownerId) {
+        this.ownerId = ownerId;
+    }
+
     public ArrayList<String> getFileNames() {
         return fileNames;
     }

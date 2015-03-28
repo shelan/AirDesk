@@ -51,7 +51,7 @@ public class WorkspaceManager {
             System.out.println("------user created------");
 
             workspace.setOwnerName(user.getNickName());
-            workspace.setOwnerEmail(user.getUserId());
+            workspace.setOwnerId(user.getUserId());
             metadataManager.saveOwnedWorkspace(workspace);
 
             System.out.println("----ws metadata------");
@@ -107,7 +107,7 @@ public class WorkspaceManager {
 
     private void publishTags(String[] tags) {
         //TODO call through network
-        receivePublishedTags(userManager.getOwner().getNickName(), tags);
+        receivePublishedTags(userManager.getOwner().getUserId(), tags);
     }
 
     public void receivePublishedTags(String ownerId, String[] tags) {
@@ -183,8 +183,8 @@ public class WorkspaceManager {
          boolean statusOwned=FileUtils.deleteOwnedWorkspaceFolder(workspaceName);
 
         //TODO: later change this to notify all clients about deletion
-         metadataManager.deleteForeignWorkspace(workspaceName,user.getNickName());
-         boolean statusForeign=FileUtils.deleteForeignWorkspaceFolder(workspaceName,user.getNickName());  //only to simulate self mount. remove later
+         metadataManager.deleteForeignWorkspace(workspaceName,user.getUserId());
+         boolean statusForeign=FileUtils.deleteForeignWorkspaceFolder(workspaceName,user.getUserId());  //only to simulate self mount. remove later
          System.out.println("workspace folder delete status :owned"+statusOwned+" foreign"+statusForeign);
 
         //save user with new changes
