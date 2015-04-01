@@ -95,7 +95,7 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
                 }
             });
 
-            builder.setNegativeButton(DialogInterface.BUTTON_NEGATIVE, new DialogInterface.OnClickListener(){
+            builder.setNegativeButton(R.string.clear, new DialogInterface.OnClickListener(){
 
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
