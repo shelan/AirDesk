@@ -188,7 +188,7 @@ public class WorkspaceManager {
          System.out.println("workspace folder delete status :owned"+statusOwned+" foreign"+statusForeign);
 
         //save user with new changes
-        userManager.createOwner(user);//save user with updated owned and foreign WS and updated deletedWSMap
+        userManager.updateOwner(user);//.createOwner(user);//save user with updated owned and foreign WS and updated deletedWSMap
         return true;
     }
 

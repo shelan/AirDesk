@@ -49,6 +49,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activity.WorkspaceDetailViewActivity" />
         </activity>
+        <activity
+            android:parentActivityName=".activity.MainActivity"
+            android:name=".CreateUserActivity"
+            android:label="@string/title_activity_create_user" >
+        </activity>
     </application>
 
 </manifest>
