@@ -6,13 +6,13 @@
     <string name="action_settings">Settings</string>
     <string name="my_workspace_header">My Workspaces</string>
     <string name="foreign_workspace_header">Client Workspaces</string>
-    <string name="title_activity_workspace_detail_view">Files</string>
+    <string name="title_activity_workspace_detail_view">Workspace Name......</string>
     <string name="action_refresh">Refresh</string>
-    <string name="title_activity_create_workspace">CreateWorkspaceActivity</string>
-    <string name="title_activity_text_file_edit">TextFileEdit</string>
-    <string name="title_activity_create_file">CreateFileActivity</string>
+    <string name="title_activity_create_workspace">Create Workspace</string>
+    <string name="title_activity_text_file_edit">FileName....</string>
+    <string name="title_activity_create_file">Create File</string>
     <string name="add_to_acess_list">Add to Access List</string>
     <string name="clear">Clear</string>
-    <string name="title_activity_create_user">CreateUserActivity</string>
+    <string name="title_activity_create_user">Create Account</string>
 
 </resources>
