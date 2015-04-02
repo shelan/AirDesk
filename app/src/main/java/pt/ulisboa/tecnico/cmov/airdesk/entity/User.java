@@ -94,7 +94,7 @@ public class User {
 
     public void removeSubscription(String[] tags) {
         for (String tag : tags) {
-            subscribedTags.remove(tag);
+            subscribedTags.remove(tag.toLowerCase());
         }
     }
 }

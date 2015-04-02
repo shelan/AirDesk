@@ -257,19 +257,22 @@ public class WorkspaceManager {
 
     public void addToForeignWorkspace(String workspaceName, String ownerId, double quota, String[] fileNames) throws Exception {
         User user = userManager.getOwner();
-        user.addForeignWS(workspaceName);
-        userManager.updateOwner(user);
 
-        ForeignWorkspace foreignWorkspace = new ForeignWorkspace(workspaceName, ownerId, quota);
+        if(!user.getForeignWorkspaces().contains(workspaceName)) {
+            user.addForeignWS(workspaceName);
+            userManager.updateOwner(user);
 
-        if(fileNames!=null)
-        foreignWorkspace.addFiles(fileNames);
+            ForeignWorkspace foreignWorkspace = new ForeignWorkspace(workspaceName, ownerId, quota);
 
-        metadataManager.saveForeignWorkspace(foreignWorkspace, ownerId);
+            if(fileNames!=null)
+                foreignWorkspace.addFiles(fileNames);
 
-        File createdDir = storageManager.createFolderForForeignWorkspace(ownerId, workspaceName);
-        if(createdDir == null)
-            throw new Exception("Could not create the foreign workspace directory : " + workspaceName);
+            metadataManager.saveForeignWorkspace(foreignWorkspace, ownerId);
+
+            File createdDir = storageManager.createFolderForForeignWorkspace(ownerId, workspaceName);
+            if(createdDir == null)
+                throw new Exception("Could not create the foreign workspace directory : " + workspaceName);
+        }
     }
 
     public void removeFromForeignWorkspace(String workspaceName,String nickName){

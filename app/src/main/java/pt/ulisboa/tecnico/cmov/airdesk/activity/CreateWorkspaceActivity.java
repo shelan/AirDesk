@@ -68,7 +68,7 @@ public class CreateWorkspaceActivity extends ActionBarActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  final Bundle savedInstanceState) {
             final View rootView = inflater.inflate(R.layout.fragment_create_workspace, container, false);
-            CheckBox publicCheckBox = (CheckBox) rootView.findViewById(R.id.is_public_checkbx);
+            final CheckBox publicCheckBox = (CheckBox) rootView.findViewById(R.id.is_public_checkbx);
             publicCheckBox.setOnClickListener(new CheckBox.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -83,8 +83,6 @@ public class CreateWorkspaceActivity extends ActionBarActivity {
             });
 
             Button button = (Button) rootView.findViewById(R.id.create_btn);
-
-            WorkspaceManager manager = new WorkspaceManager();
 
             final SeekBar quotaBar = (SeekBar) rootView.findViewById(R.id.quota_seekbar);
             quotaBar.setMax(50);
@@ -123,9 +121,10 @@ public class CreateWorkspaceActivity extends ActionBarActivity {
                    /* if(memoryInsufficient) {
                         ((TextView) rootView.findViewById(R.id.quota)).setError("quota is too big");
                     } else {*/
-                    WorkspaceManager manager = new WorkspaceManager();
+
                     OwnedWorkspace ownedWorkspace = new OwnedWorkspace(name,
                             new UserManager().getOwner().getUserId(), Double.parseDouble(String.valueOf(quotaBar.getProgress())));
+                    ownedWorkspace.setPublic(publicCheckBox.isChecked());
 
                         ownedWorkspace.addTags(Arrays.asList(tags.split(",")));
                         workspaceManager.createWorkspace(ownedWorkspace);
