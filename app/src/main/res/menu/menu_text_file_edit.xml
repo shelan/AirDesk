@@ -8,6 +8,10 @@
         android:title="@string/action_settings"
         app:showAsAction="never" />
     <item
+        android:id="@+id/delete_file"
+        app:showAsAction="never"
+        android:title="Delete File" />
+    <item
         android:id="@+id/action_edit_file"
         android:orderInCategory="100"
         android:title="@string/action_settings"

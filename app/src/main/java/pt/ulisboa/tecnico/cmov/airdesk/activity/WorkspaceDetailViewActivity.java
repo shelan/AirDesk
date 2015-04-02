@@ -34,6 +34,7 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
 
     private WorkspaceDetailFragment workspaceDetailFragment;
     static ArrayList<Map<String, Object>> list = new ArrayList<>();
+    WorkspaceManager workspaceManager = new WorkspaceManager();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,7 +86,6 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
             builder.setView(input);
             builder.setPositiveButton(R.string.add_to_acess_list, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
-                    WorkspaceManager workspaceManager = new WorkspaceManager();
                     try {
                         workspaceManager.addClientToWorkspace(workspace.getWorkspaceName(),
                                 String.valueOf(input.getText()).trim());
@@ -103,6 +103,12 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
             });
 
             builder.show();
+        }
+        if(id == R.id.delete_workspace) {
+            //TODO: add are you sure? pop up
+            //TODO: when in foreign workspace, should call delete foreign workspace... :)
+            workspaceManager.deleteOwnedWorkspace(workspace.getWorkspaceName());
+            finish();
         }
 
         return super.onOptionsItemSelected(item);

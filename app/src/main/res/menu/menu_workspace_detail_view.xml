@@ -14,4 +14,10 @@
         android:icon="@drawable/add_user"
         app:showAsAction="never"
         android:title="Add User" />
+
+    <item
+        android:id="@+id/delete_workspace"
+        app:showAsAction="never"
+        android:title="Delete Workspace" />
+
 </menu>

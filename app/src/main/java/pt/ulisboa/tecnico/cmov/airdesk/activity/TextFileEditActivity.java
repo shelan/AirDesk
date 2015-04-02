@@ -75,6 +75,9 @@ public class TextFileEditActivity extends ActionBarActivity {
             fileText.setInputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE);
             Toast.makeText(this, "Editing", Toast.LENGTH_SHORT).show();
         }
+        if(id == R.id.delete_file) {
+            //new WorkspaceManager().deleteDataFile();
+        }
 
         return super.onOptionsItemSelected(item);
     }
