@@ -20,4 +20,9 @@
         app:showAsAction="never"
         android:title="Delete Workspace" />
 
+    <item
+        android:id="@+id/edit_workspace"
+        app:showAsAction="never"
+        android:title="Edit Workspace" />
+
 </menu>

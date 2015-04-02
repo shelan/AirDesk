@@ -121,6 +121,9 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
             workspaceManager.deleteOwnedWorkspace(workspace.getWorkspaceName());
             finish();
         }
+        if(id == R.id.edit_workspace) {
+
+        }
 
         return super.onOptionsItemSelected(item);
     }
