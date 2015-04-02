@@ -63,15 +63,20 @@ public class OwnedWorkspace extends AbstractWorkspace {
         this.isPublic = isPublic;
     }
 
-    public List<String>getTags(){return tags;}
+    public List<String>getTags() {
+        return tags;
+    }
+
     public void addTags(List<String>newTags){
-        tags.addAll(newTags);
+        for (String tag : newTags) {
+            tags.add(tag.toLowerCase());
+        }
     }
 
     public void deleteTags(List<String>deleted){
         for (int i = 0; i <tags.size() ; i++) {
             for(int j=0;j<deleted.size();j++){
-                if(tags.get(i).toLowerCase().equals(deleted.get(j).toLowerCase())){
+                if(tags.get(i).equals(deleted.get(j).toLowerCase())){
                     tags.remove(i);
                 }
             }

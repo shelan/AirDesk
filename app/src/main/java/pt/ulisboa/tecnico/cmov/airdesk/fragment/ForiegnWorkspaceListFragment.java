@@ -21,7 +21,6 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -30,9 +29,9 @@ import java.util.Map;
 import pt.ulisboa.tecnico.cmov.airdesk.AirDeskManager;
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
 import pt.ulisboa.tecnico.cmov.airdesk.R;
-import pt.ulisboa.tecnico.cmov.airdesk.activity.CreateWorkspaceActivity;
 import pt.ulisboa.tecnico.cmov.airdesk.activity.WorkspaceDetailViewActivity;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.UserManager;
+import pt.ulisboa.tecnico.cmov.airdesk.manager.WorkspaceManager;
 
 /**
  * Created by shelan on 3/15/15.
@@ -44,7 +43,7 @@ public class ForiegnWorkspaceListFragment extends Fragment {
     private ArrayList<String> workspaceList = new ArrayList<>();
 
     private AirDeskManager manager = new AirDeskManager();
-    private UserManager userManager = new UserManager();
+    private WorkspaceManager workspaceManager = new WorkspaceManager();
 
     private SimpleAdapter adapter;
 
@@ -95,7 +94,7 @@ public class ForiegnWorkspaceListFragment extends Fragment {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
                 final EditText input = new EditText(getActivity());
-                final HashSet<String> oldSubscriptions = userManager.getOwner().getSubscribedTags();
+                final HashSet<String> oldSubscriptions = new UserManager().getOwner().getSubscribedTags();
                 input.setText(oldSubscriptions.toString().replace("[", "").replace("]", ""));
                 builder.setTitle("Subscribe to Tags");
                 builder.setView(input);
@@ -113,8 +112,8 @@ public class ForiegnWorkspaceListFragment extends Fragment {
                             //keep new subscriptions in subscription hashset
                             subscriptions.removeAll(intersect);
 
-                            userManager.subscribeToTags(subscriptions.toArray(new String[subscriptions.size()]));
-                            userManager.unsubscribeFromTags(oldSubscriptions.toArray(new String[oldSubscriptions.size()]));
+                            workspaceManager.subscribeToTags(subscriptions.toArray(new String[subscriptions.size()]));
+                            workspaceManager.unsubscribeFromTags(oldSubscriptions.toArray(new String[oldSubscriptions.size()]));
 
                         } catch (Exception e) {
                             e.printStackTrace();
