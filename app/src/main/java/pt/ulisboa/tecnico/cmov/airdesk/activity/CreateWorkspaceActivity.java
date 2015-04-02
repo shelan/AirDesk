@@ -16,6 +16,7 @@ import java.util.Arrays;
 
 import pt.ulisboa.tecnico.cmov.airdesk.R;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.OwnedWorkspace;
+import pt.ulisboa.tecnico.cmov.airdesk.manager.UserManager;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.WorkspaceManager;
 
 
@@ -86,14 +87,14 @@ public class CreateWorkspaceActivity extends ActionBarActivity {
                 @Override
                 public void onClick(View v) {
                     String name = String.valueOf(((TextView) rootView.findViewById(R.id.ws_name)).getText()).trim();
-                    String email = String.valueOf(((TextView) rootView.findViewById(R.id.ws_email)).getText()).trim();
+                    //String email = String.valueOf(((TextView) rootView.findViewById(R.id.ws_email)).getText()).trim();
                     String tags = String.valueOf(((TextView) rootView.findViewById(R.id.tag_text)).getText()).trim();
                     String quota = String.valueOf(((TextView) rootView.findViewById(R.id.quota)).getText()).trim();
 
 
                     WorkspaceManager manager = new WorkspaceManager();
                     OwnedWorkspace ownedWorkspace = new OwnedWorkspace(name,
-                            email, Double.parseDouble(quota));
+                            new UserManager().getOwner().getUserId(), Double.parseDouble(quota));
 
                     ownedWorkspace.addTags(Arrays.asList(tags.split(",")));
                     manager.createWorkspace(ownedWorkspace);

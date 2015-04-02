@@ -235,7 +235,9 @@ public class WorkspaceManager {
         //TODO:notify user background job to send workspace to inactive clients, when they receive msg, make them active
         //TODO: received clients should add that workspace to their foreign space, and to their foreign workspace list
 
-        addToForeignWorkspace(workspace,ownedWorkspace.getOwnerId(),ownedWorkspace.getQuota(),ownedWorkspace.getFileNames().toArray(new String[ownedWorkspace.getFileNames().size()]));
+        //temp calling directly
+        if(!userManager.getForeignWorkspaces().contains(workspace))
+            addToForeignWorkspace(workspace,ownedWorkspace.getOwnerId(),ownedWorkspace.getQuota(),ownedWorkspace.getFileNames().toArray(new String[ownedWorkspace.getFileNames().size()]));
     }
 
     public void deleteUserFromAccessList(String workspace, String userId){
