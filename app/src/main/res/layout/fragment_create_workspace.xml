@@ -36,7 +36,6 @@
         android:inputType="number"
         android:ems="10"
         android:id="@+id/quota"
-        android:layout_below="@+id/ws_email"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_marginTop="33dp"

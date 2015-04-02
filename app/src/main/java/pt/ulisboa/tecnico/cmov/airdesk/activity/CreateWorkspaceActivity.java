@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.cmov.airdesk.activity;
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
@@ -92,13 +93,21 @@ public class CreateWorkspaceActivity extends ActionBarActivity {
                     String quota = String.valueOf(((TextView) rootView.findViewById(R.id.quota)).getText()).trim();
 
 
-                    WorkspaceManager manager = new WorkspaceManager();
-                    OwnedWorkspace ownedWorkspace = new OwnedWorkspace(name,
-                            new UserManager().getOwner().getUserId(), Double.parseDouble(quota));
+                    WorkspaceManager workspaceManager = new WorkspaceManager();
+                    boolean memoryInsufficient = workspaceManager.isNotSufficientMemory(Double.valueOf(quota));
+                    if(memoryInsufficient) {
+                        ((TextView) rootView.findViewById(R.id.quota)).setError("quota is too big");
+                    } else {
+                        OwnedWorkspace ownedWorkspace = new OwnedWorkspace(name,
+                                new UserManager().getOwner().getUserId(), Double.parseDouble(quota));
 
-                    ownedWorkspace.addTags(Arrays.asList(tags.split(",")));
-                    manager.createWorkspace(ownedWorkspace);
-                    getActivity().finish();
+                        ownedWorkspace.addTags(Arrays.asList(tags.split(",")));
+                        workspaceManager.createWorkspace(ownedWorkspace);
+                        getActivity().finish();
+                    }
+
+
+
                 }
             });
             return rootView;
