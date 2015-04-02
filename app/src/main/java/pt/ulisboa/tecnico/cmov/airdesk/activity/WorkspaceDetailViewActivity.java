@@ -81,7 +81,6 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
 
             final EditText input = new EditText(this);
             input.setHint("Username");
-            builder.setIcon(R.id.add_user);
             builder.setTitle("User Access List");
             builder.setView(input);
             builder.setPositiveButton(R.string.add_to_acess_list, new DialogInterface.OnClickListener() {
@@ -95,7 +94,7 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
                 }
             });
 
-            builder.setNegativeButton(R.string.clear, new DialogInterface.OnClickListener(){
+            builder.setNegativeButton("Close", new DialogInterface.OnClickListener(){
 
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
