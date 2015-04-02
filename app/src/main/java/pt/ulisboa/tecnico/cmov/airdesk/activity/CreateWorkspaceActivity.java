@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.util.Arrays;
@@ -118,13 +117,24 @@ public class CreateWorkspaceActivity extends ActionBarActivity {
                     // String quota = String.valueOf(((TextView) rootView.findViewById(R.id.quota)).getText()).trim();
 
 
+                    WorkspaceManager workspaceManager = new WorkspaceManager();
+                    boolean memoryInsufficient = workspaceManager.isNotSufficientMemory(Double.valueOf(quota));
+                    if(memoryInsufficient) {
+                        ((TextView) rootView.findViewById(R.id.quota)).setError("quota is too big");
+                    } else {
+                        OwnedWorkspace ownedWorkspace = new OwnedWorkspace(name,
+                                new UserManager().getOwner().getUserId(), Double.parseDouble(quota));
                     WorkspaceManager manager = new WorkspaceManager();
                     OwnedWorkspace ownedWorkspace = new OwnedWorkspace(name,
                             new UserManager().getOwner().getUserId(), Double.parseDouble(String.valueOf(quotaBar.getProgress())));
 
-                    ownedWorkspace.addTags(Arrays.asList(tags.split(",")));
-                    manager.createWorkspace(ownedWorkspace);
-                    getActivity().finish();
+                        ownedWorkspace.addTags(Arrays.asList(tags.split(",")));
+                        workspaceManager.createWorkspace(ownedWorkspace);
+                        getActivity().finish();
+                    }
+
+
+
                 }
             });
             return rootView;
