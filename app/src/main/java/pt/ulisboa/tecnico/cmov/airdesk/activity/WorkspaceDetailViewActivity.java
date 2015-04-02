@@ -55,6 +55,16 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_workspace_detail_view, menu);
+        Intent intent = getIntent();
+        // Removing delete workspace option for foriegn workspaces
+        if (intent != null) {
+            boolean isOwnedWorkspace = intent.getBooleanExtra(Constants.IS_OWNED_WORKSPACE, true);
+            if(!isOwnedWorkspace){
+                menu.getItem(2).setVisible(false);
+            }
+
+        }
+
         return true;
     }
 
@@ -77,7 +87,7 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
             ;
             startActivity(intent);
         }
-        if(id == R.id.add_user) {
+        if (id == R.id.add_user) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
             final EditText input = new EditText(this);
@@ -95,7 +105,7 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
                 }
             });
 
-            builder.setNegativeButton("Close", new DialogInterface.OnClickListener(){
+            builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
 
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -104,7 +114,7 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
 
             builder.show();
         }
-        if(id == R.id.delete_workspace) {
+        if (id == R.id.delete_workspace) {
             //TODO: add are you sure? pop up
             //TODO: when in foreign workspace, should call delete foreign workspace... :)
             workspaceManager.deleteOwnedWorkspace(workspace.getWorkspaceName());
