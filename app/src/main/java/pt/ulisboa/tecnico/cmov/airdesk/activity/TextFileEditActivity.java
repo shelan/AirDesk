@@ -76,7 +76,13 @@ public class TextFileEditActivity extends ActionBarActivity {
             Toast.makeText(this, "Editing", Toast.LENGTH_SHORT).show();
         }
         if(id == R.id.delete_file) {
-            //new WorkspaceManager().deleteDataFile();
+            try {
+                new WorkspaceManager().deleteDataFile(file.getWorkspace(),file.getFileName(),
+                        file.getOwner(),true);
+                finish();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         return super.onOptionsItemSelected(item);
@@ -114,6 +120,8 @@ public class TextFileEditActivity extends ActionBarActivity {
                     file.setFileName(intent.getStringExtra(Constants.FILENAME));
                 }
             }
+
+            getActivity().setTitle(file.getWorkspace()+"/"+file.getFileName());
 
             try {
                 setFileText(file);
