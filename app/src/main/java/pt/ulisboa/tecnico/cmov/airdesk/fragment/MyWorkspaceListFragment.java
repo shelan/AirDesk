@@ -100,7 +100,7 @@ public class MyWorkspaceListFragment extends Fragment {
         for (String file : dataList) {
             Map map = new HashMap();
 
-            map.put("fileIcon", R.drawable.home_blue);
+            map.put("fileIcon", R.drawable.owned_workspace);
             map.put("workspaceName", file);
             data.add(map);
         }
