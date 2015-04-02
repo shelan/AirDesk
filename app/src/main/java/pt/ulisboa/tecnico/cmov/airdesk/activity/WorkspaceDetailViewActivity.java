@@ -46,6 +46,7 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
                     .add(R.id.container, new WorkspaceDetailFragment())
                     .commit();
         }
+
     }
 
 
@@ -138,6 +139,8 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
 
                 }
             }
+
+            getActivity().setTitle(workspace.getWorkspaceName());
 
             if (workspace == null) {
                 //should do something here. because this is a terrible position to be :(
