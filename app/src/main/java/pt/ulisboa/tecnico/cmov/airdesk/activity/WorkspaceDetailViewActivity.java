@@ -60,6 +60,7 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
         if (intent != null) {
             boolean isOwnedWorkspace = intent.getBooleanExtra(Constants.IS_OWNED_WORKSPACE, true);
             if(!isOwnedWorkspace){
+                menu.getItem(1).setVisible(false);
                 menu.getItem(2).setVisible(false);
             }
 

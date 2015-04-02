@@ -106,7 +106,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="25"
+        android:text="0"
         android:id="@+id/quota_size_txt"
         android:layout_below="@+id/quota_seekbar"
         android:layout_alignRight="@+id/is_public_checkbx"
