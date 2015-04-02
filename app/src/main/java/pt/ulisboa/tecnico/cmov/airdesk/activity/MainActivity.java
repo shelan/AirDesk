@@ -1,12 +1,15 @@
 package pt.ulisboa.tecnico.cmov.airdesk.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import pt.ulisboa.tecnico.cmov.airdesk.Constants;
+import pt.ulisboa.tecnico.cmov.airdesk.CreateUserActivity;
 import pt.ulisboa.tecnico.cmov.airdesk.PopulateData;
 import pt.ulisboa.tecnico.cmov.airdesk.R;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.User;
@@ -23,26 +26,35 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        if (savedInstanceState == null) {
-
-            myWorkspacesFragment = new MyWorkspaceListFragment();
-            foreignWorkspacesFragment = new ForiegnWorkspaceListFragment();
-
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, myWorkspacesFragment, "fragment_1")
-                    .add(R.id.container, foreignWorkspacesFragment, "fragment_2")
-                    .commit();
-
-        }
 
         UserManager manager = new UserManager();
 
+        /// temp code for testing
+       /* User owner = manager.getOwner();
+        if( owner!= null)
+            manager.deleteOwner();
+*/
+        ////
+
         if (manager.getOwner() == null) {
-            User user = new User();
-            user.setNickName("aaa");
-            user.setUserId("testuser@gmail.com");
-            manager.createOwner(user);
+            Intent intent = new Intent(this, CreateUserActivity.class);
+            startActivity(intent);
         }
+            if (savedInstanceState == null) {
+
+                myWorkspacesFragment = new MyWorkspaceListFragment();
+                foreignWorkspacesFragment = new ForiegnWorkspaceListFragment();
+
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.container, myWorkspacesFragment, "fragment_1")
+                        .add(R.id.container, foreignWorkspacesFragment, "fragment_2")
+                        .commit();
+
+            }
+
+
+
+
 
         /*SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
         boolean isInitialized = sharedPref.getBoolean("isInitialized", false);

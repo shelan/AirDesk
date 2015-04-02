@@ -21,12 +21,8 @@ public class PopulateData {
     public void populateOwnedWorkspaces() throws Exception {
 
         cleanWorkspaeDataNMetadata();
-
-        User user = new User();
-        user.setUserId("abc@gmail.com");
-        user.setNickName("aaa");
         UserManager userManager=new UserManager();
-        userManager.createOwner(user);
+        userManager.createOwner("aaa", "abc@gmail.com");
 
         WorkspaceManager workspaceManager = new WorkspaceManager();
 

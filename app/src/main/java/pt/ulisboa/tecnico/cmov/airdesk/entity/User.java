@@ -18,6 +18,11 @@ public class User {
     private HashSet<String> subscribedTags = new HashSet<String>();
 
 
+    public User(String nickName, String userId) {
+        setNickName(nickName);
+        setUserId(userId);
+    }
+
     public void updateDeletedWorkspacesMap(String workspaceName, List<String> accessList){
         deletedWorkspaces.put(workspaceName,accessList);
     }

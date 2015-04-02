@@ -12,8 +12,13 @@ public class UserManager {
 
     MetadataManager metaManager = new MetadataManager();
 
-    public void createOwner(User user) {
+    /*public void createOwner(User user) {
         metaManager.saveUser(user);
+    }*/
+
+    public void createOwner(String nickName, String userId) {
+        User owner = new User(nickName, userId);
+        metaManager.saveUser(owner);
     }
 
     public void updateOwner(User user) {
@@ -25,7 +30,7 @@ public class UserManager {
         return user;
     }
 
-    public void deleteOwner(String userName) {
+    public void deleteOwner() {
         metaManager.deleteFile(Constants.USER_JSON_FILE_NAME);
     }
 

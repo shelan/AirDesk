@@ -152,10 +152,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
     }
 
     private void createUser() {
-        User user = new User();
-        user.setUserId("owner3@gmail.com");
-        user.setNickName("owner3");
-        userManager.createOwner(user);
+        userManager.createOwner("owner3", "owner3@gmail.com");
     }
 
     private void testCreateWorkspace() {
@@ -344,7 +341,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
     }
 
     private void testDeleteUser() {
-        userManager.deleteOwner(ownerId);
+        userManager.deleteOwner();
     }
 
     private FileInputStream generateFileInputStream() throws IOException {
