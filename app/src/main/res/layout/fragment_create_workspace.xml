@@ -30,19 +30,6 @@
         android:layout_alignRight="@+id/ws_name"
         android:layout_alignEnd="@+id/ws_name" /-->
 
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inputType="number"
-        android:ems="10"
-        android:id="@+id/quota"
-        android:layout_below="@+id/ws_email"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="33dp"
-        android:hint="Workspace Quota"
-        android:numeric="integer" />
-
     <CheckBox
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -73,5 +60,56 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_marginTop="32dp" />
+
+    <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/quota_seekbar"
+        android:layout_marginTop="29dp"
+        android:layout_below="@+id/file_size_txt"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/workspace_quota"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:id="@+id/file_size_txt"
+        android:layout_marginTop="38dp"
+        android:layout_below="@+id/ws_name"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="0"
+        android:id="@+id/min_quota_txt"
+        android:layout_below="@+id/quota_seekbar"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="50"
+        android:layout_below="@+id/quota_seekbar"
+        android:id="@+id/max_quota_txt"
+        android:layout_alignBottom="@+id/min_quota_txt"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="25"
+        android:id="@+id/quota_size_txt"
+        android:layout_below="@+id/quota_seekbar"
+        android:layout_alignRight="@+id/is_public_checkbx"
+        android:layout_alignEnd="@+id/is_public_checkbx" />
 
 </RelativeLayout>

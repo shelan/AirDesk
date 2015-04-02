@@ -70,7 +70,8 @@ public class ForiegnWorkspaceListFragment extends Fragment {
 
                 Intent intent = new Intent(getActivity(), WorkspaceDetailViewActivity.class)
                         .putExtra(Intent.EXTRA_TEXT, workspace)
-                        .putExtra(Constants.WORKSPACE, manager.getOwnedWorkspace(workspace));
+                        .putExtra(Constants.WORKSPACE, manager.getOwnedWorkspace(workspace))
+                        .putExtra(Constants.IS_OWNED_WORKSPACE,false);
 
                 startActivity(intent);
                 Toast.makeText(getActivity(), "You are now in " + workspace,

@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.util.Arrays;
@@ -82,6 +83,31 @@ public class CreateWorkspaceActivity extends ActionBarActivity {
             });
 
             Button button = (Button) rootView.findViewById(R.id.create_btn);
+
+            WorkspaceManager manager = new WorkspaceManager();
+
+            final SeekBar quotaBar = (SeekBar) rootView.findViewById(R.id.quota_seekbar);
+            quotaBar.setMax(50);
+
+            quotaBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    final TextView quotaTxt = (TextView) rootView.findViewById(R.id.quota_size_txt);
+                    quotaTxt.setText(String.valueOf(progress));
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+
+                }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+
+                }
+            });
+
+
             button.setOnClickListener(new Button.OnClickListener() {
 
                 @Override
@@ -89,12 +115,12 @@ public class CreateWorkspaceActivity extends ActionBarActivity {
                     String name = String.valueOf(((TextView) rootView.findViewById(R.id.ws_name)).getText()).trim();
                     //String email = String.valueOf(((TextView) rootView.findViewById(R.id.ws_email)).getText()).trim();
                     String tags = String.valueOf(((TextView) rootView.findViewById(R.id.tag_text)).getText()).trim();
-                    String quota = String.valueOf(((TextView) rootView.findViewById(R.id.quota)).getText()).trim();
+                    // String quota = String.valueOf(((TextView) rootView.findViewById(R.id.quota)).getText()).trim();
 
 
                     WorkspaceManager manager = new WorkspaceManager();
                     OwnedWorkspace ownedWorkspace = new OwnedWorkspace(name,
-                            new UserManager().getOwner().getUserId(), Double.parseDouble(quota));
+                            new UserManager().getOwner().getUserId(), Double.parseDouble(String.valueOf(quotaBar.getProgress())));
 
                     ownedWorkspace.addTags(Arrays.asList(tags.split(",")));
                     manager.createWorkspace(ownedWorkspace);
