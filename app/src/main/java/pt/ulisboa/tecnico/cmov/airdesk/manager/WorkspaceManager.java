@@ -275,15 +275,15 @@ public class WorkspaceManager {
         }
     }
 
-    public void removeFromForeignWorkspace(String workspaceName,String nickName){
+    public void removeFromForeignWorkspace(String workspaceName,String userId){
         User user = userManager.getOwner();
         user.removeFromForeignWorkspaceList(workspaceName);
         userManager.updateOwner(user);
 
-        metadataManager.deleteForeignWorkspace(workspaceName, nickName);
+        metadataManager.deleteForeignWorkspace(workspaceName, userId);
 
         //TODO Check whether we need to delete the foreign_ws folder,
-        String foreignWSFolderPath=Constants.FOREIGN_WORKSPACE_DIR+File.separator+nickName +
+        String foreignWSFolderPath=Constants.FOREIGN_WORKSPACE_DIR+File.separator+userId +
                 File.separator + workspaceName;
         FileUtils.deleteFolder(foreignWSFolderPath);
     }

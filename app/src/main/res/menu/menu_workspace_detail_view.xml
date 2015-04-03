@@ -16,13 +16,18 @@
         android:title="Add User" />
 
     <item
-        android:id="@+id/delete_workspace"
-        app:showAsAction="never"
-        android:title="Delete Workspace" />
-
-    <item
         android:id="@+id/edit_workspace"
         app:showAsAction="never"
         android:title="Edit Workspace" />
+
+    <item
+        android:id="@+id/delete_user"
+        app:showAsAction="never"
+        android:title="Delete User" />
+
+    <item
+        android:id="@+id/delete_workspace"
+        app:showAsAction="never"
+        android:title="Delete Workspace" />
 
 </menu>

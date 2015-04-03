@@ -116,6 +116,33 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
 
             builder.show();
         }
+        if (id == R.id.delete_user) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+            final EditText input = new EditText(this);
+            input.setHint("Username");
+            builder.setTitle("Remove from access list");
+            builder.setView(input);
+            builder.setPositiveButton(R.string.remove_from_acess_list, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    try {
+                        workspaceManager.deleteUserFromAccessList(workspace.getWorkspaceName(),String.valueOf(input.getText()).trim());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+            builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                }
+            });
+
+            builder.show();
+        }
+
         if (id == R.id.delete_workspace) {
             //TODO: add are you sure? pop up
             //TODO: when in foreign workspace, should call delete foreign workspace... :)
