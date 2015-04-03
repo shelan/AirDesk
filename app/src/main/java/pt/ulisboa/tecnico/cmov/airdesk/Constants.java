@@ -15,7 +15,7 @@ public class Constants {
     public static final int BYTES_PER_KB =1024;
     public static final String JSON_SUFFIX=".json";
 
-    public static final String WORKSPACE = "workspace";
+    public static final String WORKSPACE_NAME = "workspace";
     public static final String FILENAME = "filename";
     public static final String OWNER = "owner";
     public static final String IS_OWNED_WORKSPACE = "isOwnedWorkspace";

@@ -110,8 +110,8 @@ public class TextFileEditActivity extends ActionBarActivity {
 
             if (intent != null) {
 
-                if (intent.hasExtra(Constants.WORKSPACE)) {
-                    file.setWorkspace(intent.getStringExtra(Constants.WORKSPACE));
+                if (intent.hasExtra(Constants.WORKSPACE_NAME)) {
+                    file.setWorkspace(intent.getStringExtra(Constants.WORKSPACE_NAME));
                 }
                 if (intent.hasExtra(Constants.OWNER)) {
                     file.setOwner(intent.getStringExtra(Constants.OWNER));

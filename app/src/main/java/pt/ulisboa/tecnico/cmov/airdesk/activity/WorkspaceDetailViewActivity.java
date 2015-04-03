@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
+import pt.ulisboa.tecnico.cmov.airdesk.EditWorkspaceActivity;
 import pt.ulisboa.tecnico.cmov.airdesk.R;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.OwnedWorkspace;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.WorkspaceManager;
@@ -82,7 +83,7 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
         }
         if (id == R.id.add_file) {
             Intent intent = new Intent(this, CreateFileActivity.class);
-            intent.putExtra(Constants.WORKSPACE, workspace.getWorkspaceName())
+            intent.putExtra(Constants.WORKSPACE_NAME, workspace.getWorkspaceName())
                     .putExtra(Constants.OWNER, workspace.getOwnerName())
             //TODO:we need to get whether owner or not
             ;
@@ -122,7 +123,9 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
             finish();
         }
         if(id == R.id.edit_workspace) {
-
+            Intent intent = new Intent(this, EditWorkspaceActivity.class);
+            intent.putExtra(Constants.WORKSPACE_NAME, workspace.getWorkspaceName());
+            startActivity(intent);
         }
 
         return super.onOptionsItemSelected(item);
@@ -154,8 +157,8 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
 
             if (intent != null) {
 
-                if (intent.hasExtra(Constants.WORKSPACE)) {
-                    workspace = (OwnedWorkspace) intent.getSerializableExtra(Constants.WORKSPACE);
+                if (intent.hasExtra(Constants.WORKSPACE_NAME)) {
+                    workspace = (OwnedWorkspace) intent.getSerializableExtra(Constants.WORKSPACE_NAME);
 
                 }
             }
@@ -192,7 +195,7 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
 
                     Intent intent = new Intent(getActivity(), TextFileEditActivity.class)
                             .putExtra(Constants.FILENAME, fileName)
-                            .putExtra(Constants.WORKSPACE, finalWorkspace.getWorkspaceName())
+                            .putExtra(Constants.WORKSPACE_NAME, finalWorkspace.getWorkspaceName())
                             .putExtra(Constants.OWNER, finalWorkspace.getOwnerName());
 
                     startActivity(intent);

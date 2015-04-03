@@ -16,5 +16,6 @@
     <string name="clear">Clear</string>
     <string name="title_activity_create_user">Create Account</string>
     <string name="workspace_quota">Workspace Quota (MB)</string>
+    <string name="title_activity_edit_workspace">Edit Workspace</string>
 
 </resources>

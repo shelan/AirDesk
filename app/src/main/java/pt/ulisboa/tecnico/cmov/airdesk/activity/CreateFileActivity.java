@@ -36,8 +36,8 @@ public class CreateFileActivity extends ActionBarActivity {
                 Intent intent = getIntent();
                 if (intent != null) {
 
-                    if (intent.hasExtra(Constants.WORKSPACE)) {
-                        workspace = intent.getStringExtra(Constants.WORKSPACE);
+                    if (intent.hasExtra(Constants.WORKSPACE_NAME)) {
+                        workspace = intent.getStringExtra(Constants.WORKSPACE_NAME);
                     }
                     if (intent.hasExtra(Constants.OWNER)) {
                         owner = intent.getStringExtra(Constants.OWNER);
