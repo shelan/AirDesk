@@ -114,7 +114,7 @@ public class ForiegnWorkspaceListFragment extends Fragment {
 
                             workspaceManager.subscribeToTags(subscriptions.toArray(new String[subscriptions.size()]));
                             workspaceManager.unsubscribeFromTags(oldSubscriptions.toArray(new String[oldSubscriptions.size()]));
-
+                            updateWorkspaceList();
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
