@@ -249,9 +249,12 @@ public class WorkspaceManager {
         //TODO: received clients should add that workspace to their foreign space, and to their foreign workspace list
 
         //temp calling directly
-        if(!userManager.getForeignWorkspaces().contains(userId.concat("/").concat(workspace)))
+        if(userManager.getOwner().getUserId().equals(userId) && !userManager.getForeignWorkspaces()
+                .contains(userId.concat("/").concat(workspace))) {
             addToForeignWorkspace(workspace,ownedWorkspace.getOwnerId(),ownedWorkspace.getQuota(),
                     ownedWorkspace.getFileNames().toArray(new String[ownedWorkspace.getFileNames().size()]), null);
+        }
+
     }
 
     public void deleteUserFromAccessList(String workspace, String userId){
