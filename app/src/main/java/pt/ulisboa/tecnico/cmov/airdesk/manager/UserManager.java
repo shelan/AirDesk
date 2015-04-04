@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.cmov.airdesk.manager;
 
+import java.util.HashSet;
 import java.util.List;
 
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
@@ -44,7 +45,6 @@ public class UserManager {
     public List<String> getForeignWorkspaces() {
         User user = getOwner();
         return user.getForeignWorkspaces();
-
     }
 
     public void notifyClientOnAddForeignWorkspace() {
@@ -71,10 +71,11 @@ public class UserManager {
     }
 
     //use the method in workspace manager for this
-    public void unsubscribeFromTags(String[] tags) {
+    public HashSet<String> unsubscribeFromTags(String[] tags) {
         User owner = getOwner();
-        owner.removeSubscription(tags);
+        HashSet<String> taggedWorkspaces = owner.removeSubscription(tags);
         updateOwner(owner);
+        return taggedWorkspaces;
     }
 
 

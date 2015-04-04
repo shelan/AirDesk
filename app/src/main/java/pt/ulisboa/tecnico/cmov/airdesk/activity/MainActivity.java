@@ -32,8 +32,7 @@ public class MainActivity extends ActionBarActivity {
         /// temp code for testing
        /* User owner = manager.getOwner();
         if( owner!= null)
-            manager.deleteOwner();
-*/
+            manager.deleteOwner();*/
         ////
 
         if (manager.getOwner() == null) {

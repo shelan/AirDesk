@@ -49,7 +49,7 @@ public class PopulateData {
         WorkspaceManager workspaceManager=new WorkspaceManager();
         try {
             for (int i = 0; i < 10; i++) {
-                workspaceManager.addToForeignWorkspace("abc_ForeignWorkspace" + i, "aaa", 500, null);
+                workspaceManager.addToForeignWorkspace("abc_ForeignWorkspace" + i, "aaa", 500, null, null);
 
             }
             List<String>foreignWS=userManager.getForeignWorkspaces();

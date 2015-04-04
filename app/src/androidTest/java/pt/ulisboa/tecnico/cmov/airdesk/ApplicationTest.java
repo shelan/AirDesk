@@ -212,7 +212,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
 
         //since we directly add this to foreign workspace for 1st iteration
         List<String> foreignWS = userManager.getForeignWorkspaces();
-        Assert.assertTrue(foreignWS.contains(workspaceName));
+        Assert.assertTrue(foreignWS.contains(ownerId.concat("/").concat(workspaceName)));
     }
 
     private void testForeignWSDataFileLC() throws Exception {
@@ -256,7 +256,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         //when a workspace owner add a tag that matches with a user subscription tag, the workspace
         //should be added to users foreign workspaces
         OwnedWorkspace workspace = new OwnedWorkspace(publicWorkspaceName, ownerId, 2.0);
-        Assert.assertFalse(userManager.getForeignWorkspaces().contains(publicWorkspaceName));
+        Assert.assertFalse(userManager.getForeignWorkspaces().contains(ownerId.concat("/").concat(publicWorkspaceName)));
 
         workspace.setPublic(true);
         List<String> tags = new ArrayList<>();
@@ -266,7 +266,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         workspaceManager.createWorkspace(workspace);
 
         //user is subscribed to tag2
-        Assert.assertTrue(userManager.getForeignWorkspaces().contains(publicWorkspaceName));
+        Assert.assertTrue(userManager.getForeignWorkspaces().contains(ownerId.concat("/").concat(publicWorkspaceName)));
 
         //when a user add a tag and any others has a workspace matching to that tag, that workspace
         //should be added to users foreign workspaces
@@ -279,10 +279,10 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         tags2.add("tag6");
         workspace2.addTags(tags2);
         workspaceManager.createWorkspace(workspace2);
-        Assert.assertFalse(userManager.getForeignWorkspaces().contains(publicWorkspaceName));
+        Assert.assertFalse(userManager.getForeignWorkspaces().contains(ownerId.concat("/").concat(publicWorkspaceName)));
 
         workspaceManager.subscribeToTags(new String[]{"tag5"});
-        Assert.assertTrue(userManager.getForeignWorkspaces().contains(publicWorkspaceName));
+        Assert.assertTrue(userManager.getForeignWorkspaces().contains(ownerId.concat("/").concat(publicWorkspaceName)));
     }
 
 
@@ -293,7 +293,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
 
         /*TODO:to be removed after introducing wifi direct  */
         List<String> workspaces = userManager.getForeignWorkspaces();
-        Assert.assertFalse(workspaces.contains(workspaceName));
+        Assert.assertFalse(workspaces.contains(ownerId.concat("/").concat(workspaceName)));
 
         /*
         TODO: can we delete client folder???
@@ -320,12 +320,12 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         Assert.assertEquals(false, workSpaces.contains(workspaceName));
 
         workSpaces = userManager.getForeignWorkspaces();
-        System.out.println("status in foreign workspace " + workSpaces.contains(workspaceName));
+        System.out.println("status in foreign workspace " + workSpaces.contains(ownerId.concat("/").concat(workspaceName)));
         Assert.assertEquals(false, workSpaces.contains(workspaceName));
 
         File parentDir = appContext.getDir(Constants.OWNED_WORKSPACE_DIR, appContext.MODE_PRIVATE);
         File workspaceDir = new File(parentDir.getAbsolutePath() + "/" + workspaceName);
-        System.out.println("is foreign ws folder available " + workSpaces.contains(workspaceName));
+        System.out.println("is foreign ws folder available " + workSpaces.contains(ownerId.concat("/").concat(workspaceName)));
         Assert.assertEquals(false, workspaceDir.exists());
 
 

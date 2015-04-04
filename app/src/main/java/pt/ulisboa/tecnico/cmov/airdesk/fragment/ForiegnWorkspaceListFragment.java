@@ -176,7 +176,8 @@ public class ForiegnWorkspaceListFragment extends Fragment {
             if (result != null) {
                 workspaceList.clear();
                 for (String s : result) {
-                    workspaceList.add(s);
+                    workspaceList.add(s.split("/")[1]);
+                    //workspaceList.add(s);
                 }
             }
             fillDataAdapter(workspaceList);

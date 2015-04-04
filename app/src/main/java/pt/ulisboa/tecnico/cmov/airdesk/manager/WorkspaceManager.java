@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -132,17 +133,22 @@ public class WorkspaceManager {
             workspace = getOwnedWorkspace(workspaceName);
             if(workspace.isPublic()) {
                 boolean isTagMatching = false;
+                ArrayList<String> matchingTags = new ArrayList<String>();
                 for (String subscribedTag : subscribedTags) {
                     if(workspace.getTags().contains(subscribedTag)) {
-                        isTagMatching = true;
-                        break;
+//                        isTagMatching = true;
+//                        break;
+                        matchingTags.add(subscribedTag);
                     }
                 }
+
                 //TODO call in Network
-                if(isTagMatching) {
+                //if(isTagMatching) {
+                if(matchingTags.size() > 0) {
                     try {
                         addToForeignWorkspace(workspaceName, workspace.getOwnerId(), workspace.getQuota(),
-                                workspace.getFileNames().toArray(new String[workspace.getFileNames().size()]));
+                                workspace.getFileNames().toArray(new String[workspace.getFileNames().size()]),
+                                matchingTags.toArray(new String[matchingTags.size()]));
                     } catch (Exception e) {
                         System.out.println("Could not add the workspace " + workspaceName + " to foreign workspace");
                     }
@@ -159,7 +165,14 @@ public class WorkspaceManager {
     }
 
     public void unsubscribeFromTags(String[] tags) {
-        userManager.unsubscribeFromTags(tags);
+        HashSet<String> taggedWorkspaces = userManager.unsubscribeFromTags(tags);
+        for (String workspaceName : taggedWorkspaces) {
+            //foreign workspace names will be saved as <wsOwnerId>/<workspaceName>
+            String[] splits = workspaceName.split("/");
+            if(splits.length == 2) {
+                removeFromForeignWorkspace(splits[1], splits[0]);
+            }
+        }
     }
 
     public boolean deleteOwnedWorkspace(String workspaceName){
@@ -170,7 +183,7 @@ public class WorkspaceManager {
         //remove from foreign list to simulate self mount.
         //TODO: Change this to notify wifidirect and then call that clients changeforeignwsList
         //
-         user.removeFromForeignWorkspaceList(workspaceName);//TODO:has to be removed later
+         user.removeFromForeignWorkspaceList(user.getUserId().concat("/").concat(workspaceName));//TODO:has to be removed later
 
         OwnedWorkspace ownedWorkspace= getOwnedWorkspace(workspaceName);
         Set<String> clients=ownedWorkspace.getClients().keySet();
@@ -236,8 +249,9 @@ public class WorkspaceManager {
         //TODO: received clients should add that workspace to their foreign space, and to their foreign workspace list
 
         //temp calling directly
-        if(!userManager.getForeignWorkspaces().contains(workspace))
-            addToForeignWorkspace(workspace,ownedWorkspace.getOwnerId(),ownedWorkspace.getQuota(),ownedWorkspace.getFileNames().toArray(new String[ownedWorkspace.getFileNames().size()]));
+        if(!userManager.getForeignWorkspaces().contains(userId.concat("/").concat(workspace)))
+            addToForeignWorkspace(workspace,ownedWorkspace.getOwnerId(),ownedWorkspace.getQuota(),
+                    ownedWorkspace.getFileNames().toArray(new String[ownedWorkspace.getFileNames().size()]), null);
     }
 
     public void deleteUserFromAccessList(String workspace, String userId){
@@ -255,11 +269,26 @@ public class WorkspaceManager {
     }
 
 
-    public void addToForeignWorkspace(String workspaceName, String ownerId, double quota, String[] fileNames) throws Exception {
+    /**
+     *
+     * @param workspaceName
+     * @param ownerId
+     * @param quota
+     * @param fileNames
+     * @param matchingTags pass the tags if added due to tag subscription. Else pass null ( if added with cient addition)
+     * @throws Exception
+     */
+    public void addToForeignWorkspace(String workspaceName, String ownerId, double quota, String[] fileNames, String[] matchingTags) throws Exception {
         User user = userManager.getOwner();
+        String uniqueWorkspaceName = ownerId.concat("/").concat(workspaceName);
+        if(!user.getForeignWorkspaces().contains(uniqueWorkspaceName)) {
+            user.addForeignWS(uniqueWorkspaceName);
+            if(matchingTags != null && matchingTags.length > 0) {
+                for (String tag : matchingTags) {
+                    user.addTagForeignWorkspaceMapping(tag, uniqueWorkspaceName);
+                }
+            }
 
-        if(!user.getForeignWorkspaces().contains(workspaceName)) {
-            user.addForeignWS(workspaceName);
             userManager.updateOwner(user);
 
             ForeignWorkspace foreignWorkspace = new ForeignWorkspace(workspaceName, ownerId, quota);
@@ -275,15 +304,15 @@ public class WorkspaceManager {
         }
     }
 
-    public void removeFromForeignWorkspace(String workspaceName,String userId){
+    public void removeFromForeignWorkspace(String workspaceName,String workspaceOwnerId){
         User user = userManager.getOwner();
-        user.removeFromForeignWorkspaceList(workspaceName);
+        user.removeFromForeignWorkspaceList(workspaceOwnerId.concat("/").concat(workspaceName));
         userManager.updateOwner(user);
 
-        metadataManager.deleteForeignWorkspace(workspaceName, userId);
+        metadataManager.deleteForeignWorkspace(workspaceName, workspaceOwnerId);
 
         //TODO Check whether we need to delete the foreign_ws folder,
-        String foreignWSFolderPath=Constants.FOREIGN_WORKSPACE_DIR+File.separator+userId +
+        String foreignWSFolderPath=Constants.FOREIGN_WORKSPACE_DIR+File.separator+workspaceOwnerId +
                 File.separator + workspaceName;
         FileUtils.deleteFolder(foreignWSFolderPath);
     }

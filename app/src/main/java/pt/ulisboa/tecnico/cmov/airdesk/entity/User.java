@@ -1,10 +1,15 @@
 package pt.ulisboa.tecnico.cmov.airdesk.entity;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import pt.ulisboa.tecnico.cmov.airdesk.Constants;
+import pt.ulisboa.tecnico.cmov.airdesk.FileUtils;
 
 /**
  * Created by Chathuri on 3/14/2015.
@@ -16,6 +21,7 @@ public class User {
     private List<String>foreignWorkspaces=new ArrayList<>();
     private Map<String, List<String>> deletedWorkspaces = new HashMap<String, List<String>>();//whenever notidication is received removefrom this
     private HashSet<String> subscribedTags = new HashSet<String>();
+    private HashMap<String, ArrayList<String>> tagsNWorkspaces = new HashMap<String, ArrayList<String>>();
 
 
     public User(String nickName, String userId) {
@@ -65,14 +71,17 @@ public class User {
         return ownedWorkspaces;
     }
 
-    public void addForeignWS(String WorkspaceName){
-        foreignWorkspaces.add(WorkspaceName);
+    /**
+     *
+     * @param uniqueWorkspaceName will hava <ownerId>/<workspaceName>
+     */
+    public void addForeignWS(String uniqueWorkspaceName){
+        foreignWorkspaces.add(uniqueWorkspaceName);
     }
 
-    public void removeFromForeignWorkspaceList(String WorkspaceName){
+    public void removeFromForeignWorkspaceList(String uniqueWorkspaceName){
         for(int i=0;i< getForeignWorkspaces().size();i++) {
-
-            if(getForeignWorkspaces().get(i).toLowerCase().equals(WorkspaceName.toLowerCase())){
+            if(getForeignWorkspaces().get(i).toLowerCase().equals(uniqueWorkspaceName.toLowerCase())){
                 getForeignWorkspaces().remove(i);
             }
         }
@@ -89,12 +98,26 @@ public class User {
     public void addSubscriptionTags(String[] tags) {
         for (String tag : tags) {
             subscribedTags.add(tag.toLowerCase());
+            tagsNWorkspaces.put(tag.toLowerCase(), new ArrayList<String>());
         }
     }
 
-    public void removeSubscription(String[] tags) {
+    public HashSet<String> removeSubscription(String[] tags) {
+        HashSet<String> taggedWorkspaces = new HashSet<String>();
         for (String tag : tags) {
             subscribedTags.remove(tag.toLowerCase());
+            ArrayList<String> workspaces = tagsNWorkspaces.remove(tag.toLowerCase());
+            taggedWorkspaces.addAll(workspaces);
+        }
+        return taggedWorkspaces;
+    }
+
+    public void addTagForeignWorkspaceMapping(String tag, String uniqueWorkspaceName) {
+        //tagsNWorkspaces must have this entry since at tag subscription time it adds to the list
+        ArrayList<String> workspaces = tagsNWorkspaces.get(tag);
+        if(!workspaces.contains(uniqueWorkspaceName)) {
+            workspaces.add(uniqueWorkspaceName);
+            tagsNWorkspaces.put(tag, workspaces);
         }
     }
 }
