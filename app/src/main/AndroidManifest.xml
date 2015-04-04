@@ -51,11 +51,11 @@
         </activity>
         <activity
             android:parentActivityName=".activity.MainActivity"
-            android:name=".CreateUserActivity"
+            android:name=".activity.CreateUserActivity"
             android:label="@string/title_activity_create_user" >
         </activity>
         <activity
-            android:name=".EditWorkspaceActivity"
+            android:name=".activity.EditWorkspaceActivity"
             android:label="@string/title_activity_edit_workspace" >
         </activity>
     </application>
