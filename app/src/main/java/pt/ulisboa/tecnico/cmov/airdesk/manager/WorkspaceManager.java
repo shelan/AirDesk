@@ -244,6 +244,7 @@ public class WorkspaceManager {
         // TODO:Later change this to use wifidirect
         OwnedWorkspace ownedWorkspace= getOwnedWorkspace(workspace);
         ownedWorkspace.addClient(userId,false);//still client is inactive
+        editOwnedWorkspace(ownedWorkspace.getWorkspaceName(), ownedWorkspace, false);
 
         //TODO:notify user background job to send workspace to inactive clients, when they receive msg, make them active
         //TODO: received clients should add that workspace to their foreign space, and to their foreign workspace list
@@ -257,17 +258,18 @@ public class WorkspaceManager {
 
     }
 
-    public void deleteUserFromAccessList(String workspace, String userId){
+    public void deleteUserFromAccessList(String workspaceName, String userId){
 
-        //remove him from clients for workspace
-        OwnedWorkspace ownedWorkspace=getOwnedWorkspace(workspace);
+        //remove him from clients for workspaceName
+        OwnedWorkspace ownedWorkspace=getOwnedWorkspace(workspaceName);
         ownedWorkspace.removeClient(userId);
         ownedWorkspace.addClientToRemoveList(userId);//this list will be used by wifidirect to notify removed users
+        editOwnedWorkspace(workspaceName, ownedWorkspace, false);
 
         //because of the self mount we have to remove him from foreign ws
         //TODO: remove this after introducing wifidirect
         //delete foreignWS folder and files, delete foreignWS metadata
-        removeFromForeignWorkspace(workspace,userId);
+        removeFromForeignWorkspace(workspaceName,userId);
 
     }
 

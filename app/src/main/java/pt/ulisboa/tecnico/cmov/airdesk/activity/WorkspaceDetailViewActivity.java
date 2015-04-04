@@ -15,6 +15,7 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.Serializable;
@@ -86,6 +87,11 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
                     .putExtra(Constants.OWNER, workspace.getOwnerName())
             //TODO:we need to get whether owner or not
             ;
+            startActivity(intent);
+        }
+        if(id == R.id.edit_access_list) {
+            Intent intent = new Intent(this, EditAccessListActivity.class);
+            intent.putExtra(Constants.WORKSPACE_NAME, workspace.getWorkspaceName());
             startActivity(intent);
         }
         if (id == R.id.add_user) {

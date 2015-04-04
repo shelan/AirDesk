@@ -50,13 +50,17 @@
                 android:value=".activity.WorkspaceDetailViewActivity" />
         </activity>
         <activity
-            android:parentActivityName=".activity.MainActivity"
             android:name=".activity.CreateUserActivity"
-            android:label="@string/title_activity_create_user" >
+            android:label="@string/title_activity_create_user"
+            android:parentActivityName=".activity.MainActivity" >
         </activity>
         <activity
             android:name=".activity.EditWorkspaceActivity"
             android:label="@string/title_activity_edit_workspace" >
+        </activity>
+        <activity
+            android:name=".activity.EditAccessListActivity"
+            android:label="@string/title_activity_edit_access_list" >
         </activity>
     </application>
 
