@@ -28,9 +28,7 @@ public class EditAccessListActivity extends ActionBarActivity {
         if(getIntent() != null) {
             final String workspaceName = getIntent().getStringExtra(Constants.WORKSPACE_NAME);
             workspace = new WorkspaceManager().getOwnedWorkspace(workspaceName);
-            TextView accessList = (TextView) findViewById(R.id.access_list);
-            String clients = new WorkspaceManager().getOwnedWorkspace(workspace.getWorkspaceName()).getClients().keySet().toString();
-            accessList.setText(clients.replace("[","").replace("]","").replace(",","\n"));
+            setAccessList();
 
             Button addUserButton = (Button) findViewById(R.id.add_user_btn);
             Button removeUserButton = (Button) findViewById(R.id.remov_user_btn);
@@ -39,9 +37,9 @@ public class EditAccessListActivity extends ActionBarActivity {
 
                 @Override
                 public void onClick(View v) {
-                    /*AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
 
-                    final EditText input = new EditText(this);
+                    final EditText input = new EditText(v.getContext());
                     input.setHint("Username");
                     builder.setTitle("User Access List");
                     builder.setView(input);
@@ -50,6 +48,7 @@ public class EditAccessListActivity extends ActionBarActivity {
                             try {
                                 new WorkspaceManager().addClientToWorkspace(workspace.getWorkspaceName(),
                                         String.valueOf(input.getText()).trim());
+                                setAccessList();
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -63,7 +62,7 @@ public class EditAccessListActivity extends ActionBarActivity {
                         }
                     });
 
-                    builder.show();*/
+                    builder.show();
                 }
             });
 
@@ -71,16 +70,18 @@ public class EditAccessListActivity extends ActionBarActivity {
 
                 @Override
                 public void onClick(View v) {
-                   /* AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
 
-                    final EditText input = new EditText(this);
+                    final EditText input = new EditText(v.getContext());
                     input.setHint("Username");
                     builder.setTitle("Remove from access list");
                     builder.setView(input);
                     builder.setPositiveButton(R.string.remove_from_acess_list, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             try {
-                                new WorkspaceManager().deleteUserFromAccessList(workspace.getWorkspaceName(),String.valueOf(input.getText()).trim());
+                                new WorkspaceManager().deleteUserFromAccessList(workspace.getWorkspaceName(),
+                                        String.valueOf(input.getText()).trim());
+                                setAccessList();
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -94,13 +95,18 @@ public class EditAccessListActivity extends ActionBarActivity {
                         }
                     });
 
-                    builder.show();*/
+                    builder.show();
                 }
 
             });
         }
     }
 
+    private void setAccessList() {
+        TextView accessList = (TextView) findViewById(R.id.access_list);
+        String clients = new WorkspaceManager().getOwnedWorkspace(workspace.getWorkspaceName()).getClients().keySet().toString();
+        accessList.setText(clients.replace("[","").replace("]","").replace(",","\n"));
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

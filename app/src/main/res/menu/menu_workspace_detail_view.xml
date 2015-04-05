@@ -13,23 +13,12 @@
     <item
         android:id="@+id/edit_access_list"
         app:showAsAction="never"
-        android:title="Edit Access List" />
-
-    <item
-        android:id="@+id/add_user"
-        android:icon="@drawable/add_user"
-        app:showAsAction="never"
-        android:title="Add User" />
+        android:title="Edit User List" />
 
     <item
         android:id="@+id/edit_workspace"
         app:showAsAction="never"
         android:title="Edit Workspace" />
-
-    <item
-        android:id="@+id/delete_user"
-        app:showAsAction="never"
-        android:title="Delete User" />
 
     <item
         android:id="@+id/delete_workspace"

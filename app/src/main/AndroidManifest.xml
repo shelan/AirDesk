@@ -60,7 +60,8 @@
         </activity>
         <activity
             android:name=".activity.EditAccessListActivity"
-            android:label="@string/title_activity_edit_access_list" >
+            android:label="@string/title_activity_edit_access_list"
+            android:parentActivityName=".activity.WorkspaceDetailViewActivity">
         </activity>
     </application>
 
