@@ -3,18 +3,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="pt.ulisboa.tecnico.cmov.airdesk.activity.TextFileEditActivity">
     <item
-        android:id="@+id/action_settings"
-        android:orderInCategory="100"
-        android:title="@string/action_settings"
-        app:showAsAction="never" />
-    <item
         android:id="@+id/delete_file"
         app:showAsAction="never"
         android:title="Delete File" />
     <item
         android:id="@+id/action_edit_file"
-        android:orderInCategory="100"
         android:title="@string/action_settings"
         android:icon="@drawable/edit_file"
         app:showAsAction="always" />
+    <item
+        android:id="@+id/action_save_file"
+        android:title="@string/action_settings"
+        android:icon="@drawable/done"
+        app:showAsAction="always"
+        android:visible="false"
+         />
 </menu>

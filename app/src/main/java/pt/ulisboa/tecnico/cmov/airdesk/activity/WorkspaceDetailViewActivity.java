@@ -12,12 +12,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.SimpleAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,7 +59,7 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
         // Removing delete workspace option for foriegn workspaces
         if (intent != null) {
             boolean isOwnedWorkspace = intent.getBooleanExtra(Constants.IS_OWNED_WORKSPACE, true);
-            if(!isOwnedWorkspace){
+            if (!isOwnedWorkspace) {
                 menu.getItem(1).setVisible(false);
                 menu.getItem(2).setVisible(false);
             }
@@ -89,7 +88,7 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
             ;
             startActivity(intent);
         }
-        if(id == R.id.edit_access_list) {
+        if (id == R.id.edit_access_list) {
             Intent intent = new Intent(this, EditAccessListActivity.class);
             intent.putExtra(Constants.WORKSPACE_NAME, workspace.getWorkspaceName());
             startActivity(intent);
@@ -100,7 +99,7 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
             workspaceManager.deleteOwnedWorkspace(workspace.getWorkspaceName());
             finish();
         }
-        if(id == R.id.edit_workspace) {
+        if (id == R.id.edit_workspace) {
             Intent intent = new Intent(this, EditWorkspaceActivity.class);
             intent.putExtra(Constants.WORKSPACE_NAME, workspace.getWorkspaceName());
             startActivity(intent);
@@ -179,6 +178,49 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
                     startActivity(intent);
                     Toast.makeText(getActivity(), "Opening file " + fileName,
                             Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            gridView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                @Override
+                public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+                    AlertDialog myQuittingDialogBox = new AlertDialog.Builder(getActivity())
+                            //set message, title, and icon
+                            .setTitle("Delete")
+                            .setMessage("Do you want to delete this file ?")
+                            .setIcon(R.drawable.delete)
+
+                            .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                    Map<String, Object> item = (Map<String, Object>) adapter
+                                            .getItem(position);
+                                    String fileName = (String) item.get("fileName");
+                                    //TODO:check isowner and set it properly without using true
+                                    try {
+                                        new WorkspaceManager().deleteDataFile(finalWorkspace
+                                                        .getWorkspaceName(), fileName,
+                                                finalWorkspace.getOwnerName(), true);
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                    refresh();
+                                    dialog.dismiss();
+                                }
+
+                            })
+
+
+                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                    dialog.dismiss();
+
+                                }
+                            })
+                            .create();
+                    myQuittingDialogBox.show();
+                    return true;
                 }
             });
 

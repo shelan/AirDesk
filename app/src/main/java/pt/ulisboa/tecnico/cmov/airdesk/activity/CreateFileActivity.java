@@ -28,7 +28,7 @@ public class CreateFileActivity extends ActionBarActivity {
             public void onClick(View v) {
                 WorkspaceManager manager = new WorkspaceManager();
                 TextView fileName = (TextView) findViewById(R.id.file_name);
-                TextView fileText = (TextView) findViewById(R.id.file_text);
+                TextView fileText = (TextView) findViewById(R.id.file_text_edit);
 
                 String workspace = null;
                 String owner = null;
