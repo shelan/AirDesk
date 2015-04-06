@@ -96,8 +96,31 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
         if (id == R.id.delete_workspace) {
             //TODO: add are you sure? pop up
             //TODO: when in foreign workspace, should call delete foreign workspace... :)
-            workspaceManager.deleteOwnedWorkspace(workspace.getWorkspaceName());
-            finish();
+            AlertDialog myQuittingDialogBox = new AlertDialog.Builder(this)
+                    //set message, title, and icon
+                    .setTitle("Delete")
+                    .setMessage("Do you want to delete this workspace ?")
+                    .setIcon(R.drawable.delete)
+
+                    .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            workspaceManager.deleteOwnedWorkspace(workspace.getWorkspaceName());
+                            dialog.dismiss();
+                            finish();
+                        }
+
+                    })
+
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+
+                            dialog.dismiss();
+
+                        }
+                    })
+                    .create();
+            myQuittingDialogBox.show();
         }
         if (id == R.id.edit_workspace) {
             Intent intent = new Intent(this, EditWorkspaceActivity.class);

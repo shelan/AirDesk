@@ -12,17 +12,20 @@
 
     <item
         android:id="@+id/edit_access_list"
-        app:showAsAction="never"
+        app:showAsAction="always"
+        android:icon="@drawable/edit_user"
         android:title="Edit User List" />
 
     <item
         android:id="@+id/edit_workspace"
-        app:showAsAction="never"
+        android:icon="@drawable/edit_settings"
+        app:showAsAction="always"
         android:title="Edit Workspace" />
 
     <item
         android:id="@+id/delete_workspace"
-        app:showAsAction="never"
+        android:icon="@drawable/delete"
+        app:showAsAction="always"
         android:title="Delete Workspace" />
 
 </menu>
