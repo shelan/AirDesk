@@ -55,6 +55,7 @@
             android:parentActivityName=".activity.MainActivity" >
         </activity>
         <activity
+            android:parentActivityName=".activity.WorkspaceDetailViewActivity"
             android:name=".activity.EditWorkspaceActivity"
             android:label="@string/title_activity_edit_workspace" >
         </activity>

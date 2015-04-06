@@ -121,7 +121,7 @@ public class ForiegnWorkspaceListFragment extends Fragment {
                     }
                 });
 
-                builder.setNegativeButton("Close", new DialogInterface.OnClickListener(){
+                builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

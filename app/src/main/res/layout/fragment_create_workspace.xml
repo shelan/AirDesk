@@ -40,16 +40,6 @@
         android:layout_alignParentStart="true"
         android:checked="false" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Create"
-        android:id="@+id/create_btn"
-        android:layout_marginBottom="44dp"
-        android:layout_alignParentBottom="true"
-        android:layout_toRightOf="@+id/is_public_checkbx"
-        android:layout_toEndOf="@+id/is_public_checkbx" />
-
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

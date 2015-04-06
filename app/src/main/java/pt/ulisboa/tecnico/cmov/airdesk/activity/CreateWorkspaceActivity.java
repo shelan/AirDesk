@@ -1,14 +1,17 @@
 package pt.ulisboa.tecnico.cmov.airdesk.activity;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -22,6 +25,8 @@ import pt.ulisboa.tecnico.cmov.airdesk.manager.WorkspaceManager;
 
 
 public class CreateWorkspaceActivity extends ActionBarActivity {
+
+    static MenuItem doneMenuItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +43,7 @@ public class CreateWorkspaceActivity extends ActionBarActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_create_workspace, menu);
+        doneMenuItem = menu.getItem(0);
         return true;
     }
 
@@ -49,7 +55,28 @@ public class CreateWorkspaceActivity extends ActionBarActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+
+        if (id == R.id.action_workspace_create) {
+            String name = String.valueOf(((TextView) findViewById(R.id.ws_name)).getText()).trim();
+            String tags = String.valueOf(((TextView) findViewById(R.id.tag_text)).getText()).trim();
+            CheckBox publicCheckBox = (CheckBox) findViewById(R.id.is_public_checkbx);
+            final SeekBar quotaBar = (SeekBar) findViewById(R.id.quota_seekbar);
+
+
+            WorkspaceManager workspaceManager = new WorkspaceManager();
+            // boolean memoryInsufficient = workspaceManager.isNotSufficientMemory(Double.valueOf(quota));
+                   /* if(memoryInsufficient) {
+                        ((TextView) rootView.findViewById(R.id.quota)).setError("quota is too big");
+                    } else {*/
+
+            OwnedWorkspace ownedWorkspace = new OwnedWorkspace(name,
+                    new UserManager().getOwner().getUserId(), Double.parseDouble(String.valueOf(quotaBar.getProgress())));
+            ownedWorkspace.setPublic(publicCheckBox.isChecked());
+
+            ownedWorkspace.addTags(Arrays.asList(tags.replace(" ", "").split(",")));
+            workspaceManager.createWorkspace(ownedWorkspace);
+            finish();
+
             return true;
         }
 
@@ -82,9 +109,9 @@ public class CreateWorkspaceActivity extends ActionBarActivity {
                 }
             });
 
-            Button button = (Button) rootView.findViewById(R.id.create_btn);
-
             final SeekBar quotaBar = (SeekBar) rootView.findViewById(R.id.quota_seekbar);
+            final TextView nameText = (TextView) rootView.findViewById(R.id.ws_name);
+
             quotaBar.setMax(50);
 
             quotaBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -92,11 +119,19 @@ public class CreateWorkspaceActivity extends ActionBarActivity {
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                     final TextView quotaTxt = (TextView) rootView.findViewById(R.id.quota_size_txt);
                     quotaTxt.setText(String.valueOf(progress));
+                    if (progress > 0 && nameText.getText().length() > 0)
+                        doneMenuItem.setVisible(true);
+                    else
+                        doneMenuItem.setVisible(false);
                 }
 
                 @Override
                 public void onStartTrackingTouch(SeekBar seekBar) {
+                    final InputMethodManager imm = (InputMethodManager) getActivity()
+                            .getSystemService(Context.INPUT_METHOD_SERVICE);
 
+                    //  imm.toggleSoftInput (InputMethodManager.SHOW_FORCED, 0);
+                    imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
                 }
 
                 @Override
@@ -106,31 +141,28 @@ public class CreateWorkspaceActivity extends ActionBarActivity {
             });
 
 
-            button.setOnClickListener(new Button.OnClickListener() {
+            nameText.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
 
                 @Override
-                public void onClick(View v) {
-                    String name = String.valueOf(((TextView) rootView.findViewById(R.id.ws_name)).getText()).trim();
-                    //String email = String.valueOf(((TextView) rootView.findViewById(R.id.ws_email)).getText()).trim();
-                    String tags = String.valueOf(((TextView) rootView.findViewById(R.id.tag_text)).getText()).trim();
-                    // String quota = String.valueOf(((TextView) rootView.findViewById(R.id.quota)).getText()).trim();
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    if (quotaBar.getProgress() > 0 && s.length() > 0)
+                        doneMenuItem.setVisible(true);
+                    else
+                        doneMenuItem.setVisible(false);
+                }
 
-
-                    WorkspaceManager workspaceManager = new WorkspaceManager();
-                   // boolean memoryInsufficient = workspaceManager.isNotSufficientMemory(Double.valueOf(quota));
-                   /* if(memoryInsufficient) {
-                        ((TextView) rootView.findViewById(R.id.quota)).setError("quota is too big");
-                    } else {*/
-
-                    OwnedWorkspace ownedWorkspace = new OwnedWorkspace(name,
-                            new UserManager().getOwner().getUserId(), Double.parseDouble(String.valueOf(quotaBar.getProgress())));
-                    ownedWorkspace.setPublic(publicCheckBox.isChecked());
-
-                        ownedWorkspace.addTags(Arrays.asList(tags.replace(" ","").split(",")));
-                        workspaceManager.createWorkspace(ownedWorkspace);
-                        getActivity().finish();
+                @Override
+                public void afterTextChanged(Editable s) {
+                    if (quotaBar.getProgress() == 0) {
+                        quotaBar.requestFocus();
                     }
+                }
             });
+
             return rootView;
 
 

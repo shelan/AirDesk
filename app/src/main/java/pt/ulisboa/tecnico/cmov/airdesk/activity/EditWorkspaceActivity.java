@@ -1,11 +1,10 @@
 package pt.ulisboa.tecnico.cmov.airdesk.activity;
 
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -23,23 +22,24 @@ import pt.ulisboa.tecnico.cmov.airdesk.manager.WorkspaceManager;
 public class EditWorkspaceActivity extends ActionBarActivity {
 
     OwnedWorkspace workspaceToUpdate;
+    MenuItem doneMenuItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_workspace);
-        if(getIntent() != null) {
+        if (getIntent() != null) {
             final String workspaceName = getIntent().getStringExtra(Constants.WORKSPACE_NAME);
             workspaceToUpdate = new WorkspaceManager().getOwnedWorkspace(workspaceName);
 
-            TextView wsName = ((TextView)findViewById(R.id.ws_name_edit));
+            TextView wsName = ((TextView) findViewById(R.id.ws_name_edit));
             wsName.setText(workspaceName);
 
-            EditText tagText = (EditText)findViewById(R.id.tag_text_edit);
+            EditText tagText = (EditText) findViewById(R.id.tag_text_edit);
             final HashSet<String> oldTags = new HashSet<String>();
             oldTags.addAll(workspaceToUpdate.getTags());
 
-            if(workspaceToUpdate.isPublic()) {
+            if (workspaceToUpdate.isPublic()) {
                 //allow editing tags
 
                 tagText.setText(oldTags.toString().replace("[", "").replace("]", ""));
@@ -49,17 +49,18 @@ public class EditWorkspaceActivity extends ActionBarActivity {
             final SeekBar quotaBar = (SeekBar) findViewById(R.id.quota_seekbar_edit);
             quotaBar.setMax(50);
             int quota = (int) workspaceToUpdate.getQuota();
-            TextView quotaText = ((TextView)findViewById(R.id.quota_size_txt_edit));
+            TextView quotaText = ((TextView) findViewById(R.id.quota_size_txt_edit));
             quotaText.setText(String.valueOf(quota));
             quotaBar.setProgress(quota);
 
-            Button button = (Button) findViewById(R.id.update_ws_btn);
+            //Button button = (Button) findViewById(R.id.update_ws_btn);
 
             quotaBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                     final TextView quotaTxt = (TextView) findViewById(R.id.quota_size_txt_edit);
                     quotaTxt.setText(String.valueOf(progress));
+                    doneMenuItem.setVisible(true);
                 }
 
                 @Override
@@ -73,26 +74,27 @@ public class EditWorkspaceActivity extends ActionBarActivity {
                 }
             });
 
-            button.setOnClickListener(new Button.OnClickListener() {
+           /* button.setOnClickListener(new Button.OnClickListener() {
 
                 @Override
                 public void onClick(View v) {
 
                     HashSet<String> newTags = new HashSet<String>();
-                    if(workspaceToUpdate.isPublic()) {
-                        String[] tags = String.valueOf(((TextView)findViewById(R.id.tag_text_edit)).getText()).replace(" ","").split(",");
+                    if (workspaceToUpdate.isPublic()) {
+                        String[] tags = String.valueOf(((TextView) findViewById(R.id.tag_text_edit))
+                                .getText()).replace(" ", "").split(",");
                         newTags.addAll(Arrays.asList(tags));
                     }
 
                     WorkspaceManager workspaceManager = new WorkspaceManager();
                     // boolean memoryInsufficient = workspaceManager.isNotSufficientMemory(Double.valueOf(quota));
-                   /* if(memoryInsufficient) {
+                   *//* if(memoryInsufficient) {
                         ((TextView) rootView.findViewById(R.id.quota)).setError("quota is too big");
-                    } else {*/
+                    } else {*//*
                     workspaceToUpdate.setQuota(Double.parseDouble(String.valueOf(quotaBar.getProgress())));
 
                     boolean tagsChanged = false;
-                    if(!oldTags.equals(newTags)) {
+                    if (!oldTags.equals(newTags)) {
                         tagsChanged = true;
 
                         HashSet<String> intersect = oldTags;
@@ -116,7 +118,7 @@ public class EditWorkspaceActivity extends ActionBarActivity {
                     workspaceManager.editOwnedWorkspace(workspaceName, workspaceToUpdate, tagsChanged);
                     finish();
                 }
-            });
+            });*/
         }
     }
 
@@ -125,6 +127,7 @@ public class EditWorkspaceActivity extends ActionBarActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_edit_workspace, menu);
+        doneMenuItem = menu.getItem(0);
         return true;
     }
 
@@ -136,7 +139,52 @@ public class EditWorkspaceActivity extends ActionBarActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_workspace_create) {
+
+
+            SeekBar quotaBar = (SeekBar) findViewById(R.id.quota_seekbar_edit);
+            HashSet<String> oldTags = new HashSet<String>();
+            oldTags.addAll(workspaceToUpdate.getTags());
+
+            HashSet<String> newTags = new HashSet<String>();
+            if (workspaceToUpdate.isPublic()) {
+                String[] tags = String.valueOf(((TextView) findViewById(R.id.tag_text_edit))
+                        .getText()).replace(" ", "").split(",");
+                newTags.addAll(Arrays.asList(tags));
+            }
+
+            WorkspaceManager workspaceManager = new WorkspaceManager();
+            // boolean memoryInsufficient = workspaceManager.isNotSufficientMemory(Double.valueOf(quota));
+                   /* if(memoryInsufficient) {
+                        ((TextView) rootView.findViewById(R.id.quota)).setError("quota is too big");
+                    } else {*/
+            workspaceToUpdate.setQuota(Double.parseDouble(String.valueOf(quotaBar.getProgress())));
+
+            boolean tagsChanged = false;
+            if (!oldTags.equals(newTags)) {
+                tagsChanged = true;
+
+                HashSet<String> intersect = oldTags;
+                intersect.retainAll(newTags);
+
+                //keep removed tags in oldTags
+                oldTags.removeAll(intersect);
+
+                //keep new tags in newTags hashset
+                newTags.removeAll(intersect);
+
+                ArrayList<String> tags = new ArrayList<String>();
+                tags.addAll(newTags);
+                workspaceToUpdate.addTags(tags);
+
+                tags = new ArrayList<String>();
+                tags.addAll(oldTags);
+                workspaceToUpdate.deleteTags(tags);
+            }
+
+            workspaceManager.editOwnedWorkspace(workspaceToUpdate.getWorkspaceName(),
+                    workspaceToUpdate, tagsChanged);
+            finish();
             return true;
         }
 
