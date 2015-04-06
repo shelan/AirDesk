@@ -8,7 +8,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -149,6 +148,8 @@ public class WorkspaceManager {
                         addToForeignWorkspace(workspaceName, workspace.getOwnerId(), workspace.getQuota(),
                                 workspace.getFileNames().toArray(new String[workspace.getFileNames().size()]),
                                 matchingTags.toArray(new String[matchingTags.size()]));
+
+                     addClientToWorkspace(workspaceName,userManager.getOwner().getUserId());
                     } catch (Exception e) {
                         System.out.println("Could not add the workspace " + workspaceName + " to foreign workspace");
                     }
@@ -214,14 +215,22 @@ public class WorkspaceManager {
         return clientList;
         }
 
+    public double getCurrentWorkspaceSize(String workspaceName){
+        return FileUtils.getCurrentFolderSize(workspaceName);
+    }
 
-    /*make this public if don't do a prevalidation on textbox*/
-    public boolean isNotSufficientMemory(double quotaSize){
+    public double getMaximumDeviceSpace(){
         File path = Environment.getExternalStorageDirectory();
         StatFs stat = new StatFs(path.getPath());
         int availBlocks = stat.getFreeBlocks();
         int blockSize = stat.getBlockSize();
-        double free_memory = (((long)availBlocks * (long)blockSize)/(double)Constants.BYTES_PER_KB);//available free memory on internal storage
+       return  (((long)availBlocks * (long)blockSize)/(double)Constants.BYTES_PER_MB);//available free memory on internal storage
+    }
+
+    /*make this public if don't do a prevalidation on textbox*/
+    public boolean isNotSufficientMemory(double quotaSize){
+
+        double free_memory = getMaximumDeviceSpace();
         System.out.println("free memory is " + free_memory);
         if(free_memory<quotaSize){
             return true;

@@ -46,7 +46,6 @@ public class FileUtils {
     }
 
     /**
-     *
      * @param baseDir
      * @param subDirName can be one folder or a set like folder1/folder2
      * @return
@@ -55,11 +54,11 @@ public class FileUtils {
     public static File createFolder(File baseDir, String subDirName) throws Exception {
         File createdDir = new File(baseDir, subDirName);
         System.out.println("path------> " + createdDir.getAbsolutePath());
-        if(createdDir.exists())
+        if (createdDir.exists())
             throw new Exception("Folder already exists. " + createdDir.getAbsolutePath());
 
         boolean isSuccessful = createdDir.mkdirs();
-        if(isSuccessful)
+        if (isSuccessful)
             return createdDir;
         else
             return null;
@@ -98,25 +97,7 @@ public class FileUtils {
     }
 
     public static double folderSize(String workspaceName) {
-        System.out.println("WS name in fodler" + workspaceName);
-        Context appContext = AirDeskApp.s_applicationContext;
-        File parentDir = appContext.getDir(Constants.OWNED_WORKSPACE_DIR, appContext.MODE_PRIVATE);
-        File workspaceDir = new File(parentDir.getAbsolutePath() + "/" + workspaceName);
-        System.out.println("new work dir" + workspaceDir.getAbsolutePath());
-        long length = 0;
-        File[] files = workspaceDir.listFiles();
-
-        if (files != null) {
-            for (File file : files) {
-                if (file.isFile())
-                    length += file.length();
-                else
-                    length += folderSize(workspaceDir.getPath());
-            }
-        }
-        System.out.println("folder size " + length);
-        double lengthInKB = length / (double) Constants.BYTES_PER_KB;
-        System.out.println("folder size in kb " + lengthInKB);
+        double lengthInKB = getCurrentFolderSize(workspaceName);
         return lengthInKB;
     }
 
@@ -137,6 +118,28 @@ public class FileUtils {
         }
         return workspaceDir.delete();
     }
+
+    public static double getCurrentFolderSize(String workspaceName) {
+        Context appContext = AirDeskApp.s_applicationContext;
+        File parentDir = appContext.getDir(Constants.OWNED_WORKSPACE_DIR, appContext.MODE_PRIVATE);
+        File workspaceDir = new File(parentDir.getAbsolutePath() + "/" + workspaceName);
+        System.out.println("new work dir" + workspaceDir.getAbsolutePath());
+        long length = 0;
+        File[] files = workspaceDir.listFiles();
+
+        if (files != null) {
+            for (File file : files) {
+                if (file.isFile())
+                    length += file.length();
+                else
+                    length += getCurrentFolderSize(workspaceDir.getPath());
+            }
+        }
+        double lengthInKB = length / (double) Constants.BYTES_PER_MB;
+        return lengthInKB;
+    }
+
+
 
     public static String getFileNameForUserId(String userId) {
         userId = userId.replace("@" , "__");
