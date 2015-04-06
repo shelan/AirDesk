@@ -12,20 +12,17 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
 import pt.ulisboa.tecnico.cmov.airdesk.R;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.OwnedWorkspace;
-import pt.ulisboa.tecnico.cmov.airdesk.manager.UserManager;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.WorkspaceManager;
 
 
 public class EditWorkspaceActivity extends ActionBarActivity {
 
-    OwnedWorkspace workspace;
+    OwnedWorkspace workspaceToUpdate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,16 +30,16 @@ public class EditWorkspaceActivity extends ActionBarActivity {
         setContentView(R.layout.activity_edit_workspace);
         if(getIntent() != null) {
             final String workspaceName = getIntent().getStringExtra(Constants.WORKSPACE_NAME);
-            workspace = new WorkspaceManager().getOwnedWorkspace(workspaceName);
+            workspaceToUpdate = new WorkspaceManager().getOwnedWorkspace(workspaceName);
 
             TextView wsName = ((TextView)findViewById(R.id.ws_name_edit));
             wsName.setText(workspaceName);
 
             EditText tagText = (EditText)findViewById(R.id.tag_text_edit);
             final HashSet<String> oldTags = new HashSet<String>();
-            oldTags.addAll(workspace.getTags());
+            oldTags.addAll(workspaceToUpdate.getTags());
 
-            if(workspace.isPublic()) {
+            if(workspaceToUpdate.isPublic()) {
                 //allow editing tags
 
                 tagText.setText(oldTags.toString().replace("[", "").replace("]", ""));
@@ -51,7 +48,7 @@ public class EditWorkspaceActivity extends ActionBarActivity {
 
             final SeekBar quotaBar = (SeekBar) findViewById(R.id.quota_seekbar_edit);
             quotaBar.setMax(50);
-            int quota = (int)workspace.getQuota();
+            int quota = (int) workspaceToUpdate.getQuota();
             TextView quotaText = ((TextView)findViewById(R.id.quota_size_txt_edit));
             quotaText.setText(String.valueOf(quota));
             quotaBar.setProgress(quota);
@@ -80,12 +77,9 @@ public class EditWorkspaceActivity extends ActionBarActivity {
 
                 @Override
                 public void onClick(View v) {
-                    OwnedWorkspace updatedWorkspace = new OwnedWorkspace(workspaceName,
-                            workspace.getOwnerId(), Double.parseDouble(String.valueOf(quotaBar.getProgress())));
 
                     HashSet<String> newTags = new HashSet<String>();
-                    if(workspace.isPublic()) {
-                        updatedWorkspace.setPublic(true);
+                    if(workspaceToUpdate.isPublic()) {
                         String[] tags = String.valueOf(((TextView)findViewById(R.id.tag_text_edit)).getText()).replace(" ","").split(",");
                         newTags.addAll(Arrays.asList(tags));
                     }
@@ -95,6 +89,7 @@ public class EditWorkspaceActivity extends ActionBarActivity {
                    /* if(memoryInsufficient) {
                         ((TextView) rootView.findViewById(R.id.quota)).setError("quota is too big");
                     } else {*/
+                    workspaceToUpdate.setQuota(Double.parseDouble(String.valueOf(quotaBar.getProgress())));
 
                     boolean tagsChanged = false;
                     if(!oldTags.equals(newTags)) {
@@ -111,14 +106,14 @@ public class EditWorkspaceActivity extends ActionBarActivity {
 
                         ArrayList<String> tags = new ArrayList<String>();
                         tags.addAll(newTags);
-                        updatedWorkspace.addTags(tags);
+                        workspaceToUpdate.addTags(tags);
 
                         tags = new ArrayList<String>();
                         tags.addAll(oldTags);
-                        updatedWorkspace.deleteTags(tags);
+                        workspaceToUpdate.deleteTags(tags);
                     }
 
-                    workspaceManager.editOwnedWorkspace(workspaceName, updatedWorkspace, tagsChanged);
+                    workspaceManager.editOwnedWorkspace(workspaceName, workspaceToUpdate, tagsChanged);
                     finish();
                 }
             });
