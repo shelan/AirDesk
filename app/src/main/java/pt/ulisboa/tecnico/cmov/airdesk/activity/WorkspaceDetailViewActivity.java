@@ -31,6 +31,7 @@ import pt.ulisboa.tecnico.cmov.airdesk.manager.WorkspaceManager;
 public class WorkspaceDetailViewActivity extends ActionBarActivity {
 
     static OwnedWorkspace workspace;
+    private boolean isOwnedWorkspace = false;
 
     private WorkspaceDetailFragment workspaceDetailFragment;
     static ArrayList<Map<String, Object>> list = new ArrayList<>();
@@ -57,14 +58,15 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
         getMenuInflater().inflate(R.menu.menu_workspace_detail_view, menu);
         Intent intent = getIntent();
         // Removing delete workspace option for foriegn workspaces
-        if (intent != null) {
-            boolean isOwnedWorkspace = intent.getBooleanExtra(Constants.IS_OWNED_WORKSPACE, true);
-            if (!isOwnedWorkspace) {
-                menu.getItem(1).setVisible(false);
-                menu.getItem(2).setVisible(false);
-            }
-
+        if (intent != null && intent.hasExtra(Constants.IS_OWNED_WORKSPACE)) {
+            isOwnedWorkspace = intent.getBooleanExtra(Constants.IS_OWNED_WORKSPACE, false);
         }
+        if (!isOwnedWorkspace) {
+            menu.getItem(1).setVisible(false);
+            menu.getItem(2).setVisible(false);
+            menu.getItem(3).setVisible(false);
+        }
+
 
         return true;
     }
@@ -75,7 +77,11 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
+        Intent currentIntent = getIntent();
+        boolean isOwnedWorkspace = false;
+        if (currentIntent != null && currentIntent.hasExtra(Constants.IS_OWNED_WORKSPACE)) {
+            isOwnedWorkspace = currentIntent.getBooleanExtra(Constants.IS_OWNED_WORKSPACE, false);
+        }
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
@@ -84,17 +90,17 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
             Intent intent = new Intent(this, CreateFileActivity.class);
             intent.putExtra(Constants.WORKSPACE_NAME, workspace.getWorkspaceName())
                     .putExtra(Constants.OWNER, workspace.getOwnerName())
-            //TODO:we need to get whether owner or not
-            ;
+                    .putExtra(Constants.IS_OWNED_WORKSPACE, isOwnedWorkspace);
             startActivity(intent);
         }
         if (id == R.id.edit_access_list) {
             Intent intent = new Intent(this, EditAccessListActivity.class);
-            intent.putExtra(Constants.WORKSPACE_NAME, workspace.getWorkspaceName());
+            intent.putExtra(Constants.WORKSPACE_NAME, workspace.getWorkspaceName())
+                    .putExtra(Constants.IS_OWNED_WORKSPACE, isOwnedWorkspace);
+
             startActivity(intent);
         }
         if (id == R.id.delete_workspace) {
-            //TODO: add are you sure? pop up
             //TODO: when in foreign workspace, should call delete foreign workspace... :)
             AlertDialog myQuittingDialogBox = new AlertDialog.Builder(this)
                     //set message, title, and icon
@@ -124,11 +130,13 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
         }
         if (id == R.id.edit_workspace) {
             Intent intent = new Intent(this, EditWorkspaceActivity.class);
-            intent.putExtra(Constants.WORKSPACE_NAME, workspace.getWorkspaceName());
+            intent.putExtra(Constants.WORKSPACE_NAME, workspace.getWorkspaceName())
+                    .putExtra(Constants.IS_OWNED_WORKSPACE, isOwnedWorkspace);
             startActivity(intent);
         }
 
         return super.onOptionsItemSelected(item);
+
     }
 
     public WorkspaceDetailFragment getWorkspaceDetailFragment() {
