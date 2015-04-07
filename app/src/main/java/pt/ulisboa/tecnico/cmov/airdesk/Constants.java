@@ -12,7 +12,7 @@ public class Constants {
     public static final String USER_JSON_FILE_NAME ="user.json";
     public static final String FOREIGN_WORKSPACE_SUFFIX ="-foreign";
     public static final String OWNED_SUFFIX="-owned";
-    public static final int BYTES_PER_KB =1024;
+    public static final int BYTES_PER_MB =1024*1024;
     public static final String JSON_SUFFIX=".json";
 
     public static final String WORKSPACE_NAME = "workspace";
