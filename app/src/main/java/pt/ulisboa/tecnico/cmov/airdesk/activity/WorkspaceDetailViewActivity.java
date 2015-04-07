@@ -31,7 +31,7 @@ import pt.ulisboa.tecnico.cmov.airdesk.manager.WorkspaceManager;
 public class WorkspaceDetailViewActivity extends ActionBarActivity {
 
     static OwnedWorkspace workspace;
-    private boolean isOwnedWorkspace = false;
+    private static boolean isOwnedWorkspace = false;
 
     private WorkspaceDetailFragment workspaceDetailFragment;
     static ArrayList<Map<String, Object>> list = new ArrayList<>();
