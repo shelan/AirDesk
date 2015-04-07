@@ -1,3 +1,9 @@
+<ScrollView
+    android:id="@+id/scrollView"
+    android:layout_height="match_parent"
+    android:layout_width="wrap_content"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -72,7 +78,7 @@
         android:layout_height="wrap_content"
         android:checked="false"
         android:paddingTop="32dp"
-        android:text="Make Workspace Public"
+        android:text="Public Workspace"
         android:layout_below="@+id/min_quota_txt_edit"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
@@ -85,6 +91,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/tag_text_edit"
+        android:singleLine="true"
         android:padding="32dp"
         android:hint="Enter your tags. eg tag1,tag2"
         android:visibility="invisible"
@@ -94,3 +101,4 @@
         android:layout_marginTop="47dp" />
 
 </RelativeLayout>
+ </ScrollView>
