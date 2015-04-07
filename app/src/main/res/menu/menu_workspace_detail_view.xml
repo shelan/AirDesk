@@ -4,7 +4,7 @@
     tools:context="pt.ulisboa.tecnico.cmov.airdesk.activity.WorkspaceDetailViewActivity">
     <item
         android:id="@+id/add_file"
-        android:icon="@drawable/add_file"
+        android:icon="@drawable/add_2"
         app:showAsAction="always"
         android:title="" />
 

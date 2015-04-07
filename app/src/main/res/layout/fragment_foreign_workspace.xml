@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_gravity="right"
-            android:src="@drawable/subscribe" />
+            android:src="@drawable/tag" />
     </RelativeLayout>
 
     <GridView

@@ -6,7 +6,9 @@
         android:name=".context.AirDeskApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme"
+        android:windowSoftInputMode="stateVisible|adjustResize"
+        >
         <activity
             android:name=".activity.MainActivity"
             android:theme="@style/FrontTheme"

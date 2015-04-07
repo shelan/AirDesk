@@ -27,10 +27,13 @@ public class EditWorkspaceActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        WorkspaceManager workspaceManager = new WorkspaceManager();
+
         setContentView(R.layout.activity_edit_workspace);
         if (getIntent() != null) {
             final String workspaceName = getIntent().getStringExtra(Constants.WORKSPACE_NAME);
-            workspaceToUpdate = new WorkspaceManager().getOwnedWorkspace(workspaceName);
+            workspaceToUpdate = workspaceManager.getOwnedWorkspace(workspaceName);
 
             TextView wsName = ((TextView) findViewById(R.id.ws_name_edit));
             wsName.setText(workspaceName);
@@ -47,10 +50,23 @@ public class EditWorkspaceActivity extends ActionBarActivity {
             }
 
             final SeekBar quotaBar = (SeekBar) findViewById(R.id.quota_seekbar_edit);
-            quotaBar.setMax(50);
+            quotaBar.setMax((int) workspaceManager.getMaximumDeviceSpace());
+            TextView maxQuotaText = (TextView) findViewById(R.id.max_quota_txt_edit);
+            maxQuotaText.setText(String.valueOf((int) workspaceManager.getMaximumDeviceSpace()));
+
+            final int currentWorkspaceSize = (int) Math.ceil(workspaceManager
+                    .getCurrentWorkspaceSize(workspaceName));
+
+            TextView minQuotaText = (TextView) findViewById(R.id.min_quota_txt_edit);
+            minQuotaText.setText(String.valueOf(currentWorkspaceSize));
+
             int quota = (int) workspaceToUpdate.getQuota();
             TextView quotaText = ((TextView) findViewById(R.id.quota_size_txt_edit));
             quotaText.setText(String.valueOf(quota));
+
+            //workaround due to a bug in android.
+            //http://stackoverflow.com/questions/4348032/android-progressbar-does-not-update-progress-view-drawable
+            quotaBar.setProgress(0);
             quotaBar.setProgress(quota);
 
             //Button button = (Button) findViewById(R.id.update_ws_btn);
@@ -59,7 +75,7 @@ public class EditWorkspaceActivity extends ActionBarActivity {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                     final TextView quotaTxt = (TextView) findViewById(R.id.quota_size_txt_edit);
-                    quotaTxt.setText(String.valueOf(progress));
+                    quotaTxt.setText(String.valueOf(progress + currentWorkspaceSize));
                     doneMenuItem.setVisible(true);
                 }
 

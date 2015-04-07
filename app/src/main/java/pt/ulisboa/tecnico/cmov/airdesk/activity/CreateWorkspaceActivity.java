@@ -112,7 +112,12 @@ public class CreateWorkspaceActivity extends ActionBarActivity {
             final SeekBar quotaBar = (SeekBar) rootView.findViewById(R.id.quota_seekbar);
             final TextView nameText = (TextView) rootView.findViewById(R.id.ws_name);
 
-            quotaBar.setMax(50);
+            WorkspaceManager manager = new WorkspaceManager();
+
+            quotaBar.setMax((int) manager.getMaximumDeviceSpace());
+            TextView quotaMaxText = (TextView) rootView.findViewById(R.id.max_quota_txt);
+
+            quotaMaxText.setText(String.valueOf((int) manager.getMaximumDeviceSpace()));
 
             quotaBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
