@@ -92,13 +92,12 @@
         android:layout_height="wrap_content"
         android:id="@+id/tag_text_edit"
         android:singleLine="true"
-        android:padding="32dp"
         android:hint="Enter your tags. eg tag1,tag2"
         android:visibility="invisible"
-        android:layout_below="@+id/min_quota_txt_edit"
+        android:layout_below="@+id/is_public_checkbox_edit"
         android:layout_toRightOf="@+id/min_quota_txt_edit"
         android:layout_toEndOf="@+id/min_quota_txt_edit"
-        android:layout_marginTop="47dp" />
+        android:layout_marginTop="16dp" />
 
 </RelativeLayout>
  </ScrollView>
