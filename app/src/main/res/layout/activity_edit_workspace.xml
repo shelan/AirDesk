@@ -66,25 +66,31 @@
         android:layout_below="@+id/quota_seekbar_edit"
         android:layout_centerHorizontal="true" />
 
+    <CheckBox
+        android:id="@+id/is_public_checkbox_edit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="false"
+        android:paddingTop="32dp"
+        android:text="Make Workspace Public"
+        android:layout_below="@+id/min_quota_txt_edit"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:singleLine="true"
+        android:layout_toLeftOf="@+id/max_quota_txt_edit"
+        android:layout_toStartOf="@+id/max_quota_txt_edit"
+        android:padding="32dp" />
+
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/tag_text_edit"
+        android:padding="32dp"
         android:hint="Enter your tags. eg tag1,tag2"
         android:visibility="invisible"
         android:layout_below="@+id/min_quota_txt_edit"
         android:layout_toRightOf="@+id/min_quota_txt_edit"
         android:layout_toEndOf="@+id/min_quota_txt_edit"
         android:layout_marginTop="47dp" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Update"
-        android:id="@+id/update_ws_btn"
-        android:layout_alignParentBottom="true"
-        android:layout_toRightOf="@+id/file_size_txt_edit"
-        android:layout_toEndOf="@+id/file_size_txt_edit"
-        android:layout_marginBottom="142dp" />
 
 </RelativeLayout>

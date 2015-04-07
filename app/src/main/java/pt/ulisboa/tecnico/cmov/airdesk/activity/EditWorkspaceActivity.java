@@ -2,9 +2,12 @@ package pt.ulisboa.tecnico.cmov.airdesk.activity;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -38,16 +41,49 @@ public class EditWorkspaceActivity extends ActionBarActivity {
             TextView wsName = ((TextView) findViewById(R.id.ws_name_edit));
             wsName.setText(workspaceName);
 
+            CheckBox isPublicCheckbox = (CheckBox) findViewById(R.id.is_public_checkbox_edit);
+            isPublicCheckbox.setChecked(workspaceToUpdate.isPublic());
+
             EditText tagText = (EditText) findViewById(R.id.tag_text_edit);
             final HashSet<String> oldTags = new HashSet<String>();
             oldTags.addAll(workspaceToUpdate.getTags());
 
             if (workspaceToUpdate.isPublic()) {
                 //allow editing tags
-
                 tagText.setText(oldTags.toString().replace("[", "").replace("]", ""));
                 tagText.setVisibility(View.VISIBLE);
             }
+
+            isPublicCheckbox.setOnClickListener(new CheckBox.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    CheckBox checkBox = (CheckBox) v;
+                    TextView tagText = (TextView) findViewById(R.id.tag_text_edit);
+                    if (checkBox.isChecked()) {
+                        tagText.setVisibility(View.VISIBLE);
+                    } else {
+                        tagText.setVisibility(View.INVISIBLE);
+                    }
+                    doneMenuItem.setVisible(true);
+                }
+            });
+
+            tagText.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    doneMenuItem.setVisible(true);
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+
+                }
+            });
 
             final SeekBar quotaBar = (SeekBar) findViewById(R.id.quota_seekbar_edit);
             quotaBar.setMax((int) workspaceManager.getMaximumDeviceSpace());
@@ -155,15 +191,16 @@ public class EditWorkspaceActivity extends ActionBarActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_workspace_create) {
+        if (id == R.id.action_workspace_edit) {
 
-
+            CheckBox isPublicCheckbox = (CheckBox) findViewById(R.id.is_public_checkbox_edit);
             SeekBar quotaBar = (SeekBar) findViewById(R.id.quota_seekbar_edit);
             HashSet<String> oldTags = new HashSet<String>();
             oldTags.addAll(workspaceToUpdate.getTags());
 
             HashSet<String> newTags = new HashSet<String>();
-            if (workspaceToUpdate.isPublic()) {
+            workspaceToUpdate.setPublic(isPublicCheckbox.isChecked());
+            if (isPublicCheckbox.isChecked()) {
                 String[] tags = String.valueOf(((TextView) findViewById(R.id.tag_text_edit))
                         .getText()).replace(" ", "").split(",");
                 newTags.addAll(Arrays.asList(tags));
