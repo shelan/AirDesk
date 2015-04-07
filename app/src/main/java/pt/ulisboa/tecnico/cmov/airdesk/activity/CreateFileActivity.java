@@ -7,8 +7,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
@@ -43,50 +41,6 @@ public class CreateFileActivity extends ActionBarActivity {
             @Override
             public void afterTextChanged(Editable s) {
 
-            }
-        });
-
-
-
-
-
-
-        Button button = (Button) findViewById(R.id.create_file_btn);
-
-
-
-        button.setOnClickListener(new Button.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                WorkspaceManager manager = new WorkspaceManager();
-                TextView fileName = (TextView) findViewById(R.id.file_name);
-                TextView fileText = (TextView) findViewById(R.id.file_text_edit);
-
-                String workspace = null;
-                String owner = null;
-
-                Intent intent = getIntent();
-                if (intent != null) {
-
-                    if (intent.hasExtra(Constants.WORKSPACE_NAME)) {
-                        workspace = intent.getStringExtra(Constants.WORKSPACE_NAME);
-                    }
-                    if (intent.hasExtra(Constants.OWNER)) {
-                        owner = intent.getStringExtra(Constants.OWNER);
-                    }
-                    try {
-                        //TODO: change true to proper value depending on the workspace type
-                        manager.createDataFile(workspace, String.valueOf(fileName.getText()),
-                                owner, true);
-                        manager.updateDataFile(workspace, String.valueOf(fileName.getText()),
-                                String.valueOf(fileText.getText()), owner, true);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                finish();
             }
         });
     }

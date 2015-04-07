@@ -6,10 +6,12 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="pt.ulisboa.tecnico.cmov.airdesk.activity.EditAccessListActivity">
 
+
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/access_list"
+        android:id="@+id/access_list_text"
         android:text=""
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:layout_alignParentTop="true"
@@ -19,19 +21,28 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="Remove User"
+        android:visibility="invisible"
+        android:id="@+id/remov_user_btn"
+        android:layout_alignTop="@+id/add_user_btn"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:text="Add User"
+        android:visibility="invisible"
         android:id="@+id/add_user_btn"
         android:layout_centerVertical="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
 
-    <Button
+    <ListView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Remove User"
-        android:id="@+id/remov_user_btn"
-        android:layout_alignTop="@+id/add_user_btn"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:id="@+id/access_list"
+        android:layout_alignParentTop="true"
+       />
 
 </RelativeLayout>

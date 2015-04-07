@@ -15,7 +15,9 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:hint="File Name" />
+        android:hint="File Name"
+        android:maxLines="1"
+        android:singleLine="true" />
 
     <EditText
         android:layout_width="wrap_content"
@@ -28,13 +30,4 @@
         android:layout_alignParentStart="true"
         android:layout_alignRight="@+id/file_name"
         android:layout_alignEnd="@+id/file_name" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Create File"
-        android:id="@+id/create_file_btn"
-        android:layout_alignParentBottom="true"
-        android:layout_alignRight="@+id/file_text_edit"
-        android:layout_alignEnd="@+id/file_text_edit" />
 </RelativeLayout>

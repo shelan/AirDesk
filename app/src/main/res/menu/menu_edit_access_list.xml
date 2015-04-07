@@ -2,6 +2,20 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="pt.ulisboa.tecnico.cmov.airdesk.activity.EditAccessListActivity">
-    <item android:id="@+id/action_settings" android:title="@string/action_settings"
-        android:orderInCategory="100" app:showAsAction="never" />
+    <item
+        android:id="@+id/action_add_user"
+        android:title="@string/action_settings"
+        app:showAsAction="always"
+        android:icon="@drawable/add_user"/>
+    <item
+        android:id="@+id/action_remove_user"
+        android:title="@string/action_settings"
+        app:showAsAction="always"
+        android:visible="false"
+        android:icon="@drawable/delete"/>
+    <item
+        android:id="@+id/item"
+        android:title="@string/action_settings"
+        app:showAsAction="never"
+       />
 </menu>
