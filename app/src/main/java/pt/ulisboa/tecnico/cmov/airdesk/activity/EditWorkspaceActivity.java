@@ -76,7 +76,8 @@ public class EditWorkspaceActivity extends ActionBarActivity {
 
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    doneMenuItem.setVisible(true);
+                    if (doneMenuItem != null)
+                        doneMenuItem.setVisible(true);
                 }
 
                 @Override
