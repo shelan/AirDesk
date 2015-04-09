@@ -3,10 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="pt.ulisboa.tecnico.cmov.airdesk.activity.TextFileEditActivity">
     <item
-        android:id="@+id/delete_file"
-        app:showAsAction="never"
-        android:title="Delete File" />
-    <item
         android:id="@+id/action_edit_file"
         android:title="@string/action_settings"
         android:icon="@drawable/edit_file"
@@ -18,4 +14,9 @@
         app:showAsAction="always"
         android:visible="false"
          />
+    <item
+        android:id="@+id/delete_file"
+        app:showAsAction="always"
+        android:icon="@drawable/delete"
+        android:title="Delete File" />
 </menu>

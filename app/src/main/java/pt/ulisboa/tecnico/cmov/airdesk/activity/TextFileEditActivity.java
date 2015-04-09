@@ -1,7 +1,9 @@
 package pt.ulisboa.tecnico.cmov.airdesk.activity;
 
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -57,8 +59,8 @@ public class TextFileEditActivity extends ActionBarActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_text_file_edit, menu);
-        editMenuItem = menu.getItem(1);
-        saveMenuItem = menu.getItem(2);
+        editMenuItem = menu.getItem(0);
+        saveMenuItem = menu.getItem(1);
         return true;
     }
 
@@ -89,13 +91,38 @@ public class TextFileEditActivity extends ActionBarActivity {
             Toast.makeText(this, "Editing", Toast.LENGTH_SHORT).show();
 
         } else if (id == R.id.delete_file) {
-            try {
-                new WorkspaceManager().deleteDataFile(file.getWorkspace(), file.getFileName(),
-                        file.getOwner(), true);
-                finish();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+
+                AlertDialog myQuittingDialogBox = new AlertDialog.Builder(this)
+                        //set message, title, and icon
+                        .setTitle("Delete")
+                        .setMessage("Do you want to delete this File ?")
+                        .setIcon(R.drawable.delete)
+
+                        .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                try {
+                                    new WorkspaceManager().deleteDataFile(file.getWorkspace(), file.getFileName(),
+                                            file.getOwner(), true);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                dialog.dismiss();
+                                finish();
+                            }
+
+                        })
+
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+
+                                dialog.dismiss();
+
+                            }
+                        })
+                        .create();
+                    myQuittingDialogBox.show();
+
         } else if (id == R.id.action_save_file) {
             try {
                 saveFileText(file);
