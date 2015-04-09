@@ -9,13 +9,9 @@ import java.util.List;
 
 import pt.ulisboa.tecnico.cmov.airdesk.context.AirDeskApp;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.OwnedWorkspace;
-import pt.ulisboa.tecnico.cmov.airdesk.entity.User;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.UserManager;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.WorkspaceManager;
 
-/**
- * Created by ashansa on 3/19/15.
- */
 public class PopulateData {
 
     public void populateOwnedWorkspaces() throws Exception {

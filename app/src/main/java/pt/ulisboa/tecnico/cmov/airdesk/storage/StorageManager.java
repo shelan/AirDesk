@@ -1,7 +1,6 @@
 package pt.ulisboa.tecnico.cmov.airdesk.storage;
 
 import android.content.Context;
-import android.provider.MediaStore;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,9 +12,7 @@ import pt.ulisboa.tecnico.cmov.airdesk.Exception.WriteLockedException;
 import pt.ulisboa.tecnico.cmov.airdesk.FileUtils;
 import pt.ulisboa.tecnico.cmov.airdesk.context.AirDeskApp;
 
-/**
- * Created by Chathuri on 3/14/2015.
- */
+
 public class StorageManager {
 
     private static HashMap<String, Boolean> fileWriteLock = new HashMap<String, Boolean>();

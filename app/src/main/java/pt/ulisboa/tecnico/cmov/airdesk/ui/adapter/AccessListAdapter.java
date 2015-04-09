@@ -1,8 +1,5 @@
-package pt.ulisboa.tecnico.cmov.airdesk;
+package pt.ulisboa.tecnico.cmov.airdesk.ui.adapter;
 
-/**
- * Created by shelan on 4/6/15.
- */
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -16,6 +13,8 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+
+import pt.ulisboa.tecnico.cmov.airdesk.R;
 
 public class AccessListAdapter extends BaseAdapter {
     Context ctx;

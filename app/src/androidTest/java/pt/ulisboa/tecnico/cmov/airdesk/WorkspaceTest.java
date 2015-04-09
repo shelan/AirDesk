@@ -3,13 +3,10 @@ package pt.ulisboa.tecnico.cmov.airdesk;
 import java.util.List;
 
 import pt.ulisboa.tecnico.cmov.airdesk.entity.OwnedWorkspace;
-import pt.ulisboa.tecnico.cmov.airdesk.entity.User;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.UserManager;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.WorkspaceManager;
 
-/**
- * Created by Chathuri on 3/19/2015.
- */
+
 public class WorkspaceTest {
     public void populateOwnedWorkspaces(){
         UserManager userManager=new UserManager();

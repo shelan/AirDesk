@@ -15,10 +15,10 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import pt.ulisboa.tecnico.cmov.airdesk.AccessListAdapter;
+import pt.ulisboa.tecnico.cmov.airdesk.ui.adapter.AccessListAdapter;
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
 import pt.ulisboa.tecnico.cmov.airdesk.R;
-import pt.ulisboa.tecnico.cmov.airdesk.UserItem;
+import pt.ulisboa.tecnico.cmov.airdesk.ui.adapter.UserItem;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.OwnedWorkspace;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.WorkspaceManager;
 

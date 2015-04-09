@@ -3,9 +3,6 @@ package pt.ulisboa.tecnico.cmov.airdesk.entity;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-/**
- * Created by ashansa on 3/15/15.
- */
 
 //TODO rename this to workspace once workspace and its methods are refactored to ownedWS
 public class AbstractWorkspace implements Serializable {

@@ -1,19 +1,11 @@
 package pt.ulisboa.tecnico.cmov.airdesk.entity;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import pt.ulisboa.tecnico.cmov.airdesk.Constants;
-import pt.ulisboa.tecnico.cmov.airdesk.FileUtils;
-
-/**
- * Created by Chathuri on 3/14/2015.
- */
 public class User {
     private String nickName;
     private String userId;

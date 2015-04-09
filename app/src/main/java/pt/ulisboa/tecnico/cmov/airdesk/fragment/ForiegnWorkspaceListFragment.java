@@ -26,23 +26,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import pt.ulisboa.tecnico.cmov.airdesk.AirDeskManager;
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
 import pt.ulisboa.tecnico.cmov.airdesk.R;
 import pt.ulisboa.tecnico.cmov.airdesk.activity.WorkspaceDetailViewActivity;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.UserManager;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.WorkspaceManager;
 
-/**
- * Created by shelan on 3/15/15.
- */
 public class ForiegnWorkspaceListFragment extends Fragment {
 
     private ArrayAdapter<String> arrayAdapter;
 
     private ArrayList<String> workspaceList = new ArrayList<>();
 
-    private AirDeskManager manager = new AirDeskManager();
     private WorkspaceManager workspaceManager = new WorkspaceManager();
 
     private SimpleAdapter adapter;
@@ -78,7 +73,7 @@ public class ForiegnWorkspaceListFragment extends Fragment {
 
                 Intent intent = new Intent(getActivity(), WorkspaceDetailViewActivity.class)
                         .putExtra(Intent.EXTRA_TEXT, workspace)
-                        .putExtra(Constants.WORKSPACE_NAME, manager.getOwnedWorkspace(workspace))
+                        .putExtra(Constants.WORKSPACE_NAME, workspaceManager.getOwnedWorkspace(workspace))
                         .putExtra(Constants.IS_OWNED_WORKSPACE,false);
 
                 startActivity(intent);

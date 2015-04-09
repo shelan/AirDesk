@@ -6,9 +6,7 @@ import java.util.List;
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.User;
 
-/**
- * Created by Chathuri on 3/14/2015.
- */
+
 public class UserManager {
 
     MetadataManager metaManager = new MetadataManager();

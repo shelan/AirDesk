@@ -19,20 +19,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import pt.ulisboa.tecnico.cmov.airdesk.AirDeskManager;
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
-import pt.ulisboa.tecnico.cmov.airdesk.activity.CreateWorkspaceActivity;
 import pt.ulisboa.tecnico.cmov.airdesk.R;
+import pt.ulisboa.tecnico.cmov.airdesk.activity.CreateWorkspaceActivity;
 import pt.ulisboa.tecnico.cmov.airdesk.activity.WorkspaceDetailViewActivity;
+import pt.ulisboa.tecnico.cmov.airdesk.manager.UserManager;
+import pt.ulisboa.tecnico.cmov.airdesk.manager.WorkspaceManager;
 
-/**
- * Created by shelan on 3/15/15.
- */
 public class MyWorkspaceListFragment extends Fragment {
 
     private ArrayList<String> workspaceList = new ArrayList<>();
 
-    private AirDeskManager manager = new AirDeskManager();
+    private WorkspaceManager workspaceManager = new WorkspaceManager();
+
+    private UserManager userManager = new UserManager();
 
     private SimpleAdapter adapter;
 
@@ -67,8 +67,8 @@ public class MyWorkspaceListFragment extends Fragment {
 
                 Intent intent = new Intent(getActivity(), WorkspaceDetailViewActivity.class)
                         .putExtra(Intent.EXTRA_TEXT, workspace)
-                        .putExtra(Constants.WORKSPACE_NAME, manager.getOwnedWorkspace(workspace))
-                        .putExtra(Constants.IS_OWNED_WORKSPACE,true);
+                        .putExtra(Constants.WORKSPACE_NAME, workspaceManager.getOwnedWorkspace(workspace))
+                        .putExtra(Constants.IS_OWNED_WORKSPACE, true);
 
                 startActivity(intent);
                 Toast.makeText(getActivity(), "You are now in " + workspace,
@@ -121,7 +121,7 @@ public class MyWorkspaceListFragment extends Fragment {
 
         @Override
         protected List<String> doInBackground(Void... params) {
-            return manager.getOwnedWorkspaces();
+            return  userManager.getOwnedWorkspaces();
         }
 
         @Override

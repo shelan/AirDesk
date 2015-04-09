@@ -10,9 +10,6 @@ import java.io.OutputStream;
 
 import pt.ulisboa.tecnico.cmov.airdesk.context.AirDeskApp;
 
-/**
- * Created by ashansa on 3/15/15.
- */
 public class FileUtils {
 
     private static Context appContext = AirDeskApp.s_applicationContext;

@@ -22,9 +22,7 @@ import pt.ulisboa.tecnico.cmov.airdesk.enums.WorkspaceCreateStatus;
 import pt.ulisboa.tecnico.cmov.airdesk.enums.WorkspaceEditStatus;
 import pt.ulisboa.tecnico.cmov.airdesk.storage.StorageManager;
 
-/**
- * Created by Chathuri on 3/14/2015.
- */
+
 public class WorkspaceManager {
 
     private  StorageManager storageManager=new StorageManager();

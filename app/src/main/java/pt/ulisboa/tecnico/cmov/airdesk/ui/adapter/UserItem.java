@@ -1,8 +1,5 @@
-package pt.ulisboa.tecnico.cmov.airdesk;
+package pt.ulisboa.tecnico.cmov.airdesk.ui.adapter;
 
-/**
- * Created by shelan on 4/6/15.
- */
 public class UserItem {
     private String name;
     private boolean box;

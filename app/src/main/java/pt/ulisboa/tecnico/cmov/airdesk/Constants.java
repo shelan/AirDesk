@@ -1,8 +1,5 @@
 package pt.ulisboa.tecnico.cmov.airdesk;
 
-/**
- * Created by ashansa on 3/15/15.
- */
 public class Constants {
 
     //TODO move OWNED/FOREIGN_WORKSPACE_DIR to StorageManager

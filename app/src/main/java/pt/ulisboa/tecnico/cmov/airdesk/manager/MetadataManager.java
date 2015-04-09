@@ -20,9 +20,7 @@ import pt.ulisboa.tecnico.cmov.airdesk.entity.ForeignWorkspace;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.OwnedWorkspace;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.User;
 
-/**
- * Created by Chathuri on 3/14/2015.
- */
+
 public class MetadataManager {
 
     private Gson gson = new Gson();

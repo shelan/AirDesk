@@ -3,9 +3,7 @@ package pt.ulisboa.tecnico.cmov.airdesk.context;
 import android.app.Application;
 import android.content.Context;
 
-/**
- * Created by Chathuri on 3/14/2015.
- */
+
 public class AirDeskApp extends Application {
     public static Context s_applicationContext = null;
     @Override

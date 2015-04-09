@@ -1,8 +1,6 @@
 package pt.ulisboa.tecnico.cmov.airdesk.entity;
 
-/**
- * Created by shelan on 3/20/15.
- */
+
 public class TextFile {
 
     private String owner;

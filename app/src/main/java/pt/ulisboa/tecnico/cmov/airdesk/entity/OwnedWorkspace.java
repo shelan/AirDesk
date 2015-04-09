@@ -5,9 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by Chathuri on 3/14/2015.
- */
+
 public class OwnedWorkspace extends AbstractWorkspace {
 
     private HashMap<String,Boolean> clients=new HashMap<String,Boolean>();
