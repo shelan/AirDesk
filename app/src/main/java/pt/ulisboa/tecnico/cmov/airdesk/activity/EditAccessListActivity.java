@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -48,7 +49,7 @@ public class EditAccessListActivity extends ActionBarActivity {
 
             // setAccessList();
 
-             adapter = new AccessListAdapter(this, usersItemList);
+            adapter = new AccessListAdapter(this, usersItemList);
 
 
            /* ArrayAdapter adapter = new ArrayAdapter<String>(
@@ -126,6 +127,7 @@ public class EditAccessListActivity extends ActionBarActivity {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
             final EditText input = new EditText(this);
+            input.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
             input.setHint("Username");
             builder.setTitle("User Access List");
             builder.setView(input);
@@ -155,15 +157,39 @@ public class EditAccessListActivity extends ActionBarActivity {
 
         if (id == R.id.action_remove_user) {
 
-        ArrayList<UserItem> usersToDelete  = adapter.getCheckedUsers();
-            WorkspaceManager manager = new WorkspaceManager();
-            for (UserItem userItem : usersToDelete) {
-                manager.deleteUserFromAccessList(workspace.getWorkspaceName(),userItem.getName());
-            }
-            fillData();
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-            addUserMenuItem.setVisible(true);
-            removeUserMenuItem.setVisible(false);
+            builder.setTitle("Delete")
+                    .setMessage("Do you want to delete " + adapter.getCheckedUsers().size() + "  User(s) ?");
+            builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    try {
+                        ArrayList<UserItem> usersToDelete = adapter.getCheckedUsers();
+                        WorkspaceManager manager = new WorkspaceManager();
+                        for (UserItem userItem : usersToDelete) {
+                            manager.deleteUserFromAccessList(workspace.getWorkspaceName(), userItem.getName());
+                        }
+                        fillData();
+
+
+                        addUserMenuItem.setVisible(true);
+                        removeUserMenuItem.setVisible(false);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+            builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+
+            builder.show();
+
            /* new WorkspaceManager().deleteUserFromAccessList(workspace.getWorkspaceName(),
                     String.valueOf(input.getText()).trim());*/
         }
