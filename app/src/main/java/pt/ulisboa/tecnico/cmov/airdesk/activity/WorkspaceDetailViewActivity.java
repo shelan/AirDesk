@@ -89,7 +89,7 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
         if (id == R.id.add_file) {
             Intent intent = new Intent(this, CreateFileActivity.class);
             intent.putExtra(Constants.WORKSPACE_NAME, workspace.getWorkspaceName())
-                    .putExtra(Constants.OWNER, workspace.getOwnerName())
+                    .putExtra(Constants.OWNER, workspace.getOwnerId())
                     .putExtra(Constants.IS_OWNED_WORKSPACE, isOwnedWorkspace);
             startActivity(intent);
         }
@@ -204,7 +204,7 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
                     Intent intent = new Intent(getActivity(), TextFileEditActivity.class)
                             .putExtra(Constants.FILENAME, fileName)
                             .putExtra(Constants.WORKSPACE_NAME, finalWorkspace.getWorkspaceName())
-                            .putExtra(Constants.OWNER, finalWorkspace.getOwnerName());
+                            .putExtra(Constants.OWNER, finalWorkspace.getOwnerId());
 
                     startActivity(intent);
                     Toast.makeText(getActivity(), "Opening file " + fileName,
@@ -231,7 +231,7 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
                                     try {
                                         new WorkspaceManager().deleteDataFile(finalWorkspace
                                                         .getWorkspaceName(), fileName,
-                                                finalWorkspace.getOwnerName(), true);
+                                                finalWorkspace.getOwnerId(), true);
                                     } catch (IOException e) {
                                         e.printStackTrace();
                                     }

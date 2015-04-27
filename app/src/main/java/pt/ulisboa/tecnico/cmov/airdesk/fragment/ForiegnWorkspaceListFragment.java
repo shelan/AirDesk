@@ -46,6 +46,8 @@ public class ForiegnWorkspaceListFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+       updateWorkspaceList();
+
         View rootView = inflater.inflate(R.layout.fragment_foreign_workspace, container, false);
         data = fillDataAdapter(workspaceList);
 

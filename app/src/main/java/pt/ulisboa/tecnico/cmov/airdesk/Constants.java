@@ -16,4 +16,17 @@ public class Constants {
     public static final String FILENAME = "filename";
     public static final String OWNER = "owner";
     public static final String IS_OWNED_WORKSPACE = "isOwnedWorkspace";
+
+    // You should replace these values with your own
+    // See the readme for details on what to fill in
+    public static final String AWS_ACCOUNT_ID = "249859950283";
+    public static final String COGNITO_POOL_ID =
+            "us-east-1:8614ddd2-36ea-45b0-9639-2a03a9be3e88";
+    public static final String COGNITO_ROLE_UNAUTH =
+            "Cognito_airdeskUnauth_DefaultRole";
+    // Note, the bucket will be created in all lower case letters
+    // If you don't enter an all lower case title, any references you add
+    // will need to be sanitized
+    public static final String BUCKET_NAME = "ist-airdesk";
+    public static final String FOLDER_SEP = "/" ;
 }

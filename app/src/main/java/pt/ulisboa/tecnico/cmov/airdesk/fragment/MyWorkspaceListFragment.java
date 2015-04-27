@@ -40,6 +40,9 @@ public class MyWorkspaceListFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
+        updateWorkspaceList();
+
         View rootView = inflater.inflate(R.layout.fragment_my_workspace, container, false);
         data = fillDataAdapter(workspaceList);
 

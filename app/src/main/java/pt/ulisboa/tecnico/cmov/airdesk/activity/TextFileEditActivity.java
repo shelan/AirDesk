@@ -126,7 +126,8 @@ public class TextFileEditActivity extends ActionBarActivity {
         } else if (id == R.id.action_save_file) {
             try {
                 saveFileText(file);
-                setText(file);
+                displayText.setText(editText.getText().toString());
+              //  setText(file);
                 saveMenuItem.setVisible(false);
                 editMenuItem.setVisible(true);
                 editText.setVisibility(View.INVISIBLE);

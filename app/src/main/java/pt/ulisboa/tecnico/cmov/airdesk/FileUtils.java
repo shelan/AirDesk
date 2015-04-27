@@ -1,12 +1,14 @@
 package pt.ulisboa.tecnico.cmov.airdesk;
 
 import android.content.Context;
+import android.util.Log;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.concurrent.ExecutionException;
 
 import pt.ulisboa.tecnico.cmov.airdesk.context.AirDeskApp;
 
@@ -61,22 +63,33 @@ public class FileUtils {
             return null;
     }
 
-    public static boolean createWSFolder(String workspaceName) {
+    public static boolean createWSFolder(String workspaceName, String userName) {
         Context appContext = AirDeskApp.s_applicationContext;
         File parentDir = appContext.getDir(Constants.OWNED_WORKSPACE_DIR, appContext.MODE_PRIVATE);
         File workspaceDir = new File(parentDir.getAbsolutePath() + "/" + workspaceName);//create workspace inside WS dir
         boolean status = workspaceDir.mkdir();
+
+        try {
+            AWSTasks.getInstance().createFolder(getFileNameForUserId(userName),
+                    workspaceName);
+        } catch (ExecutionException e) {
+            Log.e("AWS_ERROR", "Error while executing", e);
+        } catch (InterruptedException e) {
+            Log.e("AWS_ERROR", "Interrupted", e);
+        }
+
         System.out.println("child folder created " + status);
         return true;
     }
 
-    public static void createFolderForOwnedWorkSpaces() {//all owned workspaces will be here
+   /* public static void createFolderForOwnedWorkSpaces() {//all owned workspaces will be here
         Context appContext = AirDeskApp.s_applicationContext;
         File parentDir = appContext.getDir(Constants.OWNED_WORKSPACE_DIR, appContext.MODE_PRIVATE);
         System.out.println("ws path" + parentDir.getAbsolutePath());
     }
+*/
 
-    public static boolean deleteOwnedWorkspaceFolder(String workspaceName) {
+    public static boolean deleteOwnedWorkspaceFolder(String workspaceName, String userName) {
         Context appContext = AirDeskApp.s_applicationContext;
         File parentDir = appContext.getDir(Constants.OWNED_WORKSPACE_DIR, appContext.MODE_PRIVATE);
         File workspaceDir = new File(parentDir.getAbsolutePath() + "/" + workspaceName);
@@ -90,6 +103,19 @@ public class FileUtils {
                 }
             }
         }
+
+
+        try {
+            AWSTasks.getInstance().deleteFolder(getFileNameForUserId(userName), workspaceName);
+
+
+        } catch (ExecutionException e) {
+            Log.e("AWS_ERROR", "Error while executing", e);
+        } catch (InterruptedException e) {
+            Log.e("AWS_ERROR", "Interrupted", e);
+        }
+
+
         return workspaceDir.delete();
     }
 
@@ -137,9 +163,8 @@ public class FileUtils {
     }
 
 
-
     public static String getFileNameForUserId(String userId) {
-        userId = userId.replace("@" , "__");
+        userId = userId.replace("@", "__");
         userId = userId.replace(".", "__");
         return userId;
     }
