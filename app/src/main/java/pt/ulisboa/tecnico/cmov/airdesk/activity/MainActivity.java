@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import pt.ulisboa.tecnico.cmov.airdesk.R;
 import pt.ulisboa.tecnico.cmov.airdesk.fragment.ForiegnWorkspaceListFragment;
 import pt.ulisboa.tecnico.cmov.airdesk.fragment.MyWorkspaceListFragment;
+import pt.ulisboa.tecnico.cmov.airdesk.manager.HoardingManager;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.UserManager;
 
 public class MainActivity extends ActionBarActivity {
@@ -44,6 +45,8 @@ public class MainActivity extends ActionBarActivity {
             }
 
             getSupportActionBar().setElevation(0f);
+
+           new HoardingManager().scheduleCleaningTask();
 
 
             //TODO move these tests and write proper tests in android test package
