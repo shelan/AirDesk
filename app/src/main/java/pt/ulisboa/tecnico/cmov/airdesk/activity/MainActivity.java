@@ -24,6 +24,7 @@ import pt.ulisboa.tecnico.cmov.airdesk.Constants;
 import pt.ulisboa.tecnico.cmov.airdesk.R;
 import pt.ulisboa.tecnico.cmov.airdesk.fragment.ForiegnWorkspaceListFragment;
 import pt.ulisboa.tecnico.cmov.airdesk.fragment.MyWorkspaceListFragment;
+import pt.ulisboa.tecnico.cmov.airdesk.manager.HoardingManager;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.UserManager;
 import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.communication.CommunicationEventReceiver;
 import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.communication.CommunicationTask;
@@ -65,6 +66,8 @@ public class MainActivity extends ActionBarActivity {
 
             }
             getSupportActionBar().setElevation(0f);
+
+            new HoardingManager().scheduleCleaningTask();
             //TODO move these tests and write proper tests in android test package
 
             CommunicationManager communicationManager = new CommunicationManager();

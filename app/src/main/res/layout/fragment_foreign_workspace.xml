@@ -41,5 +41,10 @@
         android:numColumns="3"
         android:padding="24dp" />
 
+    <TextView
+        android:id="@+id/usersOnline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="OnlineUsers :"/>
 
 </LinearLayout>

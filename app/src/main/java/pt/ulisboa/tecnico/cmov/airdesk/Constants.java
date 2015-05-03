@@ -29,4 +29,8 @@ public class Constants {
     // will need to be sanitized
     public static final String BUCKET_NAME = "ist-airdesk";
     public static final String FOLDER_SEP = "/" ;
+
+    //broadcast actions for wifi direct
+    public static final String SUBSCRIBED_TO_TAGS = "subscribed";
+    public static final String TAGS = "tags";
 }
