@@ -24,14 +24,14 @@ public class HoardingManager {
             Executors.newSingleThreadScheduledExecutor();
 
     public void scheduleCleaningTask() {
-        scheduler.scheduleAtFixedRate
+        /*scheduler.scheduleAtFixedRate
                 (new Runnable() {
                     public void run() {
 
                         System.out.println("=====CLaming spacee ========== !!!!!!!!!");
                         claimSpace();
                     }
-                }, 0, 10, TimeUnit.SECONDS);
+                }, 0, 10, TimeUnit.SECONDS);*/
     }
 
     private double getCurrentUsage() {

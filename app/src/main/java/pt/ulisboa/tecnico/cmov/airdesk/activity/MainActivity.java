@@ -16,10 +16,9 @@ import android.view.MenuItem;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 
 import pt.ulisboa.tecnico.cmov.airdesk.AirDeskReceiver;
+import pt.ulisboa.tecnico.cmov.airdesk.AirDeskService;
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
 import pt.ulisboa.tecnico.cmov.airdesk.R;
 import pt.ulisboa.tecnico.cmov.airdesk.fragment.ForiegnWorkspaceListFragment;
@@ -40,6 +39,7 @@ public class MainActivity extends ActionBarActivity {
 
     MyWorkspaceListFragment myWorkspacesFragment;
     ForiegnWorkspaceListFragment foreignWorkspacesFragment;
+    CommunicationManager communicationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +70,7 @@ public class MainActivity extends ActionBarActivity {
             new HoardingManager().scheduleCleaningTask();
             //TODO move these tests and write proper tests in android test package
 
-            CommunicationManager communicationManager = new CommunicationManager();
+            communicationManager  = new CommunicationManager();
             communicationManager.init();
         }
 
@@ -109,22 +109,25 @@ public class MainActivity extends ActionBarActivity {
         protected void onDestroy () {
             super.onDestroy();
             SharedPreferences.Editor editor = getPreferences(Context.MODE_PRIVATE).edit();
+            unregisterReceiver(communicationManager.mReceiver);
         }
 
     public class CommunicationManager implements
             SimWifiP2pManager.PeerListListener, SimWifiP2pManager.GroupInfoListener {
-
         //for wifi_direct
+        CommunicationEventReceiver mReceiver = null;
+
         private SimWifiP2pManager mManager = null;
         private Messenger mService = null;
-        private CommunicationEventReceiver mReceiver = null;
         private boolean mBound = false;
         private SimWifiP2pManager.Channel mChannel = null;
+        private AirDeskService airDeskService;
 
         private ArrayList peerList = new ArrayList();
 
         public void init() {
             SimWifiP2pSocketManager.Init(getApplicationContext());
+            airDeskService = AirDeskService.getInstance();
 
             System.out.println("=========>  service onCreate ======");
             IntentFilter filter1 = new IntentFilter();
@@ -132,12 +135,12 @@ public class MainActivity extends ActionBarActivity {
             filter1.addAction(SimWifiP2pBroadcast.WIFI_P2P_PEERS_CHANGED_ACTION);
             filter1.addAction(SimWifiP2pBroadcast.WIFI_P2P_NETWORK_MEMBERSHIP_CHANGED_ACTION);
             filter1.addAction(SimWifiP2pBroadcast.WIFI_P2P_GROUP_OWNERSHIP_CHANGED_ACTION);
-            CommunicationEventReceiver mReceiver = new CommunicationEventReceiver(getApplicationContext(), this);
+            mReceiver = new CommunicationEventReceiver(getApplicationContext(), this);
             registerReceiver(mReceiver, filter1);
 
             //registering receiver for airdesk events
             IntentFilter filter2 = new IntentFilter();
-            filter2.addAction(Constants.SUBSCRIBED_TO_TAGS);
+            filter2.addAction(Constants.SUBSCRIBE_TAGS);
             AirDeskReceiver airDeskReceiver = new AirDeskReceiver();
             registerReceiver(airDeskReceiver, filter2);
 
@@ -166,21 +169,6 @@ public class MainActivity extends ActionBarActivity {
                 mBound = true;
 
                 mManager.requestPeers(mChannel, (SimWifiP2pManager.PeerListListener) CommunicationManager.this);
-
-                /*new Thread()
-                {
-                    public void run() {
-                        while (mBound && mManager != null) {
-                            mManager.requestPeers(mChannel, (SimWifiP2pManager.PeerListListener) CommunicationManager.this);
-                            try {
-                                sleep(3000);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                }.start();
-*/
             }
 
             @Override
@@ -189,6 +177,7 @@ public class MainActivity extends ActionBarActivity {
                 mManager = null;
                 mChannel = null;
                 mBound = false;
+                unbindService(mConnection);
             }
         };
 
@@ -217,7 +206,11 @@ public class MainActivity extends ActionBarActivity {
                 CommunicationTask.OutgoingCommTask outgoingCommTask = new CommunicationTask().getOutgoingCommTask();
                 outgoingCommTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, device.getVirtIp());
             }
+
+            airDeskService.updateNearbyDevices(peers.getDeviceList());
         }
+
+
     }
 
     }

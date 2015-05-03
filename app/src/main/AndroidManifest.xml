@@ -67,8 +67,8 @@
             android:parentActivityName=".activity.WorkspaceDetailViewActivity">
         </activity>
 
-<!--        <service android:name="pt.ulisboa.tecnico.cmov.airdesk.wifidirect.communication.CommunicationService"/>-->
         <service android:name="pt.ulisboa.tecnico.cmov.airdesk.wifidirect.termite.service.SimWifiP2pService"/>
+        <service android:name="pt.ulisboa.tecnico.cmov.airdesk.AirDeskService"/>
     </application>
 
 </manifest>

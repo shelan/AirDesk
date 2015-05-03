@@ -14,7 +14,7 @@ public class AirDeskReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         System.out.println(">>>>>>>>>>>>>>>>>>>> received at AirDeskReceiver");
         String action = intent.getAction();
-        if(Constants.SUBSCRIBED_TO_TAGS.equals(action)) {
+        if(Constants.SUBSCRIBE_TAGS.equals(action)) {
             String[] tags = intent.getStringArrayExtra(Constants.TAGS);
             workspaceManager.getPublicWorkspacesForTags(tags);
             //get matchingTags and call addToForeignWorkspace of caller

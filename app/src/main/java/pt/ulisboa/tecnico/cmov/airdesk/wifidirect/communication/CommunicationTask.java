@@ -1,13 +1,18 @@
 package pt.ulisboa.tecnico.cmov.airdesk.wifidirect.communication;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
+
+import com.google.gson.Gson;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.net.UnknownHostException;
 
+import pt.ulisboa.tecnico.cmov.airdesk.Constants;
 import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.termite.SimWifiP2pManager;
 import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.termite.sockets.SimWifiP2pSocket;
 import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.termite.sockets.SimWifiP2pSocketServer;
@@ -24,6 +29,7 @@ public class CommunicationTask {
     SimWifiP2pSocket mCliSocket = null;
     private boolean mBound = false;
     SimWifiP2pSocket s;
+    Gson gson = new Gson();
 
     IncomingCommTask incomingCommTask;
     OutgoingCommTask outgoingCommTask;
@@ -40,6 +46,17 @@ public class CommunicationTask {
             this.outgoingCommTask = new OutgoingCommTask();
         }
         return this.outgoingCommTask;
+    }
+
+    public void handleMessage(AirDeskMessage msg) {
+        System.out.println("........handleMessage.........");
+        switch (msg.getType()) {
+            case Constants.SUBSCRIBE_TAGS:
+                System.out.printf("tag subscription wifi direct walin awooo................");
+                break;
+            default:
+                System.out.println("........ default case .......");
+        }
     }
 
     public class IncomingCommTask extends AsyncTask<Void, SimWifiP2pSocket, Void> {
@@ -105,7 +122,8 @@ public class CommunicationTask {
                 System.out.println("=========> ging to write msg");
                 mCliSocket = new SimWifiP2pSocket(params[0],port);
 
-                String msg = "Hello message" + (i++);
+
+                String msg =  gson.toJson(new AirDeskMessage("test")); //"Hello message" + (i++);
                 System.out.println("========socket created. Msg : " + msg);
                 /////////TODO...... check whether other end receives this
                 mCliSocket.getOutputStream().write(msg.getBytes());
@@ -144,14 +162,22 @@ public class CommunicationTask {
                 System.out.println("############ going to receive msg");
                 sockIn = new BufferedReader(new InputStreamReader(s.getInputStream()));
                 System.out.printf("############ socket created");
-                while ((st = sockIn.readLine()) != null) {
+                String msgJson = sockIn.readLine();
+                System.out.println("#### MSG : " + msgJson);
+                AirDeskMessage msg = gson.fromJson(msgJson, AirDeskMessage.class);
+                handleMessage(msg);
+                System.out.println("sent msg to handle.....");
+                publishProgress(msgJson);
+
+
+                /*while ((st = sockIn.readLine()) != null) {
                     System.out.println("###############################");
                     System.out.println("###############################");
                     System.out.println("recieved msg: " + st);
                     System.out.println("###############################");
                     System.out.println("###############################");
                     publishProgress(st);
-                }
+                }*/
             } catch (IOException e) {
                 Log.d("Error reading socket:", e.getMessage());
             }
@@ -170,14 +196,17 @@ public class CommunicationTask {
 
         @Override
         protected void onPostExecute(Void result) {
-            if (!s.isClosed()) {
-                try {
-                    s.close();
-                }
-                catch (Exception e) {
-                    Log.d("Error closing socket:", e.getMessage());
+            if(s != null) {
+                if (!s.isClosed()) {
+                    try {
+                        s.close();
+                    }
+                    catch (Exception e) {
+                        Log.d("Error closing socket:", e.getMessage());
+                    }
                 }
             }
+
             s = null;
             if (mBound) {
                 ////guiUpdateDisconnectedState();

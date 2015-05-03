@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import pt.ulisboa.tecnico.cmov.airdesk.AWSTasks;
+import pt.ulisboa.tecnico.cmov.airdesk.AirDeskService;
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
 import pt.ulisboa.tecnico.cmov.airdesk.Exception.WriteLockedException;
 import pt.ulisboa.tecnico.cmov.airdesk.FileUtils;
@@ -159,6 +160,9 @@ public class WorkspaceManager {
 
     public void subscribeToTags(String[] tags) {
         userManager.subscribeToTags(tags);
+
+        /////
+        AirDeskService.getInstance().broadcastTagSubscription(tags);
         //Do with wifi direct to all other available users
         getPublicWorkspacesForTags(tags);
     }
