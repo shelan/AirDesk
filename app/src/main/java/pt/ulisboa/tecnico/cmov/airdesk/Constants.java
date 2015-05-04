@@ -31,8 +31,10 @@ public class Constants {
     public static final String FOLDER_SEP = "/" ;
 
     //broadcast actions for wifi direct
-    public static final String SUBSCRIBE_TAGS = "subscribed";
+    public static final String SUBSCRIBE_TAGS_MSG = "subscribed";
+    public static final String PUBLIC_WORKSPACES_FOR_TAGS = "public_ws_for_tags";
     public static final String TAGS = "tags";
 
     public static final int port = 10001;
+    public static final int AIRDESK_SOCKET_PORT = 10011;
 }

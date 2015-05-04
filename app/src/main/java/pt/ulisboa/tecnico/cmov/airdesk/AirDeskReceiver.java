@@ -1,23 +1,34 @@
 package pt.ulisboa.tecnico.cmov.airdesk;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
+import java.util.ArrayList;
 
+import pt.ulisboa.tecnico.cmov.airdesk.entity.OwnedWorkspace;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.WorkspaceManager;
+import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.communication.AirDeskMessage;
 
-public class AirDeskReceiver extends BroadcastReceiver {
+public class AirDeskReceiver {
 
     WorkspaceManager workspaceManager = new WorkspaceManager();
+    AirDeskService airDeskService = AirDeskService.getInstance();
 
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        System.out.println(">>>>>>>>>>>>>>>>>>>> received at AirDeskReceiver");
-        String action = intent.getAction();
-        if(Constants.SUBSCRIBE_TAGS.equals(action)) {
-            String[] tags = intent.getStringArrayExtra(Constants.TAGS);
-            workspaceManager.getPublicWorkspacesForTags(tags);
-            //get matchingTags and call addToForeignWorkspace of caller
+    public void handleMessage(AirDeskMessage msg) {
+        System.out.println("........handleMessage.........");
+        switch (msg.getType()) {
+            case Constants.SUBSCRIBE_TAGS_MSG:
+                System.out.printf("tag subscription wifi direct walin awooo................");
+                ArrayList<String> tags = (ArrayList<String>) msg.getInputs().get(Constants.TAGS);
+                ArrayList<OwnedWorkspace> matchingWorkspaces = workspaceManager.
+                        getPublicWorkspacesForTags(tags.toArray(new String[tags.size()]));
+                airDeskService.sendPublicWorkspacesForTags(null, msg.getSenderIp());
+                break;
+            case Constants.PUBLIC_WORKSPACES_FOR_TAGS:
+                System.out.println(".............. reply awooooooo............");
+                System.out.println("..........................................");
+                System.out.println("..........................................");
+                System.out.println("..........................................");
+                System.out.println("..........................................");
+            default:
+                System.out.println("........ default case .......");
         }
     }
 }

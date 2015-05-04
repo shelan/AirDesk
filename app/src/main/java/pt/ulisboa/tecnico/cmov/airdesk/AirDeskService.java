@@ -5,14 +5,14 @@ import android.os.AsyncTask;
 import com.google.gson.Gson;
 
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Vector;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import pt.ulisboa.tecnico.cmov.airdesk.entity.OwnedWorkspace;
 import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.communication.AirDeskMessage;
 import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.termite.SimWifiP2pDevice;
 import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.termite.sockets.SimWifiP2pSocket;
@@ -23,9 +23,9 @@ import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.termite.sockets.SimWifiP2pSock
 public class AirDeskService {
 
     private static AirDeskService instance = null;
-    private Vector<SimWifiP2pSocket> connectedPeers = new Vector<SimWifiP2pSocket>();
     private Lock peerLock = new ReentrantLock();
-    ArrayList<String> virtualIPList = new ArrayList<String>();
+    Set<String> connectedIpsVirtual = new HashSet<>();
+    private SimWifiP2pDevice myDevice = null;
     Gson gson = new Gson();
 
     private AirDeskService() {}
@@ -42,41 +42,68 @@ public class AirDeskService {
         broadcastTagSubscription.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, subscribedTags);
     }
 
+    public void sendPublicWorkspacesForTags(OwnedWorkspace[] workspaces, String receiverIp) {
+        PublicWorkspaceSender publicWorkspaceSender = new PublicWorkspaceSender();
+        publicWorkspaceSender.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, receiverIp);
+    }
 
-    public void updateNearbyDevices(Collection<SimWifiP2pDevice> nearbyDevices) {
+
+    public void updateConnectedDevices(Collection<SimWifiP2pDevice> nearbyDevices) {
         peerLock.lock();
-        connectedPeers.clear();
-
         if(nearbyDevices.size() > 0) {
             for (SimWifiP2pDevice device : nearbyDevices) {
-                virtualIPList.add(device.getVirtIp());
+                connectedIpsVirtual.add(device.getVirtIp());
                 //connectedPeers.add(new SimWifiP2pSocket(device.getVirtIp(), Constants.port));
             }
 //            SocketCreateForPeersTask socketCreateForPeersTask = new SocketCreateForPeersTask();
-//            socketCreateForPeersTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, virtualIPList.toArray(new String[virtualIPList.size()]));
+//            socketCreateForPeersTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, connectedIpsVirtual.toArray(new String[connectedIpsVirtual.size()]));
         }
-
         peerLock.unlock();
+    }
 
+    public void setMyDevice(SimWifiP2pDevice device) {
+        myDevice = device;
+    }
+
+    public SimWifiP2pDevice getMyDevice() {
+        return myDevice;
     }
 
     private class BroadcastTagSubscription extends AsyncTask<String, Void, Void> {
 
-        private AirDeskMessage createMessage(String type, String[] tags) {
-            AirDeskMessage msg = new AirDeskMessage(type);
-            msg.addInput(Constants.TAGS, tags);
-            return msg;
-        }
-
         @Override
         protected Void doInBackground(String... params) {
 
+            System.out.println("___________ going to send msg______________");
             peerLock.lock();
             String[] tags = params;
-            String tagString = "aa,bb";
-            AirDeskMessage msg = createMessage(Constants.SUBSCRIBE_TAGS, tags);
+            AirDeskMessage msg = createMessage(Constants.SUBSCRIBE_TAGS_MSG, tags);
             String msgJson = gson.toJson(msg);
-            for (String virtualIp : virtualIPList) {
+
+            try {
+                for (String virtualIp : connectedIpsVirtual) {
+                    /*Socket socket = new Socket();
+                    System.out.println("___________________ socket created ___________________");
+                    socket.bind(null);
+                    socket.connect((new InetSocketAddress(virtualIp, Constants.AIRDESK_SOCKET_PORT)), 5000);*/
+                    SimWifiP2pSocket socket = new SimWifiP2pSocket(virtualIp, Constants.port);
+                    OutputStream outputStream = socket.getOutputStream();
+                    outputStream.write(msgJson.getBytes());
+                    outputStream.flush();
+                    outputStream.close();
+                    System.out.println("___________________ msg wrote to o/p stream ___________________");
+
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+
+            /*String[] tags = params;
+            AirDeskMessage msg = createMessage(Constants.SUBSCRIBE_TAGS_MSG, tags);
+            String msgJson = gson.toJson(msg);
+            for (String virtualIp : connectedIpsVirtual) {
                 try {
                     SimWifiP2pSocket peer = new SimWifiP2pSocket(virtualIp, Constants.port);
                     OutputStream outputStream = peer.getOutputStream();
@@ -84,45 +111,54 @@ public class AirDeskService {
                     outputStream.flush();
                     outputStream.close();
 
-                    /*ObjectOutputStream oos = new AppendingObjectOutputStream(peer.getOutputStream());
-                    oos.writeObject(msg);
-                    oos.flush();
-                    oos.close();*/
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-            /*//TODO... create tag string from params
-            String tagString = "t1,t2";
-            for (SimWifiP2pSocket peer : connectedPeers) {
-                try {
-                    System.out.println("........ writing.................");
-                    System.out.println("........ writing.................");
-                    System.out.println("........ writing.................");
-                    peer.getOutputStream().write(tagString.getBytes());
-                    peer.getOutputStream().flush();
-                    peer.getOutputStream().close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }*/
-            peerLock.unlock();
+            peerLock.unlock();*/
             return null;
+        }
+
+        private AirDeskMessage createMessage(String type, String[] tags) {
+            if(myDevice == null)
+                throw new NullPointerException("my device not set");
+
+            AirDeskMessage msg = new AirDeskMessage(type, myDevice.getVirtIp());
+            msg.addInput(Constants.TAGS, tags);
+            return msg;
         }
     }
 
-    private class SocketCreateForPeersTask extends AsyncTask<String, Void, Void> {
+    private class PublicWorkspaceSender extends AsyncTask<String, Void, Void> {
 
         @Override
         protected Void doInBackground(String... params) {
-            for (String virtualIp : params) {
-                try {
-                    connectedPeers.add(new SimWifiP2pSocket(virtualIp, Constants.port));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            System.out.println("________________ going to send pub workspaces __________");
+            System.out.println("____________________________________");
+            System.out.println("____________________________________");
+            String receiverIp = params[0];
+            ////TODO: get workspaces and set in msg
+            AirDeskMessage msg = createMessage(Constants.PUBLIC_WORKSPACES_FOR_TAGS);
+            String msgJson = gson.toJson(msg);
+            SimWifiP2pSocket socket = null;
+            try {
+                socket = new SimWifiP2pSocket(receiverIp, Constants.port);
+                OutputStream outputStream = socket.getOutputStream();
+                outputStream.write(msgJson.getBytes());
+                outputStream.flush();
+                outputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
             return null;
+        }
+
+        private AirDeskMessage createMessage(String type) {
+            if(myDevice == null)
+                throw new NullPointerException("my device not set");
+
+            AirDeskMessage msg = new AirDeskMessage(type, myDevice.getVirtIp());
+            return msg;
         }
     }
 

@@ -121,12 +121,15 @@ public class WorkspaceManager {
         }
         if (hasMatchingTags) {
             //TODO call through network
-            getPublicWorkspacesForTags(subscribedTags.toArray(new String[subscribedTags.size()]));
+            //TODO.....################ do a direct call without bcast
+            AirDeskService.getInstance().broadcastTagSubscription(subscribedTags.toArray(new String[subscribedTags.size()]));
+            /////getPublicWorkspacesForTags(subscribedTags.toArray(new String[subscribedTags.size()]));
         }
     }
 
-    public void getPublicWorkspacesForTags(String[] subscribedTags) {
+    public ArrayList<OwnedWorkspace> getPublicWorkspacesForTags(String[] subscribedTags) {
         OwnedWorkspace workspace;
+        ArrayList<OwnedWorkspace> matchingWorkspaces = new ArrayList<OwnedWorkspace>();
         for (String workspaceName : userManager.getOwnedWorkspaces()) {
             workspace = getOwnedWorkspace(workspaceName);
             if (workspace.isPublic()) {
@@ -140,13 +143,15 @@ public class WorkspaceManager {
                     }
                 }
 
+                System.out.println("========== matching workspace ========> " + workspaceName);
                 //TODO call in Network
                 //if(isTagMatching) {
                 if (matchingTags.size() > 0) {
+                    matchingWorkspaces.add(workspace);
                     try {
-                        addToForeignWorkspace(workspaceName, workspace.getOwnerId(), workspace.getQuota(),
+                        /*addToForeignWorkspace(workspaceName, workspace.getOwnerId(), workspace.getQuota(),
                                 workspace.getFileNames().toArray(new String[workspace.getFileNames().size()]),
-                                matchingTags.toArray(new String[matchingTags.size()]));
+                                matchingTags.toArray(new String[matchingTags.size()]));*/
 
                         addClientToWorkspace(workspaceName, userManager.getOwner().getUserId());
                     } catch (Exception e) {
@@ -156,6 +161,7 @@ public class WorkspaceManager {
 
             }
         }
+        return matchingWorkspaces;
     }
 
     public void subscribeToTags(String[] tags) {
@@ -164,7 +170,7 @@ public class WorkspaceManager {
         /////
         AirDeskService.getInstance().broadcastTagSubscription(tags);
         //Do with wifi direct to all other available users
-        getPublicWorkspacesForTags(tags);
+        ///////getPublicWorkspacesForTags(tags);
     }
 
     public void unsubscribeFromTags(String[] tags) {

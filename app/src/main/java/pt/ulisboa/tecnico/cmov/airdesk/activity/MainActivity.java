@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.net.wifi.p2p.WifiP2pManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -17,9 +18,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import pt.ulisboa.tecnico.cmov.airdesk.AirDeskReceiver;
 import pt.ulisboa.tecnico.cmov.airdesk.AirDeskService;
-import pt.ulisboa.tecnico.cmov.airdesk.Constants;
+import pt.ulisboa.tecnico.cmov.airdesk.AirDeskSocketListenerService;
 import pt.ulisboa.tecnico.cmov.airdesk.R;
 import pt.ulisboa.tecnico.cmov.airdesk.fragment.ForiegnWorkspaceListFragment;
 import pt.ulisboa.tecnico.cmov.airdesk.fragment.MyWorkspaceListFragment;
@@ -135,14 +135,15 @@ public class MainActivity extends ActionBarActivity {
             filter1.addAction(SimWifiP2pBroadcast.WIFI_P2P_PEERS_CHANGED_ACTION);
             filter1.addAction(SimWifiP2pBroadcast.WIFI_P2P_NETWORK_MEMBERSHIP_CHANGED_ACTION);
             filter1.addAction(SimWifiP2pBroadcast.WIFI_P2P_GROUP_OWNERSHIP_CHANGED_ACTION);
+            filter1.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION );
             mReceiver = new CommunicationEventReceiver(getApplicationContext(), this);
             registerReceiver(mReceiver, filter1);
 
-            //registering receiver for airdesk events
+            /*//registering receiver for airdesk events
             IntentFilter filter2 = new IntentFilter();
-            filter2.addAction(Constants.SUBSCRIBE_TAGS);
+            filter2.addAction(Constants.SUBSCRIBE_TAGS_MSG);
             AirDeskReceiver airDeskReceiver = new AirDeskReceiver();
-            registerReceiver(airDeskReceiver, filter2);
+            registerReceiver(airDeskReceiver, filter2);*/
 
             Intent intent = new Intent(MainActivity.this, SimWifiP2pService.class);
             bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
@@ -150,11 +151,18 @@ public class MainActivity extends ActionBarActivity {
             //new IncommingCommTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             CommunicationTask.IncomingCommTask incomingCommTask = new CommunicationTask().getIncomingCommTask();
             incomingCommTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
+            new AirDeskSocketListenerService();
         }
 
         public void requestPeers() {
             if(mBound && mManager != null)
                 mManager.requestPeers(mChannel, (SimWifiP2pManager.PeerListListener) CommunicationManager.this);
+        }
+
+        public void requestGroupInfo() {
+            if(mBound && mManager != null)
+                mManager.requestGroupInfo(mChannel, (SimWifiP2pManager.GroupInfoListener) CommunicationManager.this);
         }
 
         private ServiceConnection mConnection = new ServiceConnection() {
@@ -183,15 +191,37 @@ public class MainActivity extends ActionBarActivity {
 
         @Override
         public void onGroupInfoAvailable(SimWifiP2pDeviceList devices, SimWifiP2pInfo groupInfo) {
+            // compile list of network members
+            ArrayList<SimWifiP2pDevice> memberList = new ArrayList<SimWifiP2pDevice>();
+            String members = "";
+            for (String deviceName : groupInfo.getDevicesInNetwork()) {
+                SimWifiP2pDevice device = devices.getByName(deviceName);
+                memberList.add(device);
+                members = members.concat(device.deviceName + " ");
+                CommunicationTask.OutgoingCommTask outgoingCommTask = new CommunicationTask().getOutgoingCommTask();
+                outgoingCommTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, device.getVirtIp());
+            }
+            TextView onlineUsers = (TextView) findViewById(R.id.usersOnline);
+            onlineUsers.setText(members);
+            peerList.clear();
+            peerList.addAll(memberList);
 
+            if(airDeskService.getMyDevice() == null) {
+                airDeskService.setMyDevice(devices.getByName(groupInfo.getDeviceName()));
+            } else if(!airDeskService.getMyDevice().deviceName.equals(groupInfo.getDeviceName())) {
+                airDeskService.setMyDevice(devices.getByName(groupInfo.getDeviceName()));
+            }
+
+            airDeskService.updateConnectedDevices(memberList);
         }
 
         @Override
         public void onPeersAvailable(SimWifiP2pDeviceList peers) {
+            /*
             StringBuilder peersStr = new StringBuilder();
 
-            peerList.clear();
-            peerList.addAll(peers.getDeviceList());
+//            peerList.clear();
+//            peerList.addAll(peers.getDeviceList());
 
             // compile list of devices in range
             for (SimWifiP2pDevice device : peers.getDeviceList()) {
@@ -207,7 +237,8 @@ public class MainActivity extends ActionBarActivity {
                 outgoingCommTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, device.getVirtIp());
             }
 
-            airDeskService.updateNearbyDevices(peers.getDeviceList());
+            //airDeskService.updateConnectedDevices(peers.getDeviceList());
+        */
         }
 
 

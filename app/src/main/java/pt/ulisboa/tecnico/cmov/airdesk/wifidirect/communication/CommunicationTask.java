@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.net.UnknownHostException;
 
+import pt.ulisboa.tecnico.cmov.airdesk.AirDeskReceiver;
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
 import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.termite.SimWifiP2pManager;
 import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.termite.sockets.SimWifiP2pSocket;
@@ -30,6 +31,7 @@ public class CommunicationTask {
     private boolean mBound = false;
     SimWifiP2pSocket s;
     Gson gson = new Gson();
+    AirDeskReceiver airDeskReceiver = new AirDeskReceiver();
 
     IncomingCommTask incomingCommTask;
     OutgoingCommTask outgoingCommTask;
@@ -46,17 +48,6 @@ public class CommunicationTask {
             this.outgoingCommTask = new OutgoingCommTask();
         }
         return this.outgoingCommTask;
-    }
-
-    public void handleMessage(AirDeskMessage msg) {
-        System.out.println("........handleMessage.........");
-        switch (msg.getType()) {
-            case Constants.SUBSCRIBE_TAGS:
-                System.out.printf("tag subscription wifi direct walin awooo................");
-                break;
-            default:
-                System.out.println("........ default case .......");
-        }
     }
 
     public class IncomingCommTask extends AsyncTask<Void, SimWifiP2pSocket, Void> {
@@ -123,7 +114,7 @@ public class CommunicationTask {
                 mCliSocket = new SimWifiP2pSocket(params[0],port);
 
 
-                String msg =  gson.toJson(new AirDeskMessage("test")); //"Hello message" + (i++);
+                String msg =  gson.toJson(new AirDeskMessage("test", "testIP")); //"Hello message" + (i++);
                 System.out.println("========socket created. Msg : " + msg);
                 /////////TODO...... check whether other end receives this
                 mCliSocket.getOutputStream().write(msg.getBytes());
@@ -165,7 +156,7 @@ public class CommunicationTask {
                 String msgJson = sockIn.readLine();
                 System.out.println("#### MSG : " + msgJson);
                 AirDeskMessage msg = gson.fromJson(msgJson, AirDeskMessage.class);
-                handleMessage(msg);
+                airDeskReceiver.handleMessage(msg);
                 System.out.println("sent msg to handle.....");
                 publishProgress(msgJson);
 

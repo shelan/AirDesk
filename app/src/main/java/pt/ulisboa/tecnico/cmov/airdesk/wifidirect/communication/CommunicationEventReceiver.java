@@ -3,6 +3,8 @@ package pt.ulisboa.tecnico.cmov.airdesk.wifidirect.communication;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.net.wifi.p2p.WifiP2pDevice;
+import android.net.wifi.p2p.WifiP2pManager;
 import android.widget.Toast;
 
 import pt.ulisboa.tecnico.cmov.airdesk.activity.MainActivity;
@@ -27,6 +29,19 @@ public class CommunicationEventReceiver extends BroadcastReceiver{
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
         communicationManager.requestPeers();
+        communicationManager.requestGroupInfo();
+
+        if(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
+            WifiP2pDevice device = intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE);
+            WifiP2pDevice device2 = intent.getParcelableExtra(SimWifiP2pBroadcast.EXTRA_DEVICE_INFO);
+            System.out.println("...........................................");
+            System.out.println("...........................................");
+            System.out.println("..........................................." + device);
+            //System.out.println("========= my device========= " + device.deviceAddress + ", " + device.deviceName);
+            System.out.println("..........................................." + device2);
+            System.out.println("...........................................");
+            System.out.println("...........................................");
+        }
         if (SimWifiP2pBroadcast.WIFI_P2P_STATE_CHANGED_ACTION.equals(action)) {
 
             // This action is triggered when the WDSim service changes state:
