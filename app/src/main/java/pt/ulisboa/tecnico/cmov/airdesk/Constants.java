@@ -12,7 +12,7 @@ public class Constants {
     public static final int BYTES_PER_MB =1024*1024;
     public static final String JSON_SUFFIX=".json";
 
-    public static final String WORKSPACE_NAME = "workspace";
+    public static final String WORKSPACE_NAME = "workspaceName";
     public static final String FILENAME = "filename";
     public static final String OWNER = "owner";
     public static final String IS_OWNED_WORKSPACE = "isOwnedWorkspace";
@@ -32,8 +32,15 @@ public class Constants {
 
     //broadcast actions for wifi direct
     public static final String SUBSCRIBE_TAGS_MSG = "subscribed";
-    public static final String PUBLIC_WORKSPACES_FOR_TAGS = "public_ws_for_tags";
     public static final String TAGS = "tags";
+    public static final String PUBLIC_WORKSPACES_FOR_TAGS_MSG = "public_ws_for_tags";
+    public static final String MATCHING_WORKSPACES_FOR_TAGS = "matching_ws_for_tags";
+    //workspace fields in cast json msg
+    public static final String MATCHING_TAGS = "matchingTags";
+    public static final String FILE_NAMES = "fileNames";
+    public static final String OWNER_ID = "ownerId";
+    public static final String QUOTA = "quota";
+
 
     public static final int port = 10001;
     public static final int AIRDESK_SOCKET_PORT = 10011;

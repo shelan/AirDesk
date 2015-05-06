@@ -6,12 +6,15 @@ import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import pt.ulisboa.tecnico.cmov.airdesk.entity.ForeignWorkspace;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.OwnedWorkspace;
 import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.communication.AirDeskMessage;
 import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.termite.SimWifiP2pDevice;
@@ -42,9 +45,21 @@ public class AirDeskService {
         broadcastTagSubscription.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, subscribedTags);
     }
 
-    public void sendPublicWorkspacesForTags(OwnedWorkspace[] workspaces, String receiverIp) {
-        PublicWorkspaceSender publicWorkspaceSender = new PublicWorkspaceSender();
-        publicWorkspaceSender.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, receiverIp);
+    public void sendPublicWorkspacesForTags(HashMap<OwnedWorkspace, String[]> workspaces, String receiverIp) {
+        ForeignWorkspace[] matchingWorkspaces = createForeignWorkspaceList(workspaces);
+        PublicWorkspaceSender publicWorkspaceSender = new PublicWorkspaceSender(receiverIp);
+        publicWorkspaceSender.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, matchingWorkspaces);
+    }
+
+    private ForeignWorkspace[] createForeignWorkspaceList(HashMap<OwnedWorkspace, String[]> ownedWorkspaceMap) {
+        ArrayList<ForeignWorkspace> foreignWorkspaces = new ArrayList<ForeignWorkspace>();
+        for (OwnedWorkspace ownedWorkspace : ownedWorkspaceMap.keySet()) {
+            ForeignWorkspace workspace = new ForeignWorkspace(ownedWorkspace.getWorkspaceName(), ownedWorkspace.getOwnerId(), ownedWorkspace.getQuota());
+            workspace.addFiles(ownedWorkspace.getFileNames().toArray(new String[ownedWorkspace.getFileNames().size()]));
+            workspace.setMatchingTags(ownedWorkspaceMap.get(ownedWorkspace));
+            foreignWorkspaces.add(workspace);
+        }
+        return foreignWorkspaces.toArray(new ForeignWorkspace[foreignWorkspaces.size()]);
     }
 
 
@@ -53,10 +68,7 @@ public class AirDeskService {
         if(nearbyDevices.size() > 0) {
             for (SimWifiP2pDevice device : nearbyDevices) {
                 connectedIpsVirtual.add(device.getVirtIp());
-                //connectedPeers.add(new SimWifiP2pSocket(device.getVirtIp(), Constants.port));
             }
-//            SocketCreateForPeersTask socketCreateForPeersTask = new SocketCreateForPeersTask();
-//            socketCreateForPeersTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, connectedIpsVirtual.toArray(new String[connectedIpsVirtual.size()]));
         }
         peerLock.unlock();
     }
@@ -92,30 +104,11 @@ public class AirDeskService {
                     outputStream.flush();
                     outputStream.close();
                     System.out.println("___________________ msg wrote to o/p stream ___________________");
-
                 }
 
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
-
-            /*String[] tags = params;
-            AirDeskMessage msg = createMessage(Constants.SUBSCRIBE_TAGS_MSG, tags);
-            String msgJson = gson.toJson(msg);
-            for (String virtualIp : connectedIpsVirtual) {
-                try {
-                    SimWifiP2pSocket peer = new SimWifiP2pSocket(virtualIp, Constants.port);
-                    OutputStream outputStream = peer.getOutputStream();
-                    outputStream.write(msgJson.getBytes());
-                    outputStream.flush();
-                    outputStream.close();
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            peerLock.unlock();*/
             return null;
         }
 
@@ -129,16 +122,24 @@ public class AirDeskService {
         }
     }
 
-    private class PublicWorkspaceSender extends AsyncTask<String, Void, Void> {
+    private class PublicWorkspaceSender extends AsyncTask<ForeignWorkspace, Void, Void> {
 
+        private  String receiverIp;
+        public PublicWorkspaceSender(String receiverIp) {
+            this.receiverIp = receiverIp;
+        }
         @Override
-        protected Void doInBackground(String... params) {
+        protected Void doInBackground(ForeignWorkspace... params) {
             System.out.println("________________ going to send pub workspaces __________");
             System.out.println("____________________________________");
             System.out.println("____________________________________");
-            String receiverIp = params[0];
+
             ////TODO: get workspaces and set in msg
-            AirDeskMessage msg = createMessage(Constants.PUBLIC_WORKSPACES_FOR_TAGS);
+            ForeignWorkspace[] matchingWorkspaces = new ForeignWorkspace[params.length];
+            for (int i = 0; i < params.length; i++) {
+                matchingWorkspaces[i] = params[i];
+            }
+            AirDeskMessage msg = createMessage(Constants.PUBLIC_WORKSPACES_FOR_TAGS_MSG, matchingWorkspaces);
             String msgJson = gson.toJson(msg);
             SimWifiP2pSocket socket = null;
             try {
@@ -153,11 +154,12 @@ public class AirDeskService {
             return null;
         }
 
-        private AirDeskMessage createMessage(String type) {
+        private AirDeskMessage createMessage(String type, ForeignWorkspace[] matchingWorkspaces) {
             if(myDevice == null)
                 throw new NullPointerException("my device not set");
 
             AirDeskMessage msg = new AirDeskMessage(type, myDevice.getVirtIp());
+            msg.addInput(Constants.MATCHING_WORKSPACES_FOR_TAGS, matchingWorkspaces);
             return msg;
         }
     }

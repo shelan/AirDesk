@@ -34,7 +34,7 @@ import pt.ulisboa.tecnico.cmov.airdesk.manager.UserManager;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.WorkspaceManager;
 import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.termite.SimWifiP2pBroadcast;
 
-public class ForiegnWorkspaceListFragment extends Fragment {
+public class ForeignWorkspaceListFragment extends Fragment {
 
     private ArrayAdapter<String> arrayAdapter;
 

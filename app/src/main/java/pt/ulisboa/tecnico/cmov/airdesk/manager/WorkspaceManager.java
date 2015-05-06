@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -31,6 +32,8 @@ public class WorkspaceManager {
     private StorageManager storageManager = new StorageManager();
     private MetadataManager metadataManager = new MetadataManager();
     private UserManager userManager = new UserManager();
+
+    public WorkspaceManager() {}
 
     //set all ui data other than owner data in workspace object
     public WorkspaceCreateStatus createWorkspace(OwnedWorkspace workspace) {
@@ -127,9 +130,10 @@ public class WorkspaceManager {
         }
     }
 
-    public ArrayList<OwnedWorkspace> getPublicWorkspacesForTags(String[] subscribedTags) {
+    public HashMap<OwnedWorkspace, String[]> getPublicWorkspacesForTags(String[] subscribedTags) {
         OwnedWorkspace workspace;
         ArrayList<OwnedWorkspace> matchingWorkspaces = new ArrayList<OwnedWorkspace>();
+        HashMap<OwnedWorkspace, String[]> matchingWorkspaceMap = new HashMap<OwnedWorkspace, String[]>();
         for (String workspaceName : userManager.getOwnedWorkspaces()) {
             workspace = getOwnedWorkspace(workspaceName);
             if (workspace.isPublic()) {
@@ -148,6 +152,7 @@ public class WorkspaceManager {
                 //if(isTagMatching) {
                 if (matchingTags.size() > 0) {
                     matchingWorkspaces.add(workspace);
+                    matchingWorkspaceMap.put(workspace, matchingTags.toArray(new String[matchingTags.size()]));
                     try {
                         /*addToForeignWorkspace(workspaceName, workspace.getOwnerId(), workspace.getQuota(),
                                 workspace.getFileNames().toArray(new String[workspace.getFileNames().size()]),
@@ -161,7 +166,8 @@ public class WorkspaceManager {
 
             }
         }
-        return matchingWorkspaces;
+        //return matchingWorkspaces;
+        return matchingWorkspaceMap;
     }
 
     public void subscribeToTags(String[] tags) {

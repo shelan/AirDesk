@@ -1,6 +1,5 @@
 package pt.ulisboa.tecnico.cmov.airdesk.wifidirect.communication;
 
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -9,11 +8,10 @@ import com.google.gson.Gson;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
 import java.net.UnknownHostException;
 
 import pt.ulisboa.tecnico.cmov.airdesk.AirDeskReceiver;
-import pt.ulisboa.tecnico.cmov.airdesk.Constants;
+import pt.ulisboa.tecnico.cmov.airdesk.fragment.ForeignWorkspaceListFragment;
 import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.termite.SimWifiP2pManager;
 import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.termite.sockets.SimWifiP2pSocket;
 import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.termite.sockets.SimWifiP2pSocketServer;
@@ -31,7 +29,11 @@ public class CommunicationTask {
     private boolean mBound = false;
     SimWifiP2pSocket s;
     Gson gson = new Gson();
-    AirDeskReceiver airDeskReceiver = new AirDeskReceiver();
+    AirDeskReceiver airDeskReceiver;
+
+    public CommunicationTask(ForeignWorkspaceListFragment foreignWorkspaceFragment) {
+        airDeskReceiver = new AirDeskReceiver(foreignWorkspaceFragment);
+    }
 
     IncomingCommTask incomingCommTask;
     OutgoingCommTask outgoingCommTask;
@@ -155,6 +157,7 @@ public class CommunicationTask {
                 System.out.printf("############ socket created");
                 String msgJson = sockIn.readLine();
                 System.out.println("#### MSG : " + msgJson);
+                //gson.fromJson(msgJson,);
                 AirDeskMessage msg = gson.fromJson(msgJson, AirDeskMessage.class);
                 airDeskReceiver.handleMessage(msg);
                 System.out.println("sent msg to handle.....");

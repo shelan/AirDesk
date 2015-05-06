@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.net.wifi.p2p.WifiP2pManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -19,9 +18,8 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import pt.ulisboa.tecnico.cmov.airdesk.AirDeskService;
-import pt.ulisboa.tecnico.cmov.airdesk.AirDeskSocketListenerService;
 import pt.ulisboa.tecnico.cmov.airdesk.R;
-import pt.ulisboa.tecnico.cmov.airdesk.fragment.ForiegnWorkspaceListFragment;
+import pt.ulisboa.tecnico.cmov.airdesk.fragment.ForeignWorkspaceListFragment;
 import pt.ulisboa.tecnico.cmov.airdesk.fragment.MyWorkspaceListFragment;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.HoardingManager;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.UserManager;
@@ -38,9 +36,12 @@ import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.termite.sockets.SimWifiP2pSock
 public class MainActivity extends ActionBarActivity {
 
     MyWorkspaceListFragment myWorkspacesFragment;
-    ForiegnWorkspaceListFragment foreignWorkspacesFragment;
+    ForeignWorkspaceListFragment foreignWorkspacesFragment;
     CommunicationManager communicationManager;
 
+    public MainActivity() {
+
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,25 +55,26 @@ public class MainActivity extends ActionBarActivity {
             Intent intent = new Intent(this, CreateUserActivity.class);
             startActivity(intent);
         }
-            if (savedInstanceState == null) {
+        if (savedInstanceState == null) {
 
-                myWorkspacesFragment = new MyWorkspaceListFragment();
-                foreignWorkspacesFragment = new ForiegnWorkspaceListFragment();
+            myWorkspacesFragment = new MyWorkspaceListFragment();
+            foreignWorkspacesFragment = new ForeignWorkspaceListFragment();
 
-                getSupportFragmentManager().beginTransaction()
-                        .add(R.id.container, myWorkspacesFragment, "fragment_1")
-                        .add(R.id.container, foreignWorkspacesFragment, "fragment_2")
-                        .commit();
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.container, myWorkspacesFragment, "fragment_1")
+                    .add(R.id.container, foreignWorkspacesFragment, "fragment_2")
+                    .commit();
 
-            }
-            getSupportActionBar().setElevation(0f);
-
-            new HoardingManager().scheduleCleaningTask();
-            //TODO move these tests and write proper tests in android test package
-
-            communicationManager  = new CommunicationManager();
-            communicationManager.init();
         }
+        getSupportActionBar().setElevation(0f);
+        //TODO move these tests and write proper tests in android test package
+
+        new HoardingManager().scheduleCleaningTask();
+
+        if(communicationManager == null)
+            communicationManager = new CommunicationManager();
+
+    }
 
         @Override
         public boolean onCreateOptionsMenu (Menu menu){
@@ -125,34 +127,29 @@ public class MainActivity extends ActionBarActivity {
 
         private ArrayList peerList = new ArrayList();
 
+        public CommunicationManager() {
+            init();
+        }
+
         public void init() {
             SimWifiP2pSocketManager.Init(getApplicationContext());
             airDeskService = AirDeskService.getInstance();
 
-            System.out.println("=========>  service onCreate ======");
             IntentFilter filter1 = new IntentFilter();
             filter1.addAction(SimWifiP2pBroadcast.WIFI_P2P_STATE_CHANGED_ACTION);
             filter1.addAction(SimWifiP2pBroadcast.WIFI_P2P_PEERS_CHANGED_ACTION);
             filter1.addAction(SimWifiP2pBroadcast.WIFI_P2P_NETWORK_MEMBERSHIP_CHANGED_ACTION);
             filter1.addAction(SimWifiP2pBroadcast.WIFI_P2P_GROUP_OWNERSHIP_CHANGED_ACTION);
-            filter1.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION );
             mReceiver = new CommunicationEventReceiver(getApplicationContext(), this);
             registerReceiver(mReceiver, filter1);
 
-            /*//registering receiver for airdesk events
-            IntentFilter filter2 = new IntentFilter();
-            filter2.addAction(Constants.SUBSCRIBE_TAGS_MSG);
-            AirDeskReceiver airDeskReceiver = new AirDeskReceiver();
-            registerReceiver(airDeskReceiver, filter2);*/
-
             Intent intent = new Intent(MainActivity.this, SimWifiP2pService.class);
             bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-            // spawn the chat server background task
-            //new IncommingCommTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-            CommunicationTask.IncomingCommTask incomingCommTask = new CommunicationTask().getIncomingCommTask();
+
+            CommunicationTask.IncomingCommTask incomingCommTask = new CommunicationTask(foreignWorkspacesFragment).getIncomingCommTask();
             incomingCommTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
-            new AirDeskSocketListenerService();
+            //new AirDeskSocketListenerService();
         }
 
         public void requestPeers() {
@@ -198,7 +195,7 @@ public class MainActivity extends ActionBarActivity {
                 SimWifiP2pDevice device = devices.getByName(deviceName);
                 memberList.add(device);
                 members = members.concat(device.deviceName + " ");
-                CommunicationTask.OutgoingCommTask outgoingCommTask = new CommunicationTask().getOutgoingCommTask();
+                CommunicationTask.OutgoingCommTask outgoingCommTask = new CommunicationTask(foreignWorkspacesFragment).getOutgoingCommTask();
                 outgoingCommTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, device.getVirtIp());
             }
             TextView onlineUsers = (TextView) findViewById(R.id.usersOnline);
@@ -217,31 +214,8 @@ public class MainActivity extends ActionBarActivity {
 
         @Override
         public void onPeersAvailable(SimWifiP2pDeviceList peers) {
-            /*
-            StringBuilder peersStr = new StringBuilder();
 
-//            peerList.clear();
-//            peerList.addAll(peers.getDeviceList());
-
-            // compile list of devices in range
-            for (SimWifiP2pDevice device : peers.getDeviceList()) {
-                //String devstr = "" + device.deviceName + " (" + device.getVirtIp() + ")\n";
-                String devstr = "" + device.deviceName + " ";
-                peersStr.append(devstr);
-                TextView onlineUsers = (TextView) findViewById(R.id.usersOnline);
-                onlineUsers.setText(devstr);
-
-                //TODO: connect to new devices from here itself
-                //////////TODO....... keep a list of outgoing task for each device
-                CommunicationTask.OutgoingCommTask outgoingCommTask = new CommunicationTask().getOutgoingCommTask();
-                outgoingCommTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, device.getVirtIp());
-            }
-
-            //airDeskService.updateConnectedDevices(peers.getDeviceList());
-        */
         }
-
-
     }
 
     }
