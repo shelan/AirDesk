@@ -34,6 +34,16 @@ public class HoardingManager {
                 }, 0, 10, TimeUnit.SECONDS);
     }
 
+    public boolean isCleaningNeeded() {
+        double usage = getCurrentUsage();
+        double free = new WorkspaceManager().getMaximumDeviceSpace();
+
+        //if 90% is filled we perform cleaning
+        if (usage / (usage + free) > 0.9) return true;
+        return false;
+    }
+
+
     private double getCurrentUsage() {
 
         Context appContext = AirDeskApp.s_applicationContext;
@@ -67,8 +77,8 @@ public class HoardingManager {
         double usage = getCurrentUsage();
         double free = new WorkspaceManager().getMaximumDeviceSpace();
 
-        System.out.println(" Used space :" +usage);
-        System.out.println(" Free space :" +free);
+        System.out.println(" Used space :" + usage);
+        System.out.println(" Free space :" + free);
 
 
         double amountToBeFreed = (usage - free) / 2;
@@ -86,7 +96,7 @@ public class HoardingManager {
                 }
             }
         }
-        System.out.println("Found "+pathListToBeDeleted.size() + "No of files to delete");
+        System.out.println("Found " + pathListToBeDeleted.size() + "No of files to delete");
         System.out.println("Files going to be deleted =====>");
         for (String s : pathListToBeDeleted) {
             System.out.println(s);
@@ -118,6 +128,18 @@ public class HoardingManager {
             sortedMap.put(file.length(), filePath);
         }
         return sortedMap;
+    }
+
+    public void performHoarding() {
+        if (isCleaningNeeded()){
+            scheduler.schedule
+                    (new Runnable() {
+                        public void run() {
+                            System.out.println("=====CLaming spacee ========== !!!!!!!!!");
+                            claimSpace();
+                        }
+                    }, 10,TimeUnit.MICROSECONDS);
+        }
     }
 
 
