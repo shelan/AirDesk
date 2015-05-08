@@ -26,13 +26,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import pt.ulisboa.tecnico.cmov.airdesk.AirDeskService;
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
 import pt.ulisboa.tecnico.cmov.airdesk.R;
 import pt.ulisboa.tecnico.cmov.airdesk.activity.WorkspaceDetailViewActivity;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.UserManager;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.WorkspaceManager;
+import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.termite.SimWifiP2pBroadcast;
 
-public class ForiegnWorkspaceListFragment extends Fragment {
+public class ForeignWorkspaceListFragment extends Fragment {
 
     private ArrayAdapter<String> arrayAdapter;
 
@@ -111,6 +113,7 @@ public class ForiegnWorkspaceListFragment extends Fragment {
 
                             workspaceManager.subscribeToTags(subscriptions.toArray(new String[subscriptions.size()]));
                             workspaceManager.unsubscribeFromTags(oldSubscriptions.toArray(new String[oldSubscriptions.size()]));
+
                             updateWorkspaceList();
                         } catch (Exception e) {
                             e.printStackTrace();
