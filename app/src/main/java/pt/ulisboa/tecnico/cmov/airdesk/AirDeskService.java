@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 
 import pt.ulisboa.tecnico.cmov.airdesk.entity.ForeignWorkspace;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.OwnedWorkspace;
+import pt.ulisboa.tecnico.cmov.airdesk.manager.UserManager;
 import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.communication.AirDeskMessage;
 import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.termite.SimWifiP2pDevice;
 import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.termite.sockets.SimWifiP2pSocket;
@@ -129,10 +130,10 @@ public class AirDeskService {
         @Override
         protected Void doInBackground(String... params) {
 
-            System.out.println("___________ going to send msg______________");
+            System.out.println("___________ going to send BroadcastTagSubscription msg______________");
             peerLock.lock();
             String[] tags = params;
-            AirDeskMessage msg = createMessage(Constants.SUBSCRIBE_TAGS_MSG, tags);
+            AirDeskMessage msg = createMessage(Constants.SUBSCRIBE_TAGS_MSG, tags, new UserManager().getOwner().getUserId());
 
             if(msg == null) {
                 logger.log(Level.SEVERE, "BroadcastTagSubscription message not created. Returning.");
@@ -142,25 +143,20 @@ public class AirDeskService {
 
             try {
                 for (String virtualIp : connectedIpsVirtual) {
-                    /*Socket socket = new Socket();
-                    System.out.println("___________________ socket created ___________________");
-                    socket.bind(null);
-                    socket.connect((new InetSocketAddress(virtualIp, Constants.AIRDESK_SOCKET_PORT)), 5000);*/
                     SimWifiP2pSocket socket = new SimWifiP2pSocket(virtualIp, Constants.port);
                     OutputStream outputStream = socket.getOutputStream();
                     outputStream.write(msgJson.getBytes());
                     outputStream.flush();
                     outputStream.close();
-                    System.out.println("___________________ msg wrote to o/p stream ___________________");
+                    System.out.println("___________________BroadcastTagSubscription msg wrote to o/p stream ___________________");
                 }
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
             return null;
         }
 
-        private AirDeskMessage createMessage(String type, String[] tags) {
+        private AirDeskMessage createMessage(String type, String[] tags, String userId) {
             if(myDevice == null) {
                 logger.log(Level.SEVERE, "my device not set");
                 return null;
@@ -168,6 +164,7 @@ public class AirDeskService {
 
             AirDeskMessage msg = new AirDeskMessage(type, myDevice.getVirtIp());
             msg.addInput(Constants.TAGS, tags);
+            msg.addInput(Constants.CLIENT_ID, userId);
             return msg;
         }
     }
@@ -180,16 +177,18 @@ public class AirDeskService {
         }
         @Override
         protected Void doInBackground(ForeignWorkspace... params) {
-            System.out.println("________________ going to send pub workspaces __________");
-            System.out.println("____________________________________");
-            System.out.println("____________________________________");
+            System.out.println("________________ going to send workspaces __________");
 
-            ////TODO: get workspaces and set in msg
             ForeignWorkspace[] foreignWorkspaces = new ForeignWorkspace[params.length];
             for (int i = 0; i < params.length; i++) {
                 foreignWorkspaces[i] = params[i];
             }
             AirDeskMessage msg = createMessage(Constants.ADD_TO_FOREIGN_WORKSPACE_MSG, foreignWorkspaces);
+            if(msg == null) {
+                logger.log(Level.SEVERE, "ADD_TO_FOREIGN_WORKSPACE_MSG message not created. Returning.");
+                return null;
+            }
+
             String msgJson = gson.toJson(msg);
             SimWifiP2pSocket socket = null;
             try {
@@ -198,6 +197,7 @@ public class AirDeskService {
                 outputStream.write(msgJson.getBytes());
                 outputStream.flush();
                 outputStream.close();
+                System.out.println("ADD_TO_FOREIGN_WORKSPACE_MSG msg wrote to o/p stream ___________________");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -220,10 +220,14 @@ public class AirDeskService {
         @Override
         protected Void doInBackground(String... params) {
 
-            System.out.println("___________ going to send msg______________");
+            System.out.println("___________ going to send PUBLISH_TAGS_MSG______________");
             peerLock.lock();
             String[] tags = params;
             AirDeskMessage msg = createMessage(Constants.PUBLISH_TAGS_MSG, tags);
+            if(msg == null) {
+                logger.log(Level.SEVERE, "PUBLISH_TAGS_MSG message not created. Returning.");
+                return null;
+            }
             String msgJson = gson.toJson(msg);
 
             try {
@@ -233,9 +237,8 @@ public class AirDeskService {
                     outputStream.write(msgJson.getBytes());
                     outputStream.flush();
                     outputStream.close();
-                    System.out.println("___________________ msg wrote to o/p stream ___________________");
+                    System.out.println("___________________ PUBLISH_TAGS_MSG wrote to o/p stream ___________________");
                 }
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -263,7 +266,7 @@ public class AirDeskService {
         @Override
         protected Void doInBackground(String... params) {
 
-            System.out.println("___________ going to send msg______________");
+            System.out.println("___________ going to send REVOKE_ACCESS_MSG______________");
             peerLock.lock();
             String workspaceName = params[0];
             String workspaceOwnerId = params[1];
@@ -281,7 +284,7 @@ public class AirDeskService {
                     outputStream.write(msgJson.getBytes());
                     outputStream.flush();
                     outputStream.close();
-                    System.out.println("___________________ msg wrote to o/p stream ___________________");
+                    System.out.println("___________________ REVOKE_ACCESS_MSG wrote to o/p stream ___________________");
             } catch (Exception e) {
                 e.printStackTrace();
             }

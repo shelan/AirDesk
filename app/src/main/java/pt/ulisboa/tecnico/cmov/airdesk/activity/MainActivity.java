@@ -38,7 +38,7 @@ public class MainActivity extends ActionBarActivity {
 
     MyWorkspaceListFragment myWorkspacesFragment;
     ForeignWorkspaceListFragment foreignWorkspacesFragment;
-    CommunicationManager communicationManager;
+    static CommunicationManager communicationManager;
 
     public MainActivity() {
 
@@ -90,8 +90,6 @@ public class MainActivity extends ActionBarActivity {
         //TODO move these tests and write proper tests in android test package
 
 
-
-
         @Override
         public boolean onOptionsItemSelected (MenuItem item){
             // Handle action bar item clicks here. The action bar will
@@ -115,15 +113,13 @@ public class MainActivity extends ActionBarActivity {
         }
 
 
-
-
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
         SharedPreferences.Editor editor = getPreferences(Context.MODE_PRIVATE).edit();
         StorageManager.persistAccessMap();
         unregisterReceiver(communicationManager.mReceiver);
+            unbindService(communicationManager.mConnection);
     }
 
     public class CommunicationManager implements
@@ -155,13 +151,13 @@ public class MainActivity extends ActionBarActivity {
             mReceiver = new CommunicationEventReceiver(getApplicationContext(), this);
             registerReceiver(mReceiver, filter1);
 
+            if(!mBound) {
             Intent intent = new Intent(MainActivity.this, SimWifiP2pService.class);
             bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+            }
 
             CommunicationTask.IncomingCommTask incomingCommTask = new CommunicationTask(foreignWorkspacesFragment).getIncomingCommTask();
             incomingCommTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-
-            //new AirDeskSocketListenerService();
         }
 
         public void requestPeers() {
