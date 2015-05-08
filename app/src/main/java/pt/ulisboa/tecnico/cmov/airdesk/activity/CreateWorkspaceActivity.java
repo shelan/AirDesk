@@ -162,9 +162,9 @@ public class CreateWorkspaceActivity extends ActionBarActivity {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    if (quotaBar.getProgress() == 0) {
+                  /*  if (quotaBar.getProgress() == 0) {
                         quotaBar.requestFocus();
-                    }
+                    }*/
                 }
             });
 
