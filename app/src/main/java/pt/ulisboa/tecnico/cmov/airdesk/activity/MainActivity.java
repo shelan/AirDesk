@@ -37,10 +37,10 @@ public class MainActivity extends ActionBarActivity {
 
     MyWorkspaceListFragment myWorkspacesFragment;
     ForeignWorkspaceListFragment foreignWorkspacesFragment;
-    CommunicationManager communicationManager;
+    static CommunicationManager communicationManager;
 
     public MainActivity() {
-
+        System.out.println("main created");
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,6 +112,7 @@ public class MainActivity extends ActionBarActivity {
             super.onDestroy();
             SharedPreferences.Editor editor = getPreferences(Context.MODE_PRIVATE).edit();
             unregisterReceiver(communicationManager.mReceiver);
+            unbindService(communicationManager.mConnection);
         }
 
     public class CommunicationManager implements
@@ -143,13 +144,14 @@ public class MainActivity extends ActionBarActivity {
             mReceiver = new CommunicationEventReceiver(getApplicationContext(), this);
             registerReceiver(mReceiver, filter1);
 
-            Intent intent = new Intent(MainActivity.this, SimWifiP2pService.class);
-            bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+            if(!mBound) {
+                Intent intent = new Intent(MainActivity.this, SimWifiP2pService.class);
+                bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+            }
 
             CommunicationTask.IncomingCommTask incomingCommTask = new CommunicationTask(foreignWorkspacesFragment).getIncomingCommTask();
             incomingCommTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
-            //new AirDeskSocketListenerService();
         }
 
         public void requestPeers() {
