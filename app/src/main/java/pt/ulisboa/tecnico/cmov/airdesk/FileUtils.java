@@ -3,10 +3,13 @@ package pt.ulisboa.tecnico.cmov.airdesk;
 import android.content.Context;
 import android.util.Log;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.concurrent.ExecutionException;
 
@@ -17,12 +20,19 @@ public class FileUtils {
     private static Context appContext = AirDeskApp.s_applicationContext;
 
     public static FileInputStream readFile(String path) throws IOException {
-        FileInputStream inputStream = new FileInputStream(path);
-        return inputStream;
+        if (new File(path).exists()) {
+            FileInputStream inputStream = new FileInputStream(path);
+            return inputStream;
+        }
+        return null;
     }
 
     public static void writeToFile(String path, String content) throws IOException {
 
+        File file = new File(path);
+        if (!file.exists()) {
+            file.createNewFile();
+        }
         OutputStream outputStream = new FileOutputStream(path);
         outputStream.write(content.getBytes());
         outputStream.flush();
@@ -167,5 +177,31 @@ public class FileUtils {
         userId = userId.replace("@", "__");
         userId = userId.replace(".", "__");
         return userId;
+    }
+
+    /**
+     * @param inputStream
+     * @return String content of the input stream return null if the file is not available to detect
+     * missing files.
+     */
+    public static StringBuffer getStringBuffer(InputStream inputStream) {
+        if (inputStream == null) {
+            return null;
+        }
+        StringBuffer stringBuffer = new StringBuffer();
+        InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+        BufferedReader buffreader = new BufferedReader(inputStreamReader);
+
+        try {
+            String readString = buffreader.readLine();
+            while (readString != null) {
+                stringBuffer.append(readString);
+                readString = buffreader.readLine();
+            }
+            inputStreamReader.close();
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+        return stringBuffer;
     }
 }

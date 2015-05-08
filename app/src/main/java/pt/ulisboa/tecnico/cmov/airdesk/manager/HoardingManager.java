@@ -49,30 +49,30 @@ public class HoardingManager {
         Context appContext = AirDeskApp.s_applicationContext;
         File appContextDir = appContext.getDir(Constants.OWNED_WORKSPACE_DIR, appContext.MODE_PRIVATE);
 
-        return dirSize(appContextDir);
+        return dirSize(appContextDir)/Constants.BYTES_PER_MB;
 
     }
 
     private double dirSize(File dir) {
 
-        if (dir.exists()) {
-            long result = 0;
-            File[] fileList = dir.listFiles();
-            for (int i = 0; i < fileList.length; i++) {
-                // Recursive call if it's a directory
-                if (fileList[i].isDirectory()) {
-                    result += dirSize(fileList[i]);
-                } else {
-                    // Sum the file size in bytes
-                    result += fileList[i].length();
-                }
-            }
-            return result / Constants.BYTES_PER_MB; // return the file size
+        if (!dir.exists()) {
+            return 0;
         }
-        return 0;
+        long result = 0;
+        File[] fileList = dir.listFiles();
+        for (int i = 0; i < fileList.length; i++) {
+            // Recursive call if it's a directory
+            if (fileList[i].isDirectory()) {
+                result += dirSize(fileList[i]);
+            } else {
+                // Sum the file size in bytes
+                result += fileList[i].length();
+            }
+        }
+        return result; // return the file size
     }
 
-    public ArrayList<String> claimSpace() {
+    public void claimSpace() {
 
         double usage = getCurrentUsage();
         double free = new WorkspaceManager().getMaximumDeviceSpace();
@@ -82,27 +82,27 @@ public class HoardingManager {
 
 
         double amountToBeFreed = (usage - free) / 2;
-        double totalSizeOfDeletingFiles = 0;
+        double totalSizeOfDeletingFiles = 0.0;
         ArrayList<String> pathListToBeDeleted = new ArrayList<>();
 
         if (amountToBeFreed > 0) {
             TreeMap<Long, String> sortedMap = sortByAccessTime(new StorageManager().getAccessMap());
             for (Map.Entry<Long, String> entry : sortedMap.entrySet()) {
                 String filePath = entry.getValue();
-                totalSizeOfDeletingFiles += new File(filePath).length() / Constants.BYTES_PER_MB;
+                totalSizeOfDeletingFiles += Float.valueOf(new File(filePath).length() )/ Constants.BYTES_PER_MB;
                 pathListToBeDeleted.add(filePath);
                 if (totalSizeOfDeletingFiles > amountToBeFreed) {
-                    return pathListToBeDeleted;
+                    deleteFiles(pathListToBeDeleted);
+                    System.out.println("Found " + pathListToBeDeleted.size() + "No of files to delete");
+                    System.out.println("Files deleted =====>");
+                    for (String s : pathListToBeDeleted) {
+                        System.out.println(s);
+                    }
                 }
             }
         }
-        System.out.println("Found " + pathListToBeDeleted.size() + "No of files to delete");
-        System.out.println("Files going to be deleted =====>");
-        for (String s : pathListToBeDeleted) {
-            System.out.println(s);
-        }
 
-        return pathListToBeDeleted;
+
     }
 
     private TreeMap<Long, String> sortByAccessTime(HashMap<String, Long> map) {
@@ -131,14 +131,20 @@ public class HoardingManager {
     }
 
     public void performHoarding() {
-        if (isCleaningNeeded()){
+        if (isCleaningNeeded()) {
             scheduler.schedule
                     (new Runnable() {
                         public void run() {
                             System.out.println("=====CLaming spacee ========== !!!!!!!!!");
                             claimSpace();
                         }
-                    }, 10,TimeUnit.MICROSECONDS);
+                    }, 10, TimeUnit.MICROSECONDS);
+        }
+    }
+
+    public void deleteFiles(ArrayList<String> toBeDeletedList){
+        for (String filePath : toBeDeletedList) {
+            new File(filePath).delete();
         }
     }
 

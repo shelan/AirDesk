@@ -22,10 +22,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.concurrent.ExecutionException;
 
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
@@ -77,7 +74,7 @@ public class TextFileEditActivity extends ActionBarActivity {
         if (id == R.id.action_settings) {
             return true;
         } else if (id == R.id.action_edit_file) {
-            imm.toggleSoftInput (InputMethodManager.SHOW_FORCED, 0);
+            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
 
             saveMenuItem.setVisible(true);
             item.setVisible(false);
@@ -92,48 +89,48 @@ public class TextFileEditActivity extends ActionBarActivity {
 
         } else if (id == R.id.delete_file) {
 
-                AlertDialog myQuittingDialogBox = new AlertDialog.Builder(this)
-                        //set message, title, and icon
-                        .setTitle("Delete")
-                        .setMessage("Do you want to delete this File ?")
-                        .setIcon(R.drawable.delete)
+            AlertDialog myQuittingDialogBox = new AlertDialog.Builder(this)
+                    //set message, title, and icon
+                    .setTitle("Delete")
+                    .setMessage("Do you want to delete this File ?")
+                    .setIcon(R.drawable.delete)
 
-                        .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                    .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
 
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                try {
-                                    new WorkspaceManager().deleteDataFile(file.getWorkspace(), file.getFileName(),
-                                            file.getOwner(), true);
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                                dialog.dismiss();
-                                finish();
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            try {
+                                new WorkspaceManager().deleteDataFile(file.getWorkspace(), file.getFileName(),
+                                        file.getOwner(), true);
+                            } catch (IOException e) {
+                                e.printStackTrace();
                             }
+                            dialog.dismiss();
+                            finish();
+                        }
 
-                        })
+                    })
 
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
 
-                                dialog.dismiss();
+                            dialog.dismiss();
 
-                            }
-                        })
-                        .create();
-                    myQuittingDialogBox.show();
+                        }
+                    })
+                    .create();
+            myQuittingDialogBox.show();
 
         } else if (id == R.id.action_save_file) {
             try {
                 saveFileText(file);
                 displayText.setText(editText.getText().toString());
-              //  setText(file);
+                //  setText(file);
                 saveMenuItem.setVisible(false);
                 editMenuItem.setVisible(true);
                 editText.setVisibility(View.INVISIBLE);
                 displayText.setVisibility(View.VISIBLE);
                 //editText.setInputType(InputType.TYPE_NULL);
-                imm.toggleSoftInput (InputMethodManager.SHOW_FORCED, 0);
+                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
 
             } catch (ExecutionException e) {
                 e.printStackTrace();
@@ -166,8 +163,8 @@ public class TextFileEditActivity extends ActionBarActivity {
             displayText = (TextView) rootView.findViewById(R.id.file_text);
 
             displayText.setVisibility(View.VISIBLE);
-           //  editText.setInputType(InputType.TYPE_NULL);
-           // editText.setHorizontallyScrolling(false);
+            //  editText.setInputType(InputType.TYPE_NULL);
+            // editText.setHorizontallyScrolling(false);
 
             Intent intent = getActivity().getIntent();
             file = new TextFile();
@@ -201,22 +198,23 @@ public class TextFileEditActivity extends ActionBarActivity {
     }
 
 
-    public static class FileStreamAsyncTask extends AsyncTask<TextFile, Void, FileInputStream> {
+    public static class FileStreamAsyncTask extends AsyncTask<TextFile, Void, StringBuffer> {
 
         private final String LOG_TAG = FileStreamAsyncTask.class.getSimpleName();
 
         WorkspaceManager manager = new WorkspaceManager();
 
         @Override
-        protected FileInputStream doInBackground(TextFile... params) {
+        protected StringBuffer doInBackground(TextFile... params) {
             TextFile[] textFileList = params;
+            StringBuffer textBuffer = new StringBuffer();
 
             if (textFileList != null && textFileList.length == 1) {
                 TextFile textFile = textFileList[0];
 
                 //TODO:Change this accordingly to pass isOwner parameter using and intent
                 try {
-                    return manager.getDataFile(textFile.getWorkspace(), textFile.getFileName(), false,
+                    textBuffer = manager.getDataFile(textFile.getWorkspace(), textFile.getFileName(), false,
                             textFile.getOwner()
                             , true);
                 } catch (IOException e) {
@@ -224,27 +222,13 @@ public class TextFileEditActivity extends ActionBarActivity {
                 } catch (WriteLockedException e) {
                     e.printStackTrace();
                 }
+
             }
-            return null;
+            return textBuffer;
         }
 
         @Override
-        protected void onPostExecute(FileInputStream fileInputStream) {
-
-            StringBuffer textBuffer = new StringBuffer();
-            InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
-            BufferedReader buffreader = new BufferedReader(inputStreamReader);
-
-            try {
-                String readString = buffreader.readLine();
-                while (readString != null) {
-                    textBuffer.append(readString);
-                    readString = buffreader.readLine();
-                }
-                inputStreamReader.close();
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
-            }
+        protected void onPostExecute(StringBuffer textBuffer) {
             editText.setText(textBuffer);
             displayText.setText(textBuffer);
         }

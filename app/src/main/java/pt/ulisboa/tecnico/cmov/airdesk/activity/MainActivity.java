@@ -13,6 +13,7 @@ import pt.ulisboa.tecnico.cmov.airdesk.fragment.ForiegnWorkspaceListFragment;
 import pt.ulisboa.tecnico.cmov.airdesk.fragment.MyWorkspaceListFragment;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.HoardingManager;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.UserManager;
+import pt.ulisboa.tecnico.cmov.airdesk.storage.StorageManager;
 
 public class MainActivity extends ActionBarActivity {
 
@@ -32,44 +33,45 @@ public class MainActivity extends ActionBarActivity {
             Intent intent = new Intent(this, CreateUserActivity.class);
             startActivity(intent);
         }
-            if (savedInstanceState == null) {
+        if (savedInstanceState == null) {
 
-                myWorkspacesFragment = new MyWorkspaceListFragment();
-                foreignWorkspacesFragment = new ForiegnWorkspaceListFragment();
+            myWorkspacesFragment = new MyWorkspaceListFragment();
+            foreignWorkspacesFragment = new ForiegnWorkspaceListFragment();
 
-                getSupportFragmentManager().beginTransaction()
-                        .add(R.id.container, myWorkspacesFragment, "fragment_1")
-                        .add(R.id.container, foreignWorkspacesFragment, "fragment_2")
-                        .commit();
-
-            }
-
-            getSupportActionBar().setElevation(0f);
-
-           new HoardingManager().scheduleCleaningTask();
-
-
-            //TODO move these tests and write proper tests in android test package
-
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.container, myWorkspacesFragment, "fragment_1")
+                    .add(R.id.container, foreignWorkspacesFragment, "fragment_2")
+                    .commit();
 
         }
+        StorageManager.restoreAccessMap();
 
-        @Override
-        public boolean onCreateOptionsMenu (Menu menu){
-            // Inflate the menu; this adds items to the action bar if it is present.
-            getMenuInflater().inflate(R.menu.menu_main, menu);
-            return true;
-        }
+        getSupportActionBar().setElevation(0f);
+
+        new HoardingManager().scheduleCleaningTask();
 
 
-        @Override
-        public boolean onOptionsItemSelected (MenuItem item){
-            // Handle action bar item clicks here. The action bar will
-            // automatically handle clicks on the Home/Up button, so long
-            // as you specify a parent activity in AndroidManifest.xml.
-            int id = item.getItemId();
+        //TODO move these tests and write proper tests in android test package
 
-            //noinspection SimplifiableIfStatement
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
             /*if (id == R.id.action_settings) {
                 return true;
             } else if (id == R.id.action_populate) {
@@ -81,15 +83,16 @@ public class MainActivity extends ActionBarActivity {
                 }
             }*/
 
-            return super.onOptionsItemSelected(item);
-        }
-
-
-        @Override
-        protected void onDestroy () {
-            super.onDestroy();
-            SharedPreferences.Editor editor = getPreferences(Context.MODE_PRIVATE).edit();
-        }
-
-
+        return super.onOptionsItemSelected(item);
     }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        SharedPreferences.Editor editor = getPreferences(Context.MODE_PRIVATE).edit();
+        StorageManager.persistAccessMap();
+    }
+
+
+}

@@ -26,4 +26,10 @@
         app:showAsAction="always"
         android:title="Delete Workspace" />
 
+    <item
+        android:id="@+id/dummy_files"
+        android:icon="@drawable/delete"
+        app:showAsAction="never"
+        android:title="Dummy Files" />
+
 </menu>

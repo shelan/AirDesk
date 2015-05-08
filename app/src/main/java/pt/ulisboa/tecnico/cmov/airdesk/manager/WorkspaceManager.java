@@ -4,7 +4,6 @@ import android.os.Environment;
 import android.os.StatFs;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -223,7 +222,8 @@ public class WorkspaceManager {
         StatFs stat = new StatFs(path.getPath());
         int availBlocks = stat.getFreeBlocks();
         int blockSize = stat.getBlockSize();
-        return (((long) availBlocks * (long) blockSize) / (double) Constants.BYTES_PER_MB);//available free memory on internal storage
+        //return (((long) availBlocks * (long) blockSize) / (double) Constants.BYTES_PER_MB);//available free memory on internal storage
+        return 5;
     }
 
     /*make this public if don't do a prevalidation on textbox*/
@@ -363,14 +363,28 @@ public class WorkspaceManager {
         createDataFile(workspace, fileName, userManager.getOwner().getUserId(), true);
     }
 
-    public FileInputStream getDataFile(String workspace, String fileName, boolean writeMode, String ownerId, boolean isOwned) throws IOException, WriteLockedException {
-        return storageManager.getDataFile(workspace, fileName, writeMode, ownerId, isOwned);
+    public StringBuffer getDataFile(String workspace, String fileName, boolean writeMode, String ownerId, boolean isOwned) throws IOException, WriteLockedException {
+        StringBuffer dataFileContent = storageManager.
+                getDataFileContent(workspace, fileName, writeMode, ownerId, isOwned);
+        if (dataFileContent == null) {
+            try {
+                dataFileContent = AWSTasks.getInstance().getFile(FileUtils.getFileNameForUserId(ownerId), workspace, fileName);
+                //do a restoration
+                updateDataFile(workspace, fileName, dataFileContent.toString(), ownerId, isOwned);
+                dataFileContent = storageManager.
+                        getDataFileContent(workspace, fileName, writeMode, ownerId, isOwned);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return dataFileContent;
     }
 
     public void updateDataFile(String workspace, String fileName, String content, String ownerId, boolean isOwned) throws IOException {
         storageManager.updateDataFile(workspace, fileName, content, ownerId, isOwned);
 
-       try {
+        try {
             AWSTasks.getInstance().
                     createFile(FileUtils.getFileNameForUserId(ownerId), workspace, fileName, content);
         } catch (ExecutionException e) {

@@ -1,12 +1,18 @@
 package pt.ulisboa.tecnico.cmov.airdesk.storage;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
 import pt.ulisboa.tecnico.cmov.airdesk.Exception.WriteLockedException;
@@ -17,8 +23,9 @@ import pt.ulisboa.tecnico.cmov.airdesk.context.AirDeskApp;
 public class StorageManager {
 
     private static HashMap<String, Boolean> fileWriteLock = new HashMap<String, Boolean>();
-    private HashMap<String, Long> accessMap = new HashMap<>();
+    private static HashMap<String, Long> accessMap = new HashMap<>();
     Context appContext;
+    private static boolean isRestored = false;
 
     public static final String OWNED_WORKSPACE_DIR = Constants.OWNED_WORKSPACE_DIR;
     public static final String FOREIGN_WORKSPACE_DIR = Constants.FOREIGN_WORKSPACE_DIR;
@@ -72,7 +79,7 @@ public class StorageManager {
 
     }
 
-    public synchronized FileInputStream getDataFile(String workspaceName, String fileName, boolean writeMode, String ownerId, boolean isOwned) throws WriteLockedException, IOException {
+    public synchronized StringBuffer getDataFileContent(String workspaceName, String fileName, boolean writeMode, String ownerId, boolean isOwned) throws WriteLockedException, IOException {
         File baseDir;
         String pathToFile;
         ownerId = FileUtils.getFileNameForUserId(ownerId);
@@ -92,11 +99,11 @@ public class StorageManager {
             else {
                 addWriteLock(workspaceName, fileName);
                 addAccessTimeStamp(pathToFile);
-                return FileUtils.readFile(pathToFile);
+                return FileUtils.getStringBuffer(FileUtils.readFile(pathToFile));
             }
         }
         addAccessTimeStamp(pathToFile);
-        return FileUtils.readFile(pathToFile);
+        return FileUtils.getStringBuffer(FileUtils.readFile(pathToFile));
     }
 
     public void updateDataFile(String workspaceName, String fileName, String content, String ownerId, boolean isOwned) throws IOException {
@@ -133,6 +140,7 @@ public class StorageManager {
         System.out.println("file to del: " + pathToFile);
 
         removeAccessTimeStamp(pathToFile);
+        persistAccessMap();
         return new File(pathToFile).delete();
     }
 
@@ -158,14 +166,52 @@ public class StorageManager {
 
     private void addAccessTimeStamp(String filePath) {
         accessMap.put(filePath, new Date().getTime());
+        persistAccessMap();
     }
 
     private void removeAccessTimeStamp(String filePath) {
         accessMap.remove(filePath);
     }
 
-    public HashMap<String, Long> getAccessMap(){
+    public HashMap<String, Long> getAccessMap() {
         return accessMap;
+    }
+
+    public static void persistAccessMap() {
+        try {
+            SharedPreferences mPrefs = AirDeskApp.s_applicationContext.getSharedPreferences(
+                    AirDeskApp.s_applicationContext.getApplicationInfo().name, Context.MODE_PRIVATE);
+            SharedPreferences.Editor ed = mPrefs.edit();
+            Gson gson = new Gson();
+            ed.putString("accessMap", gson.toJson(accessMap));
+            ed.commit();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public static void restoreAccessMap() {
+        if (isRestored) {
+            return;
+        }
+        try {
+            Gson gson = new Gson();
+            JsonParser parser = new JsonParser();
+            SharedPreferences mPrefs = AirDeskApp.s_applicationContext.getSharedPreferences(
+                    AirDeskApp.s_applicationContext.getApplicationInfo().name, Context.MODE_PRIVATE);
+
+            Set<Map.Entry<String, JsonElement>> entrySet = parser.
+                    parse(mPrefs.getString("accessMap", null)).getAsJsonObject().entrySet();
+
+            for (Map.Entry<String, JsonElement> entry : entrySet) {
+                accessMap.put(entry.getKey(),entry.getValue().getAsLong());
+            }
+
+            isRestored = true;
+        } catch (Exception ex) {
+            //
+        }
+
     }
 
 }

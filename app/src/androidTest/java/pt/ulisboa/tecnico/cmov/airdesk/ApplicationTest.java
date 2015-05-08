@@ -9,13 +9,13 @@ import junit.framework.Assert;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import pt.ulisboa.tecnico.cmov.airdesk.context.AirDeskApp;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.OwnedWorkspace;
-import pt.ulisboa.tecnico.cmov.airdesk.entity.User;
 import pt.ulisboa.tecnico.cmov.airdesk.enums.WorkspaceCreateStatus;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.MetadataManager;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.UserManager;
@@ -175,7 +175,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         workspaceManager.createDataFile(workspaceName, fileName, ownerId, true);
         Assert.assertEquals(true, new File(pathToFile).exists());
 
-        FileInputStream fis = workspaceManager.getDataFile(workspaceName, fileName, false, ownerId, true);
+        InputStream fis = workspaceManager.getDataFile(workspaceName, fileName, false, ownerId, true);
         Assert.assertEquals(-1, fis.read());
 
         workspaceManager.updateDataFile(workspaceName, fileName, "my file content", ownerId, true);

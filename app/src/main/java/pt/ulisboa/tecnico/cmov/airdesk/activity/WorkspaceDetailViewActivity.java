@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
 import pt.ulisboa.tecnico.cmov.airdesk.R;
@@ -133,6 +134,15 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
             intent.putExtra(Constants.WORKSPACE_NAME, workspace.getWorkspaceName())
                     .putExtra(Constants.IS_OWNED_WORKSPACE, isOwnedWorkspace);
             startActivity(intent);
+        }
+
+        if (id == R.id.dummy_files) {
+            try {
+                createDummyFiles();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
         }
 
         return super.onOptionsItemSelected(item);
@@ -282,7 +292,24 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
 
             adapter.notifyDataSetChanged();
         }
+
     }
 
+    public void createDummyFiles() throws Exception {
+        WorkspaceManager manager = new WorkspaceManager();
+        for (int i = 0; i < 4; i++) {
+            String fileName = "file" + new Random().nextInt(100);
+            manager.createDataFile(workspace.getWorkspaceName(), fileName,
+                    workspace.getOwnerId(), true);
+            StringBuilder builder = new StringBuilder();
+            char[] data = new char[1000000];
+            for (int j = 0; j < 1000000; j++) {
+                builder.append("a");
+            }
+            manager.updateDataFile(workspace.getWorkspaceName(), fileName,
+                    builder.toString(), workspace.getOwnerId(), true);
+        }
+
+    }
 
 }

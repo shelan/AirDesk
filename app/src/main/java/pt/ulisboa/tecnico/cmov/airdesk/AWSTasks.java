@@ -7,6 +7,7 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 import java.io.ByteArrayInputStream;
@@ -56,6 +57,12 @@ public class AWSTasks {
     public boolean deleteFile(String parent, String folderName, String fileName) throws ExecutionException, InterruptedException {
         return new FileDeleteTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
                 parent, folderName, fileName).get();
+    }
+
+    public StringBuffer getFile(String parent, String folderName, String fileName) throws ExecutionException, InterruptedException {
+        AsyncTask getTask = new FileDownload().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
+                parent, folderName, fileName);
+        return (StringBuffer) getTask.get();
     }
 
 
@@ -180,6 +187,27 @@ public class AWSTasks {
             return true;
         }
     }
+
+    private static class FileDownload extends AsyncTask<String, Boolean, StringBuffer> {
+
+        @Override
+        protected StringBuffer doInBackground(String... params) {
+            // Create metadata for your folder & set content-length to 0
+
+            String parentFolder = params[0];
+            String workspaceName = params[1];
+            String fileName = params[2];
+
+            S3Object s3Object = AWSUtils.getS3Client(AirDeskApp.s_applicationContext).getObject(Constants.BUCKET_NAME,
+                    parentFolder + Constants.FOLDER_SEP + workspaceName + Constants.FOLDER_SEP +
+                            fileName);
+
+            //transferManager.upload(putObjectRequest);
+            return FileUtils.getStringBuffer(s3Object.getObjectContent());
+        }
+    }
+
+
 
 
 }
