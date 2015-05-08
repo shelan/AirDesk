@@ -2,6 +2,7 @@ package pt.ulisboa.tecnico.cmov.airdesk.activity;
 
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -40,6 +41,7 @@ public class TextFileEditActivity extends ActionBarActivity {
     static Button saveButton;
     static MenuItem saveMenuItem;
     private MenuItem editMenuItem;
+    static ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -185,6 +187,9 @@ public class TextFileEditActivity extends ActionBarActivity {
             getActivity().setTitle(file.getWorkspace() + "/" + file.getFileName());
 
             try {
+               progressDialog= ProgressDialog
+                       .show(getActivity(), "Loading", "Loading file...");
+
                 setText(file);
             } catch (ExecutionException e) {
                 Log.d(LOG_TAG, "Error while executing file get Async task");
@@ -231,6 +236,7 @@ public class TextFileEditActivity extends ActionBarActivity {
         protected void onPostExecute(StringBuffer textBuffer) {
             editText.setText(textBuffer);
             displayText.setText(textBuffer);
+            progressDialog.dismiss();
         }
     }
 
