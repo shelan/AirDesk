@@ -196,7 +196,8 @@ public class MainActivity extends ActionBarActivity {
                 memberList.add(device);
                 members = members.concat(device.deviceName + " ");
                 CommunicationTask.OutgoingCommTask outgoingCommTask = new CommunicationTask(foreignWorkspacesFragment).getOutgoingCommTask();
-                outgoingCommTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, device.getVirtIp());
+                outgoingCommTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, device.getVirtIp(),
+                        new UserManager().getOwner().getUserId(),devices.getByName(groupInfo.getDeviceName()).getVirtIp() );
             }
             TextView onlineUsers = (TextView) findViewById(R.id.usersOnline);
             onlineUsers.setText(members);

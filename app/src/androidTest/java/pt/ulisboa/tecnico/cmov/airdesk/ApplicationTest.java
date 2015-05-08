@@ -208,7 +208,7 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
     }
 
     private void testAddUserToWorkspace() throws Exception {
-        workspaceManager.addClientToWorkspace(workspaceName, ownerId);
+        workspaceManager.addClientToWorkspace(workspaceName, ownerId, true);
 
         //since we directly add this to foreign workspace for 1st iteration
         List<String> foreignWS = userManager.getForeignWorkspaces();

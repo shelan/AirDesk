@@ -31,10 +31,14 @@ public class Constants {
     public static final String FOLDER_SEP = "/" ;
 
     //broadcast actions for wifi direct
+    public static final String INTRODUCE_MSG = "introduce";
     public static final String SUBSCRIBE_TAGS_MSG = "subscribed";
+    public static final String PUBLISH_TAGS_MSG = "publish_tags";
+    public static final String ADD_TO_FOREIGN_WORKSPACE_MSG = "add_to_foreign_ws";
+    public static final String REVOKE_ACCESS_MSG = "revoke_access_of_client";
+    public static final String WORKSPACES = "workspaces";
+    public static final String SENDER_ID = "senderID";
     public static final String TAGS = "tags";
-    public static final String PUBLIC_WORKSPACES_FOR_TAGS_MSG = "public_ws_for_tags";
-    public static final String MATCHING_WORKSPACES_FOR_TAGS = "matching_ws_for_tags";
     //workspace fields in cast json msg
     public static final String MATCHING_TAGS = "matchingTags";
     public static final String FILE_NAMES = "fileNames";

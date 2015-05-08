@@ -135,7 +135,7 @@ public class EditAccessListActivity extends ActionBarActivity {
                 public void onClick(DialogInterface dialog, int id) {
                     try {
                         new WorkspaceManager().addClientToWorkspace(workspace.getWorkspaceName(),
-                                String.valueOf(input.getText()).trim());
+                                String.valueOf(input.getText()).trim(), true);
                         fillData();
                     } catch (Exception e) {
                         e.printStackTrace();

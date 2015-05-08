@@ -22,19 +22,27 @@ public class AirDeskReceiver {
 
     public void handleMessage(AirDeskMessage msg) {
         switch (msg.getType()) {
+
+            case Constants.INTRODUCE_MSG:
+                String senderIP = msg.getSenderIp();
+                String ownerIdOfSender  = (String) msg.getInputs().get(Constants.SENDER_ID);
+                airDeskService.addIdIpMapping(ownerIdOfSender, senderIP);
+                break;
+
             case Constants.SUBSCRIBE_TAGS_MSG:
                 System.out.printf("tag subscription wifi direct walin awooo................");
-                ArrayList<String> tags = (ArrayList<String>) msg.getInputs().get(Constants.TAGS);
+                ArrayList<String> subscribedTags = (ArrayList<String>) msg.getInputs().get(Constants.TAGS);
                 HashMap<OwnedWorkspace, String[]> matchingWorkspacesMap = workspaceManager.
-                        getPublicWorkspacesForTags(tags.toArray(new String[tags.size()]));
+                        getPublicWorkspacesForTags(subscribedTags.toArray(new String[subscribedTags.size()]));
                 ///////TODO : send correct details
                 airDeskService.sendPublicWorkspacesForTags(matchingWorkspacesMap, msg.getSenderIp());
                 break;
-            case Constants.PUBLIC_WORKSPACES_FOR_TAGS_MSG:
+
+            case Constants.ADD_TO_FOREIGN_WORKSPACE_MSG:
                 System.out.println(".............. reply awooooooo............");
                 System.out.println("..........................................");
                 //gson makes ForeignWorkspace to a LinkedTreeMap
-                ArrayList<LinkedTreeMap> matchingWorkspaces = (ArrayList) msg.getInputs().get(Constants.MATCHING_WORKSPACES_FOR_TAGS);
+                ArrayList<LinkedTreeMap> matchingWorkspaces = (ArrayList) msg.getInputs().get(Constants.WORKSPACES);
                 System.out.println(".......matching workspaces size ........" + matchingWorkspaces.size());
                 System.out.println("..........................................");
                 System.out.println("..........................................");
@@ -42,16 +50,40 @@ public class AirDeskReceiver {
                     try {
                         ArrayList<String> files = (ArrayList<String>) workspace.get(Constants.FILE_NAMES);
                         ArrayList<String> matchingTags = (ArrayList<String>) workspace.get(Constants.MATCHING_TAGS);
-                        workspaceManager.addToForeignWorkspace((String)workspace.get(Constants.WORKSPACE_NAME),
-                                (String)workspace.get(Constants.OWNER_ID), (Double)workspace.get(Constants.QUOTA),
-                                files.toArray(new String[files.size()]),
-                                matchingTags.toArray(new String[matchingTags.size()]));
+                        if(matchingTags == null) {
+                            workspaceManager.addToForeignWorkspace((String)workspace.get(Constants.WORKSPACE_NAME),
+                                    (String)workspace.get(Constants.OWNER_ID), (Double)workspace.get(Constants.QUOTA),
+                                    files.toArray(new String[files.size()]), new String[0]);
+                        } else {
+                            workspaceManager.addToForeignWorkspace((String)workspace.get(Constants.WORKSPACE_NAME),
+                                    (String)workspace.get(Constants.OWNER_ID), (Double)workspace.get(Constants.QUOTA),
+                                    files.toArray(new String[files.size()]),
+                                    matchingTags.toArray(new String[matchingTags.size()]));
+                        }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
                 foreignWorkspaceFragment.updateWorkspaceList();
                 break;
+
+            case Constants.PUBLISH_TAGS_MSG:
+                System.out.println("=============== publish tag msg received =========");
+                ArrayList<String> publishedTags = (ArrayList<String>) msg.getInputs().get(Constants.TAGS);
+                //receivePublishedTags will return subscribed tags only if there are matching tags with published tags
+                String[] tags = workspaceManager.receivePublishedTags(publishedTags.toArray(new String[publishedTags.size()]));
+                System.out.println("subscribed tag size if there are any matching tags "+ tags.length);
+                if(tags.length > 0)
+                    AirDeskService.getInstance().broadcastTagSubscription(tags);
+                break;
+
+            case Constants.REVOKE_ACCESS_MSG:
+                String workspaceName = (String) msg.getInputs().get(Constants.WORKSPACE_NAME);
+                String workspaceOwnerId = (String) msg.getInputs().get(Constants.OWNER_ID);
+                workspaceManager.removeFromForeignWorkspace(workspaceName, workspaceOwnerId);
+                foreignWorkspaceFragment.updateWorkspaceList();
+                break;
+
             default:
                 System.out.println("........ default case .......");
         }

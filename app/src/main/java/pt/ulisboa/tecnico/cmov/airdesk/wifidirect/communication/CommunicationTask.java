@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.net.UnknownHostException;
 
 import pt.ulisboa.tecnico.cmov.airdesk.AirDeskReceiver;
+import pt.ulisboa.tecnico.cmov.airdesk.Constants;
 import pt.ulisboa.tecnico.cmov.airdesk.fragment.ForeignWorkspaceListFragment;
 import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.termite.SimWifiP2pManager;
 import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.termite.sockets.SimWifiP2pSocket;
@@ -63,26 +64,26 @@ public class CommunicationTask {
             int port = 10001;
             try {
                 mSrvSocket = new SimWifiP2pSocketServer(port);
+                while (!Thread.currentThread().isInterrupted()) {
+                    try {
+                        SimWifiP2pSocket sock = mSrvSocket.accept();
+                        if (mCliSocket != null && mCliSocket.isClosed()) {
+                            mCliSocket = null;
+                        }
+                        if (mCliSocket != null) {
+                            Log.d(TAG, "Closing accepted socket because mCliSocket still active.");
+                            sock.close();
+                        } else {
+                            publishProgress(sock);
+                        }
+                    } catch (IOException e) {
+                        Log.d("Error accepting socket:", e.getMessage());
+                        break;
+                        //e.printStackTrace();
+                    }
+                }
             } catch (IOException e) {
                 e.printStackTrace();
-            }
-            while (!Thread.currentThread().isInterrupted()) {
-                try {
-                    SimWifiP2pSocket sock = mSrvSocket.accept();
-                    if (mCliSocket != null && mCliSocket.isClosed()) {
-                        mCliSocket = null;
-                    }
-                    if (mCliSocket != null) {
-                        Log.d(TAG, "Closing accepted socket because mCliSocket still active.");
-                        sock.close();
-                    } else {
-                        publishProgress(sock);
-                    }
-                } catch (IOException e) {
-                    Log.d("Error accepting socket:", e.getMessage());
-                    break;
-                    //e.printStackTrace();
-                }
             }
             return null;
         }
@@ -95,9 +96,6 @@ public class CommunicationTask {
             receiveCommTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, mCliSocket);
         }
     }
-
-    /////TODO: temp variable
-    private static int i;
 
     public class OutgoingCommTask extends AsyncTask<String, Void, String> {
 
@@ -113,10 +111,11 @@ public class CommunicationTask {
             int port = 10001;
             try {
                 System.out.println("=========> ging to write msg");
+                //params are <sender virtualIP> , <my user ID>, <my virtualIP>
                 mCliSocket = new SimWifiP2pSocket(params[0],port);
 
 
-                String msg =  gson.toJson(new AirDeskMessage("test", "testIP")); //"Hello message" + (i++);
+                String msg =  gson.toJson(createIntroduceMsg(params[1] , params[2]));
                 System.out.println("========socket created. Msg : " + msg);
                 /////////TODO...... check whether other end receives this
                 mCliSocket.getOutputStream().write(msg.getBytes());
@@ -141,6 +140,12 @@ public class CommunicationTask {
                 receiveCommTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, mCliSocket);
             }
         }
+
+        private AirDeskMessage createIntroduceMsg(String ownerId, String myIP) {
+            AirDeskMessage msg = new AirDeskMessage(Constants.INTRODUCE_MSG, myIP);
+            msg.addInput(Constants.SENDER_ID, ownerId);
+            return msg;
+        }
     }
 
     public class ReceiveCommTask extends AsyncTask<SimWifiP2pSocket, String, Void> {
@@ -162,16 +167,6 @@ public class CommunicationTask {
                 airDeskReceiver.handleMessage(msg);
                 System.out.println("sent msg to handle.....");
                 publishProgress(msgJson);
-
-
-                /*while ((st = sockIn.readLine()) != null) {
-                    System.out.println("###############################");
-                    System.out.println("###############################");
-                    System.out.println("recieved msg: " + st);
-                    System.out.println("###############################");
-                    System.out.println("###############################");
-                    publishProgress(st);
-                }*/
             } catch (IOException e) {
                 Log.d("Error reading socket:", e.getMessage());
             }

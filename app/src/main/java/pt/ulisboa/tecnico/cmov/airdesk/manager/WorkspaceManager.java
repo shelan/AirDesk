@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -109,10 +110,11 @@ public class WorkspaceManager {
 
     private void publishTags(String[] tags) {
         //TODO call through network
-        receivePublishedTags(userManager.getOwner().getUserId(), tags);
+        ///receivePublishedTags(tags);
+        AirDeskService.getInstance().publishTags(tags);
     }
 
-    public void receivePublishedTags(String ownerId, String[] tags) {
+    public String[] receivePublishedTags(String[] tags) {
         //match to subscribed tags n request Workspace
         boolean hasMatchingTags = false;
         HashSet<String> subscribedTags = userManager.getOwner().getSubscribedTags();
@@ -125,9 +127,11 @@ public class WorkspaceManager {
         if (hasMatchingTags) {
             //TODO call through network
             //TODO.....################ do a direct call without bcast
-            AirDeskService.getInstance().broadcastTagSubscription(subscribedTags.toArray(new String[subscribedTags.size()]));
+            //AirDeskService.getInstance().broadcastTagSubscription(subscribedTags.toArray(new String[subscribedTags.size()]));
+            return subscribedTags.toArray(new String[subscribedTags.size()]);
             /////getPublicWorkspacesForTags(subscribedTags.toArray(new String[subscribedTags.size()]));
         }
+        return new String[0];
     }
 
     public HashMap<OwnedWorkspace, String[]> getPublicWorkspacesForTags(String[] subscribedTags) {
@@ -158,7 +162,7 @@ public class WorkspaceManager {
                                 workspace.getFileNames().toArray(new String[workspace.getFileNames().size()]),
                                 matchingTags.toArray(new String[matchingTags.size()]));*/
 
-                        addClientToWorkspace(workspaceName, userManager.getOwner().getUserId());
+                        addClientToWorkspace(workspaceName, userManager.getOwner().getUserId(), false);
                     } catch (Exception e) {
                         System.out.println("Could not add the workspace " + workspaceName + " to foreign workspace");
                     }
@@ -262,7 +266,15 @@ public class WorkspaceManager {
         return false;
     }
 
-    public void addClientToWorkspace(String workspace, String userId) throws Exception {
+    /**
+     *
+     * @param workspace
+     * @param userId
+     * @param addedByOwner true if owner add a client to his private workspace.
+     *                     false if workspace is added due to a matching tag
+     * @throws Exception
+     */
+    public void addClientToWorkspace(String workspace, String userId, boolean addedByOwner) throws Exception {
         //Both from the subscription and adding email by owner
         //To simulate mount, add to foreign ws of same user.
         // TODO:Later change this to use wifidirect
@@ -274,26 +286,32 @@ public class WorkspaceManager {
         //TODO: received clients should add that workspace to their foreign space, and to their foreign workspace list
 
         //temp calling directly
-        if (userManager.getOwner().getUserId().equals(userId) && !userManager.getForeignWorkspaces()
+       /* if (userManager.getOwner().getUserId().equals(userId) && !userManager.getForeignWorkspaces()
                 .contains(userId.concat("/").concat(workspace))) {
             addToForeignWorkspace(workspace, ownedWorkspace.getOwnerId(), ownedWorkspace.getQuota(),
                     ownedWorkspace.getFileNames().toArray(new String[ownedWorkspace.getFileNames().size()]), null);
+        }*/
+        if(addedByOwner) {
+            AirDeskService.getInstance().sendWorkspaceToClient(ownedWorkspace, userId);
         }
+        //if added due to matching tags it is send to client when matching the public workspaces
 
     }
 
-    public void deleteUserFromAccessList(String workspaceName, String userId) {
+    public void deleteUserFromAccessList(String workspaceName, String clientId) {
 
         //remove him from clients for workspaceName
         OwnedWorkspace ownedWorkspace = getOwnedWorkspace(workspaceName);
-        ownedWorkspace.removeClient(userId);
-        ownedWorkspace.addClientToRemoveList(userId);//this list will be used by wifidirect to notify removed users
+        ownedWorkspace.removeClient(clientId);
+        ownedWorkspace.addClientToRemoveList(clientId);//this list will be used by wifidirect to notify removed users
         editOwnedWorkspace(workspaceName, ownedWorkspace, false);
 
         //because of the self mount we have to remove him from foreign ws
         //TODO: remove this after introducing wifidirect
         //delete foreignWS folder and files, delete foreignWS metadata
-        removeFromForeignWorkspace(workspaceName, userId);
+        /////removeFromForeignWorkspace(workspaceName, clientId);
+        AirDeskService.getInstance().revokeAccessFromClient(workspaceName,
+                userManager.getOwner().getUserId(), clientId);
 
     }
 
