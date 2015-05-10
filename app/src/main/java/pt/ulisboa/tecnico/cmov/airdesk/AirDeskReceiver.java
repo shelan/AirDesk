@@ -24,9 +24,9 @@ public class AirDeskReceiver {
         switch (msg.getType()) {
 
             case Constants.INTRODUCE_MSG:
-                String senderIP = msg.getSenderIp();
+                String senderID = msg.getSenderID();
                 String ownerIdOfSender  = (String) msg.getInputs().get(Constants.SENDER_ID);
-                airDeskService.addIdIpMapping(ownerIdOfSender, senderIP);
+                airDeskService.addIdIpMapping(ownerIdOfSender, senderID);
                 break;
 
             case Constants.SUBSCRIBE_TAGS_MSG:
@@ -35,7 +35,7 @@ public class AirDeskReceiver {
                 String clientId = (String) msg.getInputs().get(Constants.CLIENT_ID);
                 HashMap<OwnedWorkspace, String[]> matchingWorkspacesMap = workspaceManager.
                         getPublicWorkspacesForTags(subscribedTags.toArray(new String[subscribedTags.size()]), clientId);
-                airDeskService.sendPublicWorkspacesForTags(matchingWorkspacesMap, msg.getSenderIp());
+                airDeskService.sendPublicWorkspacesForTags(matchingWorkspacesMap, msg.getSenderID());
                 break;
 
             case Constants.ADD_TO_FOREIGN_WORKSPACE_MSG:

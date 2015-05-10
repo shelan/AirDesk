@@ -1,21 +1,24 @@
 package pt.ulisboa.tecnico.cmov.airdesk.activity;
 
-import android.content.ComponentName;
+import android.app.ListFragment;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.net.wifi.p2p.WifiP2pDevice;
+import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.net.wifi.p2p.WifiP2pInfo;
+import android.net.wifi.p2p.WifiP2pManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.os.Messenger;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import pt.ulisboa.tecnico.cmov.airdesk.AirDeskService;
 import pt.ulisboa.tecnico.cmov.airdesk.R;
@@ -24,15 +27,8 @@ import pt.ulisboa.tecnico.cmov.airdesk.fragment.MyWorkspaceListFragment;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.HoardingManager;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.UserManager;
 import pt.ulisboa.tecnico.cmov.airdesk.storage.StorageManager;
-import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.communication.CommunicationEventReceiver;
 import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.communication.CommunicationTask;
-import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.termite.SimWifiP2pBroadcast;
-import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.termite.SimWifiP2pDevice;
-import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.termite.SimWifiP2pDeviceList;
-import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.termite.SimWifiP2pInfo;
-import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.termite.SimWifiP2pManager;
-import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.termite.service.SimWifiP2pService;
-import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.termite.sockets.SimWifiP2pSocketManager;
+import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.communication.WiFiDirectBroadcastReceiver;
 
 public class MainActivity extends ActionBarActivity {
 
@@ -40,9 +36,12 @@ public class MainActivity extends ActionBarActivity {
     ForeignWorkspaceListFragment foreignWorkspacesFragment;
     static CommunicationManager communicationManager;
 
-    public MainActivity() {
+    //for wifi_direct
+    private BroadcastReceiver receiver = null;
+    private WifiP2pManager manager;
+    private WifiP2pManager.Channel channel;
+    IntentFilter intentFilter;
 
-    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,9 +49,9 @@ public class MainActivity extends ActionBarActivity {
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setIcon(R.drawable.ic_refresh);
 
-        UserManager manager = new UserManager();
+        UserManager userManager = new UserManager();
 
-        if (manager.getOwner() == null) {
+        if (userManager.getOwner() == null) {
             Intent intent = new Intent(this, CreateUserActivity.class);
             startActivity(intent);
         }
@@ -71,13 +70,12 @@ public class MainActivity extends ActionBarActivity {
 
         StorageManager.restoreAccessMap();
 
-        /*new HoardingManager().scheduleCleaningTask();
-
-        getSupportActionBar().setElevation(0f);*/
-
-        if(communicationManager == null)
+        if(communicationManager == null) {
             communicationManager = new CommunicationManager();
-        new HoardingManager().scheduleCleaningTask();
+            communicationManager.init();
+        }
+
+        ////new HoardingManager().scheduleCleaningTask();
 
     }
 
@@ -112,55 +110,82 @@ public class MainActivity extends ActionBarActivity {
             return super.onOptionsItemSelected(item);
         }
 
+   /* @Override
+    public void onResume() {
+        super.onResume();
+        receiver = new WiFiDirectBroadcastReceiver(manager, channel, communicationManager);
+        registerReceiver(receiver, intentFilter);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        unregisterReceiver(receiver);
+    }*/
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         SharedPreferences.Editor editor = getPreferences(Context.MODE_PRIVATE).edit();
         StorageManager.persistAccessMap();
-        unregisterReceiver(communicationManager.mReceiver);
-            unbindService(communicationManager.mConnection);
     }
 
-    public class CommunicationManager implements
-            SimWifiP2pManager.PeerListListener, SimWifiP2pManager.GroupInfoListener {
-        //for wifi_direct
-        CommunicationEventReceiver mReceiver = null;
+    public class CommunicationManager extends ListFragment implements WifiP2pManager.PeerListListener,WifiP2pManager.ConnectionInfoListener {
 
-        private SimWifiP2pManager mManager = null;
-        private Messenger mService = null;
-        private boolean mBound = false;
-        private SimWifiP2pManager.Channel mChannel = null;
-        private AirDeskService airDeskService;
-
-        private ArrayList peerList = new ArrayList();
+        private List<WifiP2pDevice> peerList = new ArrayList<WifiP2pDevice>();
+        AirDeskService airDeskService;
 
         public CommunicationManager() {
+            airDeskService = AirDeskService.getInstance();
             init();
         }
 
         public void init() {
-            SimWifiP2pSocketManager.Init(getApplicationContext());
-            airDeskService = AirDeskService.getInstance();
 
-            IntentFilter filter1 = new IntentFilter();
-            filter1.addAction(SimWifiP2pBroadcast.WIFI_P2P_STATE_CHANGED_ACTION);
-            filter1.addAction(SimWifiP2pBroadcast.WIFI_P2P_PEERS_CHANGED_ACTION);
-            filter1.addAction(SimWifiP2pBroadcast.WIFI_P2P_NETWORK_MEMBERSHIP_CHANGED_ACTION);
-            filter1.addAction(SimWifiP2pBroadcast.WIFI_P2P_GROUP_OWNERSHIP_CHANGED_ACTION);
-            mReceiver = new CommunicationEventReceiver(getApplicationContext(), this);
-            registerReceiver(mReceiver, filter1);
-
-            if(!mBound) {
-            Intent intent = new Intent(MainActivity.this, SimWifiP2pService.class);
-            bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-            }
+            intentFilter = new IntentFilter();
+            intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
+            intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
+            intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
+            intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
+            manager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
+            channel = manager.initialize(MainActivity.this, getMainLooper(), null);
+            receiver = new WiFiDirectBroadcastReceiver(manager, channel, communicationManager);
+            registerReceiver(receiver, intentFilter);
 
             CommunicationTask.IncomingCommTask incomingCommTask = new CommunicationTask(foreignWorkspacesFragment).getIncomingCommTask();
             incomingCommTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
+           /* if(!mBound) {
+            Intent intent = new Intent(MainActivity.this, SimWifiP2pService.class);
+            bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+            }*/
         }
 
-        public void requestPeers() {
+        @Override
+        public void onPeersAvailable(WifiP2pDeviceList availablePeers) {
+            peerList.clear();
+            peerList.addAll(availablePeers.getDeviceList());
+
+            airDeskService.updateConnectedDevices(peerList);
+
+            if (peerList.size() == 0) {
+                Toast.makeText(getBaseContext(), "No devices found",
+                        Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
+
+        @Override
+        public void onConnectionInfoAvailable(WifiP2pInfo info) {
+            if (info.groupFormed) {
+                airDeskService.setGroupOwnerDetails(info);
+                CommunicationTask.OutgoingCommTask outgoingCommTask = new CommunicationTask(foreignWorkspacesFragment).getOutgoingCommTask();
+                outgoingCommTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
+                        info.groupOwnerAddress.getHostAddress(), new UserManager().getOwner().getUserId());
+            }
+        }
+
+       /* public void requestPeers() {
             if(mBound && mManager != null)
                 mManager.requestPeers(mChannel, (SimWifiP2pManager.PeerListListener) CommunicationManager.this);
         }
@@ -168,9 +193,9 @@ public class MainActivity extends ActionBarActivity {
         public void requestGroupInfo() {
             if(mBound && mManager != null)
                 mManager.requestGroupInfo(mChannel, (SimWifiP2pManager.GroupInfoListener) CommunicationManager.this);
-        }
+        }*/
 
-        private ServiceConnection mConnection = new ServiceConnection() {
+        /*private ServiceConnection mConnection = new ServiceConnection() {
             // callbacks for service binding, passed to bindService()
 
             @Override
@@ -192,9 +217,9 @@ public class MainActivity extends ActionBarActivity {
                 mBound = false;
                 unbindService(mConnection);
             }
-        };
+        };*/
 
-        @Override
+      /*  @Override
         public void onGroupInfoAvailable(SimWifiP2pDeviceList devices, SimWifiP2pInfo groupInfo) {
             // compile list of network members
             ArrayList<SimWifiP2pDevice> memberList = new ArrayList<SimWifiP2pDevice>();
@@ -217,14 +242,9 @@ public class MainActivity extends ActionBarActivity {
             } else if(!airDeskService.getMyDevice().deviceName.equals(groupInfo.getDeviceName())) {
                 airDeskService.setMyDevice(devices.getByName(groupInfo.getDeviceName()));
             }
-
             airDeskService.updateConnectedDevices(memberList);
         }
-
-        @Override
-        public void onPeersAvailable(SimWifiP2pDeviceList peers) {
-
-        }
+*/
     }
 
 }

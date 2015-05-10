@@ -6,11 +6,13 @@ public class AirDeskMessage {
 
     private String type;
     private HashMap<String, Object> inputs = new HashMap<String, Object>();
-    private String senderIp;
+    //userID of sender
+    private String senderID;
+    private String senderIP;
 
-    public AirDeskMessage(String type, String senderIp) {
+    public AirDeskMessage(String type, String senderID) {
         this.type = type;
-        this.senderIp = senderIp;
+        this.senderID = senderID;
     }
 
     public void addInput(String key, Object value) {
@@ -21,8 +23,8 @@ public class AirDeskMessage {
         return type;
     }
 
-    public String getSenderIp() {
-        return senderIp;
+    public String getSenderID() {
+        return senderID;
     }
 
     public HashMap<String, Object> getInputs() {

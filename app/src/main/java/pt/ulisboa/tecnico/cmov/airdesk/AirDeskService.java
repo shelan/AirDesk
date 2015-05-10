@@ -1,11 +1,15 @@
 package pt.ulisboa.tecnico.cmov.airdesk;
 
+import android.net.wifi.p2p.WifiP2pDevice;
+import android.net.wifi.p2p.WifiP2pInfo;
 import android.os.AsyncTask;
 
 import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.InetAddress;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -20,8 +24,6 @@ import pt.ulisboa.tecnico.cmov.airdesk.entity.ForeignWorkspace;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.OwnedWorkspace;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.UserManager;
 import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.communication.AirDeskMessage;
-import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.termite.SimWifiP2pDevice;
-import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.termite.sockets.SimWifiP2pSocket;
 
 /**
  * Created by ashansa on 5/3/15.
@@ -34,7 +36,11 @@ public class AirDeskService {
 
     // will have the virtualIP and the owner ID of that device
     private HashMap<String,String> idIPMap = new HashMap<String,String>();
-    private SimWifiP2pDevice myDevice = null;
+    private HashMap<String,String> macIpMap = new HashMap<String,String>();
+
+    private WifiP2pDevice myDevice = null;
+    boolean isGroupOwner;
+    InetAddress groupOwnerAddress;
     Gson gson = new Gson();
 
     private static Logger logger = Logger.getLogger(AirDeskService.class.getName());
@@ -104,22 +110,31 @@ public class AirDeskService {
         return foreignWorkspaces.toArray(new ForeignWorkspace[foreignWorkspaces.size()]);
     }
 
-    public void updateConnectedDevices(Collection<SimWifiP2pDevice> nearbyDevices) {
+    public void updateConnectedDevices(Collection<WifiP2pDevice> nearbyDevices) {
         peerLock.lock();
         if(nearbyDevices.size() > 0) {
-            for (SimWifiP2pDevice device : nearbyDevices) {
-                connectedIpsVirtual.add(device.getVirtIp());
+            for (WifiP2pDevice device : nearbyDevices) {
+                connectedIpsVirtual.add(device.deviceAddress);
             }
         }
         peerLock.unlock();
     }
 
-    public void setMyDevice(SimWifiP2pDevice device) {
+    public void setMyDevice(WifiP2pDevice device) {
         myDevice = device;
     }
 
-    public SimWifiP2pDevice getMyDevice() {
+    public WifiP2pDevice getMyDevice() {
         return myDevice;
+    }
+
+    public void setGroupOwnerDetails(WifiP2pInfo info) {
+        groupOwnerAddress = info.groupOwnerAddress;
+        isGroupOwner = info.isGroupOwner;
+    }
+
+    private void contactGroupOwner() {
+
     }
 
 
@@ -143,7 +158,7 @@ public class AirDeskService {
 
             try {
                 for (String virtualIp : connectedIpsVirtual) {
-                    SimWifiP2pSocket socket = new SimWifiP2pSocket(virtualIp, Constants.port);
+                    Socket socket = new Socket(virtualIp, Constants.port);
                     OutputStream outputStream = socket.getOutputStream();
                     outputStream.write(msgJson.getBytes());
                     outputStream.flush();
@@ -162,7 +177,7 @@ public class AirDeskService {
                 return null;
             }
 
-            AirDeskMessage msg = new AirDeskMessage(type, myDevice.getVirtIp());
+            AirDeskMessage msg = new AirDeskMessage(type, myDevice.deviceAddress);
             msg.addInput(Constants.TAGS, tags);
             msg.addInput(Constants.CLIENT_ID, userId);
             return msg;
@@ -190,9 +205,9 @@ public class AirDeskService {
             }
 
             String msgJson = gson.toJson(msg);
-            SimWifiP2pSocket socket = null;
+            Socket socket = null;
             try {
-                socket = new SimWifiP2pSocket(receiverIp, Constants.port);
+                socket = new Socket(receiverIp, Constants.port);
                 OutputStream outputStream = socket.getOutputStream();
                 outputStream.write(msgJson.getBytes());
                 outputStream.flush();
@@ -209,7 +224,7 @@ public class AirDeskService {
                 logger.log(Level.SEVERE, "my device not set");
                 return null;
             }
-            AirDeskMessage msg = new AirDeskMessage(type, myDevice.getVirtIp());
+            AirDeskMessage msg = new AirDeskMessage(type, myDevice.deviceAddress);
             msg.addInput(Constants.WORKSPACES, foreignWorkspaces);
             return msg;
         }
@@ -232,7 +247,7 @@ public class AirDeskService {
 
             try {
                 for (String virtualIp : connectedIpsVirtual) {
-                    SimWifiP2pSocket socket = new SimWifiP2pSocket(virtualIp, Constants.port);
+                    Socket socket = new Socket(virtualIp, Constants.port);
                     OutputStream outputStream = socket.getOutputStream();
                     outputStream.write(msgJson.getBytes());
                     outputStream.flush();
@@ -250,7 +265,7 @@ public class AirDeskService {
                 logger.log(Level.SEVERE, "my device not set");
                 return null;
             }
-            AirDeskMessage msg = new AirDeskMessage(type, myDevice.getVirtIp());
+            AirDeskMessage msg = new AirDeskMessage(type, myDevice.deviceAddress);
             msg.addInput(Constants.TAGS, tags);
             return msg;
         }
@@ -279,12 +294,12 @@ public class AirDeskService {
             String msgJson = gson.toJson(msg);
 
             try {
-                    SimWifiP2pSocket socket = new SimWifiP2pSocket(receiverIp, Constants.port);
-                    OutputStream outputStream = socket.getOutputStream();
-                    outputStream.write(msgJson.getBytes());
-                    outputStream.flush();
-                    outputStream.close();
-                    System.out.println("___________________ REVOKE_ACCESS_MSG wrote to o/p stream ___________________");
+                Socket socket = new Socket(receiverIp, Constants.port);
+                OutputStream outputStream = socket.getOutputStream();
+                outputStream.write(msgJson.getBytes());
+                outputStream.flush();
+                outputStream.close();
+                System.out.println("___________________ REVOKE_ACCESS_MSG wrote to o/p stream ___________________");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -297,7 +312,7 @@ public class AirDeskService {
                 return null;
             }
 
-            AirDeskMessage msg = new AirDeskMessage(type, myDevice.getVirtIp());
+            AirDeskMessage msg = new AirDeskMessage(type, myDevice.deviceAddress);
             msg.addInput(Constants.WORKSPACE_NAME, workspaceName);
             msg.addInput(Constants.OWNER_ID, workspaceOwnerId);
             return msg;

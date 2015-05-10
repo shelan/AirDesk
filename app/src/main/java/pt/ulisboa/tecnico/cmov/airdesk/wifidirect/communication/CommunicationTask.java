@@ -2,20 +2,22 @@ package pt.ulisboa.tecnico.cmov.airdesk.wifidirect.communication;
 
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketAddress;
 import java.net.UnknownHostException;
 
 import pt.ulisboa.tecnico.cmov.airdesk.AirDeskReceiver;
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
+import pt.ulisboa.tecnico.cmov.airdesk.activity.MainActivity;
 import pt.ulisboa.tecnico.cmov.airdesk.fragment.ForeignWorkspaceListFragment;
-import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.termite.SimWifiP2pManager;
-import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.termite.sockets.SimWifiP2pSocket;
-import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.termite.sockets.SimWifiP2pSocketServer;
 
 /**
  * Created by ashansa on 5/1/15.
@@ -23,12 +25,10 @@ import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.termite.sockets.SimWifiP2pSock
 public class CommunicationTask {
 
     public static final String TAG = "CommunicationTask";
-    SimWifiP2pManager.Channel mChannel = null;
-    SimWifiP2pSocketServer mSrvSocket = null;
     ReceiveCommTask receiveCommTask = null;
-    SimWifiP2pSocket mCliSocket = null;
+    Socket mCliSocket = null;
     private boolean mBound = false;
-    SimWifiP2pSocket s;
+    Socket s;
     Gson gson = new Gson();
     AirDeskReceiver airDeskReceiver;
 
@@ -53,15 +53,44 @@ public class CommunicationTask {
         return this.outgoingCommTask;
     }
 
-    public class IncomingCommTask extends AsyncTask<Void, SimWifiP2pSocket, Void> {
+    public class IncomingCommTask extends AsyncTask<Void, Socket, Void> {
 
         @Override
         protected Void doInBackground(Void... params) {
 
             Log.d(TAG, "IncomingCommTask started (" + this.hashCode() + ").");
+            try {
+                ServerSocket serverSocket = null;
+                serverSocket = new ServerSocket(10001);
+                //Socket client = serverSocket.accept();
 
+                while (!Thread.currentThread().isInterrupted()) {
+                    try {
+                        Socket client = serverSocket.accept();
+                        SocketAddress clientRemoteAddress = client.getRemoteSocketAddress();
+                        String clientIP = clientRemoteAddress.toString();
+                        System.out.println(".......... client connected ..... IP : " + clientIP);
+                        if (mCliSocket != null && mCliSocket.isClosed()) {
+                            mCliSocket = null;
+                        }
+                        if (mCliSocket != null) {
+                            Log.d(TAG, "Closing accepted socket because mCliSocket still active.");
+                            client.close();
+                        } else {
+                            publishProgress(client);
+                        }
+                    } catch (IOException e) {
+                        Log.d("Error accepting socket:", e.getMessage());
+                        break;
+                        //e.printStackTrace();
+                    }
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             ////TODO
-            int port = 10001;
+           /* int port = 10001;
             try {
                 mSrvSocket = new SimWifiP2pSocketServer(port);
                 while (!Thread.currentThread().isInterrupted()) {
@@ -84,12 +113,19 @@ public class CommunicationTask {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-            }
+            }*/
+
+
             return null;
         }
 
         @Override
-        protected void onProgressUpdate(SimWifiP2pSocket... values) {
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+        }
+
+        @Override
+        protected void onProgressUpdate(Socket... values) {
             mCliSocket = values[0];
             receiveCommTask = new ReceiveCommTask();
 
@@ -101,7 +137,7 @@ public class CommunicationTask {
 
         @Override
         protected void onPreExecute() {
-
+            System.out.println("-----");
         }
 
 
@@ -111,11 +147,11 @@ public class CommunicationTask {
             int port = 10001;
             try {
                 System.out.println("=========> ging to write msg");
-                //params are <sender virtualIP> , <my user ID>, <my virtualIP>
-                mCliSocket = new SimWifiP2pSocket(params[0],port);
+                //params are <receiverIP> , <my user ID>
+                mCliSocket = new Socket(params[0],port);
+                System.out.println("receiver IP >>>>>>>>>>>>>> " + mCliSocket.getInetAddress().getHostAddress());
 
-
-                String msg =  gson.toJson(createIntroduceMsg(params[1] , params[2]));
+                String msg =  gson.toJson(createIntroduceMsg(params[1]));
                 System.out.println("========socket created. Msg : " + msg);
                 /////////TODO...... check whether other end receives this
                 mCliSocket.getOutputStream().write(msg.getBytes());
@@ -141,26 +177,26 @@ public class CommunicationTask {
             }
         }
 
-        private AirDeskMessage createIntroduceMsg(String ownerId, String myIP) {
-            AirDeskMessage msg = new AirDeskMessage(Constants.INTRODUCE_MSG, myIP);
-            msg.addInput(Constants.SENDER_ID, ownerId);
+        private AirDeskMessage createIntroduceMsg(String ownerId) {
+            AirDeskMessage msg = new AirDeskMessage(Constants.INTRODUCE_MSG, ownerId);
             return msg;
         }
     }
 
-    public class ReceiveCommTask extends AsyncTask<SimWifiP2pSocket, String, Void> {
+    public class ReceiveCommTask extends AsyncTask<Socket, String, Void> {
 
         @Override
-        protected Void doInBackground(SimWifiP2pSocket... params) {
-            BufferedReader sockIn;
+        protected Void doInBackground(Socket... params) {
+            BufferedReader bufferedReader;
             String st;
 
             s = params[0];
             try {
                 System.out.println("############ going to receive msg");
-                sockIn = new BufferedReader(new InputStreamReader(s.getInputStream()));
+                System.out.println("............... received address >>>>>>>>>>>>> " + s.getInetAddress().getHostAddress());
+                bufferedReader = new BufferedReader(new InputStreamReader(s.getInputStream()));
                 System.out.printf("############ socket created");
-                String msgJson = sockIn.readLine();
+                String msgJson = bufferedReader.readLine();
                 System.out.println("#### MSG : " + msgJson);
                 //gson.fromJson(msgJson,);
                 AirDeskMessage msg = gson.fromJson(msgJson, AirDeskMessage.class);
