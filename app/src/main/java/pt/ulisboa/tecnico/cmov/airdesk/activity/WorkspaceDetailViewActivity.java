@@ -25,13 +25,16 @@ import java.util.Random;
 
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
 import pt.ulisboa.tecnico.cmov.airdesk.R;
+import pt.ulisboa.tecnico.cmov.airdesk.entity.AbstractWorkspace;
+import pt.ulisboa.tecnico.cmov.airdesk.entity.ForeignWorkspace;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.OwnedWorkspace;
+import pt.ulisboa.tecnico.cmov.airdesk.manager.UserManager;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.WorkspaceManager;
 
 
 public class WorkspaceDetailViewActivity extends ActionBarActivity {
 
-    static OwnedWorkspace workspace;
+    static AbstractWorkspace workspace;
     private static boolean isOwnedWorkspace = false;
 
     private WorkspaceDetailFragment workspaceDetailFragment;
@@ -159,6 +162,7 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
     public static class WorkspaceDetailFragment extends Fragment implements Serializable {
         private SimpleAdapter adapter;
         private WorkspaceManager workspaceManager;
+        private String ownerId;
 
         public WorkspaceDetailFragment() {
             workspaceManager = new WorkspaceManager();
@@ -170,15 +174,18 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
 
             Intent intent = getActivity().getIntent();
             View rootView = inflater.inflate(R.layout.fragment_workspace_detail_view, container, false);
-
+            isOwnedWorkspace = intent.getBooleanExtra(Constants.IS_OWNED_WORKSPACE, false);
             GridView gridView = (GridView) rootView.findViewById(R.id.folder_view);
 
             if (intent != null) {
 
                 if (intent.hasExtra(Constants.WORKSPACE_NAME)) {
-                    workspace = (OwnedWorkspace) intent.getSerializableExtra(Constants.WORKSPACE_NAME);
-
+                    if(isOwnedWorkspace)
+                        workspace = (OwnedWorkspace) intent.getSerializableExtra(Constants.WORKSPACE_NAME);
+                    else
+                        workspace = (ForeignWorkspace)intent.getSerializableExtra(Constants.WORKSPACE_NAME);
                 }
+                ownerId = workspace.getOwnerId();
             }
 
             getActivity().setTitle(workspace.getWorkspaceName());
@@ -202,7 +209,7 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
 
             gridView.setAdapter(adapter);
 
-            final OwnedWorkspace finalWorkspace = workspace;
+            final AbstractWorkspace finalWorkspace = workspace;
 
             gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
@@ -276,9 +283,19 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
 
         public void refresh() {
             if (workspace != null) {
+                if(workspace.getOwnerId().equals(new UserManager().getOwner().getUserId())) {
+                    isOwnedWorkspace = true;
+                } else {
+                    isOwnedWorkspace = false;
+                }
                 list.clear();
-
-                workspace = workspaceManager.getOwnedWorkspace(workspace.getWorkspaceName());
+                System.out.println("========= workspace name, is owned :" + workspace.getWorkspaceName() + "   ,   " + isOwnedWorkspace);
+                if(isOwnedWorkspace) {
+                    workspace = workspaceManager.getOwnedWorkspace(workspace.getWorkspaceName());
+                }
+                else {
+                    workspace = workspaceManager.getForeignWorkspace(workspace.getWorkspaceName(), ownerId);
+                }
 
                 for (String file : workspace.getFileNames()) {
                     HashMap map = new HashMap();

@@ -32,7 +32,6 @@ import pt.ulisboa.tecnico.cmov.airdesk.R;
 import pt.ulisboa.tecnico.cmov.airdesk.activity.WorkspaceDetailViewActivity;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.UserManager;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.WorkspaceManager;
-import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.termite.SimWifiP2pBroadcast;
 
 public class ForeignWorkspaceListFragment extends Fragment {
 
@@ -73,11 +72,14 @@ public class ForeignWorkspaceListFragment extends Fragment {
                 // if it cannot seek to that position.
 
                 Map<String, Object> item = (Map<String, Object>) adapter.getItem(position);
-                String workspace = (String) item.get("workspaceName");
+                String uniqueWorkspaceName = (String) item.get("workspaceName");
+                String workspace = uniqueWorkspaceName.split("/")[1];
+                String ownerId = uniqueWorkspaceName.split("/")[0];
 
                 Intent intent = new Intent(getActivity(), WorkspaceDetailViewActivity.class)
                         .putExtra(Intent.EXTRA_TEXT, workspace)
-                        .putExtra(Constants.WORKSPACE_NAME, workspaceManager.getOwnedWorkspace(workspace))
+                        //.putExtra(Constants.WORKSPACE_NAME, workspaceManager.getOwnedWorkspace(workspace))
+                        .putExtra(Constants.WORKSPACE_NAME, workspaceManager.getForeignWorkspace(workspace,ownerId))
                         .putExtra(Constants.IS_OWNED_WORKSPACE,false);
 
                 startActivity(intent);
@@ -176,8 +178,8 @@ public class ForeignWorkspaceListFragment extends Fragment {
             if (result != null) {
                 workspaceList.clear();
                 for (String s : result) {
-                    workspaceList.add(s.split("/")[1]);
-                    //workspaceList.add(s);
+                    //workspaceList.add(s.split("/")[1]);
+                    workspaceList.add(s);
                 }
             }
             fillDataAdapter(workspaceList);

@@ -39,6 +39,8 @@ public class Constants {
     public static final String WORKSPACES = "workspaces";
     public static final String SENDER_ID = "senderID";
     public static final String TAGS = "tags";
+    public static final String CLIENT_ID = "client_id";
+
     //workspace fields in cast json msg
     public static final String MATCHING_TAGS = "matchingTags";
     public static final String FILE_NAMES = "fileNames";

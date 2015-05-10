@@ -8,8 +8,6 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.widget.Toast;
 
 import pt.ulisboa.tecnico.cmov.airdesk.activity.MainActivity;
-import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.termite.SimWifiP2pBroadcast;
-import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.termite.SimWifiP2pInfo;
 
 /**
  * Created by ashansa on 4/27/15.
@@ -27,7 +25,7 @@ public class CommunicationEventReceiver extends BroadcastReceiver{
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        String action = intent.getAction();
+       /* String action = intent.getAction();
         communicationManager.requestPeers();
         communicationManager.requestGroupInfo();
 
@@ -81,6 +79,6 @@ public class CommunicationEventReceiver extends BroadcastReceiver{
             ginfo.print();
             Toast.makeText(context, "Group ownership changed",
                     Toast.LENGTH_SHORT).show();
-        }
+        }*/
     }
 }

@@ -24,28 +24,24 @@ public class AirDeskReceiver {
         switch (msg.getType()) {
 
             case Constants.INTRODUCE_MSG:
-                String senderIP = msg.getSenderIp();
+                String senderID = msg.getSenderID();
                 String ownerIdOfSender  = (String) msg.getInputs().get(Constants.SENDER_ID);
-                airDeskService.addIdIpMapping(ownerIdOfSender, senderIP);
+                airDeskService.addIdIpMapping(ownerIdOfSender, senderID);
                 break;
 
             case Constants.SUBSCRIBE_TAGS_MSG:
                 System.out.printf("tag subscription wifi direct walin awooo................");
                 ArrayList<String> subscribedTags = (ArrayList<String>) msg.getInputs().get(Constants.TAGS);
+                String clientId = (String) msg.getInputs().get(Constants.CLIENT_ID);
                 HashMap<OwnedWorkspace, String[]> matchingWorkspacesMap = workspaceManager.
-                        getPublicWorkspacesForTags(subscribedTags.toArray(new String[subscribedTags.size()]));
-                ///////TODO : send correct details
-                airDeskService.sendPublicWorkspacesForTags(matchingWorkspacesMap, msg.getSenderIp());
+                        getPublicWorkspacesForTags(subscribedTags.toArray(new String[subscribedTags.size()]), clientId);
+                airDeskService.sendPublicWorkspacesForTags(matchingWorkspacesMap, msg.getSenderID());
                 break;
 
             case Constants.ADD_TO_FOREIGN_WORKSPACE_MSG:
-                System.out.println(".............. reply awooooooo............");
-                System.out.println("..........................................");
                 //gson makes ForeignWorkspace to a LinkedTreeMap
                 ArrayList<LinkedTreeMap> matchingWorkspaces = (ArrayList) msg.getInputs().get(Constants.WORKSPACES);
                 System.out.println(".......matching workspaces size ........" + matchingWorkspaces.size());
-                System.out.println("..........................................");
-                System.out.println("..........................................");
                 for (LinkedTreeMap workspace : matchingWorkspaces) {
                     try {
                         ArrayList<String> files = (ArrayList<String>) workspace.get(Constants.FILE_NAMES);
@@ -85,7 +81,7 @@ public class AirDeskReceiver {
                 break;
 
             default:
-                System.out.println("........ default case .......");
+                System.out.println("........ default case. Do nothing .......");
         }
     }
 }
