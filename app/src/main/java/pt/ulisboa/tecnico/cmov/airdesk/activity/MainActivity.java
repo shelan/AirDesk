@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import pt.ulisboa.tecnico.cmov.airdesk.AWSTasks;
 import pt.ulisboa.tecnico.cmov.airdesk.AirDeskService;
 import pt.ulisboa.tecnico.cmov.airdesk.R;
 import pt.ulisboa.tecnico.cmov.airdesk.fragment.ForeignWorkspaceListFragment;
@@ -43,6 +44,7 @@ public class MainActivity extends ActionBarActivity {
     public MainActivity() {
 
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,7 +62,7 @@ public class MainActivity extends ActionBarActivity {
 
             myWorkspacesFragment = new MyWorkspaceListFragment();
             foreignWorkspacesFragment = new ForeignWorkspaceListFragment();
-           
+
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, myWorkspacesFragment, "fragment_1")
                     .add(R.id.container, foreignWorkspacesFragment, "fragment_2")
@@ -75,31 +77,29 @@ public class MainActivity extends ActionBarActivity {
 
         getSupportActionBar().setElevation(0f);*/
 
-        if(communicationManager == null)
+        if (communicationManager == null)
             communicationManager = new CommunicationManager();
         new HoardingManager().scheduleCleaningTask();
 
     }
 
-        @Override
-        public boolean onCreateOptionsMenu (Menu menu){
-            // Inflate the menu; this adds items to the action bar if it is present.
-            getMenuInflater().inflate(R.menu.menu_main, menu);
-            return true;
-        }
-        //TODO move these tests and write proper tests in android test package
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+    //TODO move these tests and write proper tests in android test package
 
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
 
-
-        @Override
-        public boolean onOptionsItemSelected (MenuItem item){
-            // Handle action bar item clicks here. The action bar will
-            // automatically handle clicks on the Home/Up button, so long
-            // as you specify a parent activity in AndroidManifest.xml.
-            int id = item.getItemId();
-
-            //noinspection SimplifiableIfStatement
+        //noinspection SimplifiableIfStatement
             /*if (id == R.id.action_settings) {
                 return true;
             } else if (id == R.id.action_populate) {
@@ -111,11 +111,14 @@ public class MainActivity extends ActionBarActivity {
                 }
             }*/
 
-            return super.onOptionsItemSelected(item);
+        if (id == R.id.online) {
+            AWSTasks.offline = false;
+            if(item.getTitle().equals("go online"))
+            item.setTitle("go offline");
         }
 
-
-
+        return super.onOptionsItemSelected(item);
+    }
 
 
     @Override
@@ -165,12 +168,12 @@ public class MainActivity extends ActionBarActivity {
         }
 
         public void requestPeers() {
-            if(mBound && mManager != null)
+            if (mBound && mManager != null)
                 mManager.requestPeers(mChannel, (SimWifiP2pManager.PeerListListener) CommunicationManager.this);
         }
 
         public void requestGroupInfo() {
-            if(mBound && mManager != null)
+            if (mBound && mManager != null)
                 mManager.requestGroupInfo(mChannel, (SimWifiP2pManager.GroupInfoListener) CommunicationManager.this);
         }
 
@@ -209,16 +212,16 @@ public class MainActivity extends ActionBarActivity {
                 members = members.concat(device.deviceName + " ");
                 CommunicationTask.OutgoingCommTask outgoingCommTask = new CommunicationTask(foreignWorkspacesFragment).getOutgoingCommTask();
                 outgoingCommTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, device.getVirtIp(),
-                        new UserManager().getOwner().getUserId(),devices.getByName(groupInfo.getDeviceName()).getVirtIp() );
+                        new UserManager().getOwner().getUserId(), devices.getByName(groupInfo.getDeviceName()).getVirtIp());
             }
             TextView onlineUsers = (TextView) findViewById(R.id.usersOnline);
             onlineUsers.setText(members);
             peerList.clear();
             peerList.addAll(memberList);
 
-            if(airDeskService.getMyDevice() == null) {
+            if (airDeskService.getMyDevice() == null) {
                 airDeskService.setMyDevice(devices.getByName(groupInfo.getDeviceName()));
-            } else if(!airDeskService.getMyDevice().deviceName.equals(groupInfo.getDeviceName())) {
+            } else if (!airDeskService.getMyDevice().deviceName.equals(groupInfo.getDeviceName())) {
                 airDeskService.setMyDevice(devices.getByName(groupInfo.getDeviceName()));
             }
 
