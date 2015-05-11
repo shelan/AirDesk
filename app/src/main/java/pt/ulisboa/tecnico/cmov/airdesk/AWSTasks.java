@@ -23,6 +23,8 @@ import pt.ulisboa.tecnico.cmov.airdesk.context.AirDeskApp;
  */
 public class AWSTasks {
 
+    public static boolean offline = true;
+
     static AWSTasks taskInstance;
     CognitoCachingCredentialsProvider cognitoCachingCredentialsProvider =
             AWSUtils.getCredProvider(AirDeskApp.s_applicationContext);
@@ -40,34 +42,39 @@ public class AWSTasks {
     }
 
     public boolean createFolder(String parentName, String folderName) throws ExecutionException, InterruptedException {
-       /* return new FolderCreateAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
-                parentName, folderName).get();*/
-        return true;
+        if (offline) return true;
+
+        return new FolderCreateAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
+                parentName, folderName).get();
     }
 
     public boolean deleteFolder(String parentName, String folderName) throws ExecutionException, InterruptedException {
-        /*return new FolderDeleteAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
-                parentName, folderName).get();*/
-        return true;
+        if (offline) return true;
+
+        return new FolderDeleteAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
+                parentName, folderName).get();
     }
 
     public boolean createFile(String parent, String folderName, String fileName, String content) throws ExecutionException, InterruptedException {
-        /*return new FileCreateAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
-                parent, folderName, fileName, content).get();*/
-        return true;
+        if (offline) return true;
+
+        return new FileCreateAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
+                parent, folderName, fileName, content).get();
     }
 
     public boolean deleteFile(String parent, String folderName, String fileName) throws ExecutionException, InterruptedException {
-        /*return new FileDeleteTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
-                parent, folderName, fileName).get();*/
-        return true;
+        if (offline) return true;
+
+        return new FileDeleteTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
+                parent, folderName, fileName).get();
     }
 
     public StringBuffer getFile(String parent, String folderName, String fileName) throws ExecutionException, InterruptedException {
-        /*AsyncTask getTask = new FileDownload().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
+        if (offline) return new StringBuffer("");
+
+        AsyncTask getTask = new FileDownload().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
                 parent, folderName, fileName);
-        return (StringBuffer) getTask.get();*/
-        return new StringBuffer();
+        return (StringBuffer) getTask.get();
     }
 
 

@@ -26,7 +26,6 @@ import pt.ulisboa.tecnico.cmov.airdesk.AirDeskService;
 import pt.ulisboa.tecnico.cmov.airdesk.R;
 import pt.ulisboa.tecnico.cmov.airdesk.fragment.ForeignWorkspaceListFragment;
 import pt.ulisboa.tecnico.cmov.airdesk.fragment.MyWorkspaceListFragment;
-import pt.ulisboa.tecnico.cmov.airdesk.manager.HoardingManager;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.UserManager;
 import pt.ulisboa.tecnico.cmov.airdesk.storage.StorageManager;
 import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.communication.CommunicationTask;
@@ -61,7 +60,7 @@ public class MainActivity extends ActionBarActivity {
 
             myWorkspacesFragment = new MyWorkspaceListFragment();
             foreignWorkspacesFragment = new ForeignWorkspaceListFragment();
-           
+
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, myWorkspacesFragment, "fragment_1")
                     .add(R.id.container, foreignWorkspacesFragment, "fragment_2")
@@ -81,23 +80,23 @@ public class MainActivity extends ActionBarActivity {
 
     }
 
-        @Override
-        public boolean onCreateOptionsMenu (Menu menu){
-            // Inflate the menu; this adds items to the action bar if it is present.
-            getMenuInflater().inflate(R.menu.menu_main, menu);
-            return true;
-        }
-        //TODO move these tests and write proper tests in android test package
+    @Override
+    public boolean onCreateOptionsMenu (Menu menu){
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+    //TODO move these tests and write proper tests in android test package
 
 
-        @Override
-        public boolean onOptionsItemSelected (MenuItem item){
-            // Handle action bar item clicks here. The action bar will
-            // automatically handle clicks on the Home/Up button, so long
-            // as you specify a parent activity in AndroidManifest.xml.
-            int id = item.getItemId();
+    @Override
+    public boolean onOptionsItemSelected (MenuItem item){
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
 
-            //noinspection SimplifiableIfStatement
+        //noinspection SimplifiableIfStatement
             /*if (id == R.id.action_settings) {
                 return true;
             } else if (id == R.id.action_populate) {
@@ -109,8 +108,8 @@ public class MainActivity extends ActionBarActivity {
                 }
             }*/
 
-            return super.onOptionsItemSelected(item);
-        }
+        return super.onOptionsItemSelected(item);
+    }
 
    /* @Override
     public void onResume() {
@@ -258,4 +257,3 @@ public class MainActivity extends ActionBarActivity {
     }
 
 }
-
