@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.cmov.airdesk.wifidirect.communication;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
@@ -9,6 +10,7 @@ import com.google.gson.Gson;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
@@ -31,9 +33,15 @@ public class CommunicationTask {
     Socket s;
     Gson gson = new Gson();
     AirDeskReceiver airDeskReceiver;
+    Context context;
 
     public CommunicationTask(ForeignWorkspaceListFragment foreignWorkspaceFragment) {
         airDeskReceiver = new AirDeskReceiver(foreignWorkspaceFragment);
+    }
+
+    public CommunicationTask(ForeignWorkspaceListFragment foreignWorkspaceFragment, Context context) {
+        airDeskReceiver = new AirDeskReceiver(foreignWorkspaceFragment);
+        this.context = context;
     }
 
     IncomingCommTask incomingCommTask;
@@ -61,7 +69,7 @@ public class CommunicationTask {
             Log.d(TAG, "IncomingCommTask started (" + this.hashCode() + ").");
             try {
                 ServerSocket serverSocket = null;
-                serverSocket = new ServerSocket(10001);
+                serverSocket = new ServerSocket(Constants.port);
                 //Socket client = serverSocket.accept();
 
                 while (!Thread.currentThread().isInterrupted()) {
@@ -70,6 +78,18 @@ public class CommunicationTask {
                         SocketAddress clientRemoteAddress = client.getRemoteSocketAddress();
                         String clientIP = clientRemoteAddress.toString();
                         System.out.println(".......... client connected ..... IP : " + clientIP);
+
+                        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(client.getInputStream()));
+                        System.out.printf("############ socket created");
+                        String msgJson = bufferedReader.readLine();
+                        System.out.println("#### MSG : " + msgJson);
+                        //gson.fromJson(msgJson,);
+                        AirDeskMessage msg = gson.fromJson(msgJson, AirDeskMessage.class);
+                        //set sender IP using the socket created
+                        msg.setSenderIP(client.getInetAddress().getHostAddress());
+
+                        airDeskReceiver.handleMessage(msg);
+
                         if (mCliSocket != null && mCliSocket.isClosed()) {
                             mCliSocket = null;
                         }
@@ -119,7 +139,7 @@ public class CommunicationTask {
             return null;
         }
 
-        @Override
+      /*  @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
         }
@@ -130,7 +150,7 @@ public class CommunicationTask {
             receiveCommTask = new ReceiveCommTask();
 
             receiveCommTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, mCliSocket);
-        }
+        }*/
     }
 
     public class OutgoingCommTask extends AsyncTask<String, Void, String> {
@@ -144,20 +164,24 @@ public class CommunicationTask {
         @Override
         protected String doInBackground(String... params) {
             ////TODO
-            int port = 10001;
+            int port = Constants.port;
             try {
                 System.out.println("=========> ging to write msg");
                 //params are <receiverIP> , <my user ID>
-                mCliSocket = new Socket(params[0],port);
-                System.out.println("receiver IP >>>>>>>>>>>>>> " + mCliSocket.getInetAddress().getHostAddress());
+                //mCliSocket = new Socket(params[0],port);
+                mCliSocket = new Socket();
+                mCliSocket.bind(null);
+                mCliSocket.connect(new InetSocketAddress(params[0],port));
+
+                System.out.println("receiver IP=========> " + mCliSocket.getInetAddress().getHostAddress());
 
                 String msg =  gson.toJson(createIntroduceMsg(params[1]));
-                System.out.println("========socket created. Msg : " + msg);
+                System.out.println("========socket created. Msg =========> : " + msg);
                 /////////TODO...... check whether other end receives this
                 mCliSocket.getOutputStream().write(msg.getBytes());
                 mCliSocket.getOutputStream().flush();
                 mCliSocket.getOutputStream().close();
-                System.out.println("========== msg written");
+                System.out.println("=========> msg written");
             } catch (UnknownHostException e) {
                 return "Unknown Host:" + e.getMessage();
             } catch (IOException e) {
@@ -200,6 +224,9 @@ public class CommunicationTask {
                 System.out.println("#### MSG : " + msgJson);
                 //gson.fromJson(msgJson,);
                 AirDeskMessage msg = gson.fromJson(msgJson, AirDeskMessage.class);
+                //set sender IP using the socket created
+                msg.setSenderIP(s.getInetAddress().getHostAddress());
+
                 airDeskReceiver.handleMessage(msg);
                 System.out.println("sent msg to handle.....");
                 publishProgress(msgJson);

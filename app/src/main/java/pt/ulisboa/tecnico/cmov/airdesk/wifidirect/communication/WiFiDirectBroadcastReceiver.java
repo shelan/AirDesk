@@ -61,6 +61,9 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(final Context context, Intent intent) {
         String action = intent.getAction();
+        manager.requestPeers(channel, communicationManager);
+        manager.requestConnectionInfo(channel, communicationManager);
+
         if (WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION.equals(action)) {
 
             // UI update to indicate wifi p2p status.
@@ -104,7 +107,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
             }
         } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
             WifiP2pDevice device = intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE);
-            AirDeskService.getInstance().setMyDevice(device);
+            //AirDeskService.getInstance().setMyDevice(device);
         }
     }
 }

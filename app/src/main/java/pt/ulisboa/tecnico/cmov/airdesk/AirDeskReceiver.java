@@ -21,21 +21,41 @@ public class AirDeskReceiver {
     }
 
     public void handleMessage(AirDeskMessage msg) {
+        System.out.println("..........................");
+        System.out.println("... handle msg: " + msg.getType());
+        System.out.println("..........................");
         switch (msg.getType()) {
 
             case Constants.INTRODUCE_MSG:
                 String senderID = msg.getSenderID();
-                String ownerIdOfSender  = (String) msg.getInputs().get(Constants.SENDER_ID);
-                airDeskService.addIdIpMapping(ownerIdOfSender, senderID);
+                String senderIP  = msg.getSenderIP();
+                airDeskService.addIdIpMapping(senderID, senderIP);
+                break;
+
+            case Constants.ID_IP_MAP_REQUEST_MSG:
+                airDeskService.sendIdIpMap(msg.getSenderIP());
+                break;
+
+            case Constants.ID_IP_MAP_REPLY_MSG:
+                LinkedTreeMap idIPMap = (LinkedTreeMap) msg.getInputs().get(Constants.ID_IP_MAP);
+                if(idIPMap.size() > 0) {
+                    airDeskService.updateIdIPMap(idIPMap);
+                } else {
+                    System.out.println("not sending idIPMap since no entries...");
+                }
                 break;
 
             case Constants.SUBSCRIBE_TAGS_MSG:
-                System.out.printf("tag subscription wifi direct walin awooo................");
+                System.out.println("tag subscription wifi direct walin awooo................");
                 ArrayList<String> subscribedTags = (ArrayList<String>) msg.getInputs().get(Constants.TAGS);
                 String clientId = (String) msg.getInputs().get(Constants.CLIENT_ID);
                 HashMap<OwnedWorkspace, String[]> matchingWorkspacesMap = workspaceManager.
                         getPublicWorkspacesForTags(subscribedTags.toArray(new String[subscribedTags.size()]), clientId);
-                airDeskService.sendPublicWorkspacesForTags(matchingWorkspacesMap, msg.getSenderID());
+                if(matchingWorkspacesMap.size() > 0) {
+                    airDeskService.sendPublicWorkspacesForTags(matchingWorkspacesMap, msg.getSenderIP());
+                } else {
+                    System.out.println("no matching workspaces for published tags.....");
+                }
                 break;
 
             case Constants.ADD_TO_FOREIGN_WORKSPACE_MSG:

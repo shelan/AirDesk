@@ -5,6 +5,7 @@ import android.net.wifi.p2p.WifiP2pInfo;
 import android.os.AsyncTask;
 
 import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -14,6 +15,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -32,16 +35,21 @@ public class AirDeskService {
 
     private static AirDeskService instance = null;
     private Lock peerLock = new ReentrantLock();
-    Set<String> connectedIpsVirtual = new HashSet<>();
+    /////Set<String> connectedIpsVirtual = new HashSet<>();
 
-    // will have the virtualIP and the owner ID of that device
+    // will have the the owner ID,virtualIP of that device
     private HashMap<String,String> idIPMap = new HashMap<String,String>();
     private HashMap<String,String> macIpMap = new HashMap<String,String>();
 
-    private WifiP2pDevice myDevice = null;
+    //private WifiP2pDevice myDevice = null;
     boolean isGroupOwner;
     InetAddress groupOwnerAddress;
+    UserManager userManager = new UserManager();
     Gson gson = new Gson();
+
+    public InetAddress getGroupOwnerAddress() {
+        return groupOwnerAddress;
+    }
 
     private static Logger logger = Logger.getLogger(AirDeskService.class.getName());
 
@@ -56,6 +64,19 @@ public class AirDeskService {
 
     /* service method section */
 
+    //request from group owner
+    public void requestIdIpMap() {
+        if(groupOwnerAddress != null) {
+            IDIPMapRequestTask idipMapRequestTask = new IDIPMapRequestTask(groupOwnerAddress.getHostAddress());
+            idipMapRequestTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        }
+    }
+
+    public void sendIdIpMap(String senderIP) {
+        IDIPMapSendTask idipMapSendTask = new IDIPMapSendTask(senderIP);
+        idipMapSendTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    }
+
     public void broadcastTagSubscription(String[] subscribedTags) {
         BroadcastTagSubscription broadcastTagSubscription = new BroadcastTagSubscription();
         broadcastTagSubscription.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, subscribedTags);
@@ -69,7 +90,8 @@ public class AirDeskService {
 
     public void sendWorkspaceToClient(OwnedWorkspace workspace, String clientId) {
         String clientIP = idIPMap.get(clientId);
-        if( clientIP != null && connectedIpsVirtual.contains(clientIP)) {
+        //if( clientIP != null && connectedIpsVirtual.contains(clientIP)) {
+        if( clientIP != null) {
             ForeignWorkspace foreignWorkspace = new ForeignWorkspace(workspace.getWorkspaceName(),
                     workspace.getOwnerId(), workspace.getQuota());
             foreignWorkspace.addFiles(workspace.getFileNames().toArray(new String[workspace.getFileNames().size()]));
@@ -86,7 +108,8 @@ public class AirDeskService {
 
     public void revokeAccessFromClient(String workspaceName, String workspaceOwnerId, String clientId) {
         String clientIP = idIPMap.get(clientId);
-        if( clientIP != null && connectedIpsVirtual.contains(clientIP)) {
+        //if( clientIP != null && connectedIpsVirtual.contains(clientIP)) {
+        if( clientIP != null) {
             AccessRevoker accessRevoker = new AccessRevoker(clientIP);
             accessRevoker.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, workspaceName, workspaceOwnerId);
         }
@@ -97,6 +120,14 @@ public class AirDeskService {
 
     public void addIdIpMapping(String ownerId, String virtualIp) {
         idIPMap.put(ownerId, virtualIp);
+    }
+
+    public HashMap<String, String> getIdIPMap() {
+        return idIPMap;
+    }
+
+    public void updateIdIPMap(LinkedTreeMap receivedMap) {
+        idIPMap.putAll(receivedMap);
     }
 
     private ForeignWorkspace[] createForeignWorkspaceList(HashMap<OwnedWorkspace, String[]> ownedWorkspaceMap) {
@@ -110,7 +141,7 @@ public class AirDeskService {
         return foreignWorkspaces.toArray(new ForeignWorkspace[foreignWorkspaces.size()]);
     }
 
-    public void updateConnectedDevices(Collection<WifiP2pDevice> nearbyDevices) {
+    /*public void updateConnectedDevices(Collection<WifiP2pDevice> nearbyDevices) {
         peerLock.lock();
         if(nearbyDevices.size() > 0) {
             for (WifiP2pDevice device : nearbyDevices) {
@@ -118,27 +149,102 @@ public class AirDeskService {
             }
         }
         peerLock.unlock();
-    }
+    }*/
 
-    public void setMyDevice(WifiP2pDevice device) {
+    /*public void setMyDevice(WifiP2pDevice device) {
         myDevice = device;
     }
 
     public WifiP2pDevice getMyDevice() {
         return myDevice;
-    }
+    }*/
 
     public void setGroupOwnerDetails(WifiP2pInfo info) {
         groupOwnerAddress = info.groupOwnerAddress;
         isGroupOwner = info.isGroupOwner;
     }
 
-    private void contactGroupOwner() {
-
-    }
-
 
     /** message sending tasks **/
+
+    private class IDIPMapRequestTask extends AsyncTask<Void, Void, Void> {
+
+        private  String receiverIp;
+        public IDIPMapRequestTask(String receiverIp) {
+            this.receiverIp = receiverIp;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            System.out.println("___________ going to send IDIPMapRequest ______________");
+            AirDeskMessage msg = createMessage(Constants.ID_IP_MAP_REQUEST_MSG);
+
+            if(msg == null) {
+                logger.log(Level.SEVERE, "Revoke access message not created. Returning.");
+                return null;
+            }
+            String msgJson = gson.toJson(msg);
+            System.out.println("------------ msg : " + msgJson);
+
+            try {
+                Socket socket = new Socket(receiverIp, Constants.port);
+                OutputStream outputStream = socket.getOutputStream();
+                outputStream.write(msgJson.getBytes());
+                outputStream.flush();
+                outputStream.close();
+                System.out.println("___________________ IDIPMapRequest wrote to o/p stream ___________________");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        private AirDeskMessage createMessage(String type) {
+            AirDeskMessage msg = new AirDeskMessage(type, userManager.getOwner().getUserId());
+            return msg;
+        }
+    }
+
+    private class IDIPMapSendTask extends AsyncTask<Void, Void, Void> {
+
+        private  String receiverIp;
+        public IDIPMapSendTask(String receiverIp) {
+            this.receiverIp = receiverIp;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            System.out.println("___________ going to send IDIPMapSendTask ______________");
+            AirDeskMessage msg = createMessage(Constants.ID_IP_MAP_REPLY_MSG, idIPMap);
+
+            if(msg == null) {
+                logger.log(Level.SEVERE, "IDIPMapSendTask msg not created. Returning.");
+                return null;
+            }
+            String msgJson = gson.toJson(msg);
+            System.out.println("------------ msg : " + msgJson);
+
+            try {
+                Socket socket = new Socket(receiverIp, Constants.port);
+                OutputStream outputStream = socket.getOutputStream();
+                outputStream.write(msgJson.getBytes());
+                outputStream.flush();
+                outputStream.close();
+                System.out.println("___________________ IDIPMapSendTask wrote to o/p stream ___________________");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        private AirDeskMessage createMessage(String type, HashMap<String, String> idIPMap) {
+            AirDeskMessage msg = new AirDeskMessage(type, userManager.getOwner().getUserId());
+            msg.addInput(Constants.ID_IP_MAP, idIPMap);
+            return msg;
+        }
+    }
 
     private class BroadcastTagSubscription extends AsyncTask<String, Void, Void> {
 
@@ -155,29 +261,28 @@ public class AirDeskService {
                 return null;
             }
             String msgJson = gson.toJson(msg);
+            System.out.println("------------ msg : " + msgJson);
 
             try {
-                for (String virtualIp : connectedIpsVirtual) {
-                    Socket socket = new Socket(virtualIp, Constants.port);
-                    OutputStream outputStream = socket.getOutputStream();
-                    outputStream.write(msgJson.getBytes());
-                    outputStream.flush();
-                    outputStream.close();
-                    System.out.println("___________________BroadcastTagSubscription msg wrote to o/p stream ___________________");
+                for (Map.Entry<String, String> entry : idIPMap.entrySet()) {
+                    if(!entry.getKey().equals(userManager.getOwner().getUserId())) {
+                        Socket socket = new Socket(entry.getValue(), Constants.port);
+                        OutputStream outputStream = socket.getOutputStream();
+                        outputStream.write(msgJson.getBytes());
+                        outputStream.flush();
+                        outputStream.close();
+                        System.out.println("___________________BroadcastTagSubscription msg wrote to o/p stream ___________________");
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            peerLock.unlock();
             return null;
         }
 
         private AirDeskMessage createMessage(String type, String[] tags, String userId) {
-            if(myDevice == null) {
-                logger.log(Level.SEVERE, "my device not set");
-                return null;
-            }
-
-            AirDeskMessage msg = new AirDeskMessage(type, myDevice.deviceAddress);
+            AirDeskMessage msg = new AirDeskMessage(type, userManager.getOwner().getUserId());
             msg.addInput(Constants.TAGS, tags);
             msg.addInput(Constants.CLIENT_ID, userId);
             return msg;
@@ -192,7 +297,7 @@ public class AirDeskService {
         }
         @Override
         protected Void doInBackground(ForeignWorkspace... params) {
-            System.out.println("________________ going to send workspaces __________");
+            System.out.println("________________ going to send workspaces ADD_TO_FOREIGN_WORKSPACE_MSG __________");
 
             ForeignWorkspace[] foreignWorkspaces = new ForeignWorkspace[params.length];
             for (int i = 0; i < params.length; i++) {
@@ -205,6 +310,7 @@ public class AirDeskService {
             }
 
             String msgJson = gson.toJson(msg);
+            System.out.println("------------ msg : " + msgJson);
             Socket socket = null;
             try {
                 socket = new Socket(receiverIp, Constants.port);
@@ -220,11 +326,7 @@ public class AirDeskService {
         }
 
         private AirDeskMessage createMessage(String type, ForeignWorkspace[] foreignWorkspaces) {
-            if(myDevice == null) {
-                logger.log(Level.SEVERE, "my device not set");
-                return null;
-            }
-            AirDeskMessage msg = new AirDeskMessage(type, myDevice.deviceAddress);
+            AirDeskMessage msg = new AirDeskMessage(type, userManager.getOwner().getUserId());
             msg.addInput(Constants.WORKSPACES, foreignWorkspaces);
             return msg;
         }
@@ -244,28 +346,28 @@ public class AirDeskService {
                 return null;
             }
             String msgJson = gson.toJson(msg);
+            System.out.println("------------ msg : " + msgJson);
 
             try {
-                for (String virtualIp : connectedIpsVirtual) {
-                    Socket socket = new Socket(virtualIp, Constants.port);
-                    OutputStream outputStream = socket.getOutputStream();
-                    outputStream.write(msgJson.getBytes());
-                    outputStream.flush();
-                    outputStream.close();
-                    System.out.println("___________________ PUBLISH_TAGS_MSG wrote to o/p stream ___________________");
+                for (Map.Entry<String, String> entry : idIPMap.entrySet()) {
+                    if(!entry.getKey().equals(userManager.getOwner().getUserId())) {
+                        Socket socket = new Socket(entry.getValue(), Constants.port);
+                        OutputStream outputStream = socket.getOutputStream();
+                        outputStream.write(msgJson.getBytes());
+                        outputStream.flush();
+                        outputStream.close();
+                        System.out.println("___________________ PUBLISH_TAGS_MSG wrote to o/p stream ___________________");
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            peerLock.unlock();
             return null;
         }
 
         private AirDeskMessage createMessage(String type, String[] tags) {
-            if(myDevice == null) {
-                logger.log(Level.SEVERE, "my device not set");
-                return null;
-            }
-            AirDeskMessage msg = new AirDeskMessage(type, myDevice.deviceAddress);
+            AirDeskMessage msg = new AirDeskMessage(type, userManager.getOwner().getUserId());
             msg.addInput(Constants.TAGS, tags);
             return msg;
         }
@@ -282,7 +384,6 @@ public class AirDeskService {
         protected Void doInBackground(String... params) {
 
             System.out.println("___________ going to send REVOKE_ACCESS_MSG______________");
-            peerLock.lock();
             String workspaceName = params[0];
             String workspaceOwnerId = params[1];
             AirDeskMessage msg = createMessage(Constants.REVOKE_ACCESS_MSG, workspaceName, workspaceOwnerId);
@@ -292,6 +393,7 @@ public class AirDeskService {
                 return null;
             }
             String msgJson = gson.toJson(msg);
+            System.out.println("------------ msg : " + msgJson);
 
             try {
                 Socket socket = new Socket(receiverIp, Constants.port);
@@ -307,12 +409,7 @@ public class AirDeskService {
         }
 
         private AirDeskMessage createMessage(String type, String workspaceName, String workspaceOwnerId) {
-            if(myDevice == null) {
-                logger.log(Level.SEVERE, "my device not set");
-                return null;
-            }
-
-            AirDeskMessage msg = new AirDeskMessage(type, myDevice.deviceAddress);
+            AirDeskMessage msg = new AirDeskMessage(type, userManager.getOwner().getUserId());
             msg.addInput(Constants.WORKSPACE_NAME, workspaceName);
             msg.addInput(Constants.OWNER_ID, workspaceOwnerId);
             return msg;

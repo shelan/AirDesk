@@ -27,6 +27,14 @@ public class AirDeskMessage {
         return senderID;
     }
 
+    public String getSenderIP() {
+        return senderIP;
+    }
+
+    public void setSenderIP(String senderIP) {
+        this.senderIP = senderIP;
+    }
+
     public HashMap<String, Object> getInputs() {
         return inputs;
     }

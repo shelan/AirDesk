@@ -32,6 +32,8 @@ public class Constants {
 
     //broadcast actions for wifi direct
     public static final String INTRODUCE_MSG = "introduce";
+    public static final String ID_IP_MAP_REQUEST_MSG = "id_ip_map_request";
+    public static final String ID_IP_MAP_REPLY_MSG = "id_ip_map_reply";
     public static final String SUBSCRIBE_TAGS_MSG = "subscribed";
     public static final String PUBLISH_TAGS_MSG = "publish_tags";
     public static final String ADD_TO_FOREIGN_WORKSPACE_MSG = "add_to_foreign_ws";
@@ -40,6 +42,7 @@ public class Constants {
     public static final String SENDER_ID = "senderID";
     public static final String TAGS = "tags";
     public static final String CLIENT_ID = "client_id";
+    public static final String ID_IP_MAP = "id_ip_map";
 
     //workspace fields in cast json msg
     public static final String MATCHING_TAGS = "matchingTags";

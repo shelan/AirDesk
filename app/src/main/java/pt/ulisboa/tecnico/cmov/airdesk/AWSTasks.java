@@ -40,29 +40,34 @@ public class AWSTasks {
     }
 
     public boolean createFolder(String parentName, String folderName) throws ExecutionException, InterruptedException {
-        return new FolderCreateAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
-                parentName, folderName).get();
+       /* return new FolderCreateAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
+                parentName, folderName).get();*/
+        return true;
     }
 
     public boolean deleteFolder(String parentName, String folderName) throws ExecutionException, InterruptedException {
-        return new FolderDeleteAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
-                parentName, folderName).get();
+        /*return new FolderDeleteAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
+                parentName, folderName).get();*/
+        return true;
     }
 
     public boolean createFile(String parent, String folderName, String fileName, String content) throws ExecutionException, InterruptedException {
-        return new FileCreateAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
-                parent, folderName, fileName, content).get();
+        /*return new FileCreateAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
+                parent, folderName, fileName, content).get();*/
+        return true;
     }
 
     public boolean deleteFile(String parent, String folderName, String fileName) throws ExecutionException, InterruptedException {
-        return new FileDeleteTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
-                parent, folderName, fileName).get();
+        /*return new FileDeleteTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
+                parent, folderName, fileName).get();*/
+        return true;
     }
 
     public StringBuffer getFile(String parent, String folderName, String fileName) throws ExecutionException, InterruptedException {
-        AsyncTask getTask = new FileDownload().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
+        /*AsyncTask getTask = new FileDownload().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
                 parent, folderName, fileName);
-        return (StringBuffer) getTask.get();
+        return (StringBuffer) getTask.get();*/
+        return new StringBuffer();
     }
 
 

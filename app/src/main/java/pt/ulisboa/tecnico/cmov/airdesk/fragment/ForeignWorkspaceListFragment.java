@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -32,6 +33,7 @@ import pt.ulisboa.tecnico.cmov.airdesk.R;
 import pt.ulisboa.tecnico.cmov.airdesk.activity.WorkspaceDetailViewActivity;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.UserManager;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.WorkspaceManager;
+import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.communication.CommunicationTask;
 
 public class ForeignWorkspaceListFragment extends Fragment {
 
@@ -79,8 +81,8 @@ public class ForeignWorkspaceListFragment extends Fragment {
                 Intent intent = new Intent(getActivity(), WorkspaceDetailViewActivity.class)
                         .putExtra(Intent.EXTRA_TEXT, workspace)
                         //.putExtra(Constants.WORKSPACE_NAME, workspaceManager.getOwnedWorkspace(workspace))
-                        .putExtra(Constants.WORKSPACE_NAME, workspaceManager.getForeignWorkspace(workspace,ownerId))
-                        .putExtra(Constants.IS_OWNED_WORKSPACE,false);
+                        .putExtra(Constants.WORKSPACE_NAME, workspaceManager.getForeignWorkspace(workspace, ownerId))
+                        .putExtra(Constants.IS_OWNED_WORKSPACE, false);
 
                 startActivity(intent);
                 Toast.makeText(getActivity(), "You are now in " + workspace,
@@ -134,7 +136,20 @@ public class ForeignWorkspaceListFragment extends Fragment {
             }
         });
 
+        Button connect_btn = (Button) rootView.findViewById(R.id.connect_btn);
+        connect_btn.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(AirDeskService.getInstance().getGroupOwnerAddress() != null) {
+                    CommunicationTask.OutgoingCommTask outgoingCommTask = new CommunicationTask(new ForeignWorkspaceListFragment()).getOutgoingCommTask();
+                    outgoingCommTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
+                            AirDeskService.getInstance().getGroupOwnerAddress().getHostAddress(), new UserManager().getOwner().getUserId());
 
+                    AirDeskService.getInstance().requestIdIpMap();
+                }
+
+            }
+        });
 
         return rootView;
     }

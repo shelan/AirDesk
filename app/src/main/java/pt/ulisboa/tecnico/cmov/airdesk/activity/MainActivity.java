@@ -15,6 +15,8 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -152,7 +154,7 @@ public class MainActivity extends ActionBarActivity {
             receiver = new WiFiDirectBroadcastReceiver(manager, channel, communicationManager);
             registerReceiver(receiver, intentFilter);
 
-            CommunicationTask.IncomingCommTask incomingCommTask = new CommunicationTask(foreignWorkspacesFragment).getIncomingCommTask();
+            CommunicationTask.IncomingCommTask incomingCommTask = new CommunicationTask(foreignWorkspacesFragment, getApplicationContext()).getIncomingCommTask();
             incomingCommTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
            /* if(!mBound) {
@@ -166,7 +168,7 @@ public class MainActivity extends ActionBarActivity {
             peerList.clear();
             peerList.addAll(availablePeers.getDeviceList());
 
-            airDeskService.updateConnectedDevices(peerList);
+            ////airDeskService.updateConnectedDevices(peerList);
 
             if (peerList.size() == 0) {
                 Toast.makeText(getBaseContext(), "No devices found",
@@ -179,9 +181,17 @@ public class MainActivity extends ActionBarActivity {
         public void onConnectionInfoAvailable(WifiP2pInfo info) {
             if (info.groupFormed) {
                 airDeskService.setGroupOwnerDetails(info);
-                CommunicationTask.OutgoingCommTask outgoingCommTask = new CommunicationTask(foreignWorkspacesFragment).getOutgoingCommTask();
-                outgoingCommTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
-                        info.groupOwnerAddress.getHostAddress(), new UserManager().getOwner().getUserId());
+
+                //others send introduce msg to group owner
+                if(info.isGroupOwner) {
+                    airDeskService.addIdIpMapping(new UserManager().getOwner().getUserId(), info.groupOwnerAddress.getHostAddress());
+                } else {
+                    CommunicationTask.OutgoingCommTask outgoingCommTask = new CommunicationTask(foreignWorkspacesFragment).getOutgoingCommTask();
+                    outgoingCommTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
+                            info.groupOwnerAddress.getHostAddress(), new UserManager().getOwner().getUserId());
+
+                    airDeskService.requestIdIpMap();
+                }
             }
         }
 
