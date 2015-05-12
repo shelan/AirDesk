@@ -173,7 +173,7 @@ public class ForeignWorkspaceListFragment extends Fragment {
     }
 
     public void updateWorkspaceList() {
-
+        System.out.println("......... updating foreign workspace list ......");
         ForeignWorkspaceDataAsync foreignWorkspaceDataAsync = new ForeignWorkspaceDataAsync();
         foreignWorkspaceDataAsync.execute();
 
@@ -185,11 +185,13 @@ public class ForeignWorkspaceListFragment extends Fragment {
 
         @Override
         protected List<String> doInBackground(Void... params) {
+            System.out.println("........ getting updated list from bkend...... ");
             return new UserManager().getForeignWorkspaces();
         }
 
         @Override
         protected void onPostExecute(List<String> result) {
+            System.out.println("...... updating foreign ws list........");
             if (result != null) {
                 workspaceList.clear();
                 for (String s : result) {
@@ -199,6 +201,8 @@ public class ForeignWorkspaceListFragment extends Fragment {
             }
             fillDataAdapter(workspaceList);
             adapter.notifyDataSetChanged();
+            System.out.println("...... updated foreign ws list........");
+
         }
     }
 }

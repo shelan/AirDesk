@@ -58,6 +58,9 @@ public class AirDeskService {
     public static AirDeskService getInstance() {
         if(instance == null) {
             instance = new AirDeskService();
+            /////// temp adding ips
+            instance.idIPMap.put("user@gmail.com","192.168.49.1");
+            instance.idIPMap.put("cc@g.com","192.168.49.81");
         }
         return instance;
     }
