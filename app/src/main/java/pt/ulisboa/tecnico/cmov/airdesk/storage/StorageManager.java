@@ -173,7 +173,11 @@ public class StorageManager {
         ownerId = FileUtils.getFileNameForUserId(ownerId);
         File parentDir = appContext.getDir(FOREIGN_WORKSPACE_DIR, appContext.MODE_PRIVATE);
         String uniqueWorkspacePath = ownerId + File.separator + workspaceName;
-        return FileUtils.createFolder(parentDir, uniqueWorkspacePath);
+        File dirPath = new File(parentDir, uniqueWorkspacePath);
+        if(!FileUtils.fileExists(dirPath.getAbsolutePath())) {
+            return FileUtils.createFolder(parentDir, uniqueWorkspacePath);
+        }
+        return dirPath;
     }
 
     public boolean deleteFolderForForeignWorkspace(String workspaceName, String ownerId) {

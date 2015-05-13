@@ -248,7 +248,7 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
                                     try {
                                         new WorkspaceManager().deleteDataFile(finalWorkspace
                                                         .getWorkspaceName(), fileName,
-                                                finalWorkspace.getOwnerId(), true);
+                                                finalWorkspace.getOwnerId(), isOwnedWorkspace );
                                     } catch (IOException e) {
                                         e.printStackTrace();
                                     }

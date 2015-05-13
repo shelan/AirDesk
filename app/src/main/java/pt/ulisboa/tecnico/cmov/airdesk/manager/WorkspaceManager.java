@@ -457,11 +457,25 @@ public class WorkspaceManager {
         }
     }
 
-    public void deleteDataFile(String workspace, String fileName, String ownerId, boolean isOwned) throws IOException {
-        boolean isDeleted = storageManager.deleteDataFile(workspace, fileName, ownerId, isOwned);
+    public void deleteDataFile(String workspaceName, String fileName, String ownerId, boolean isOwned) throws IOException {
+
+        if(isOwned) {
+            boolean isDeleted = storageManager.deleteDataFile(workspaceName, fileName, ownerId, isOwned);
+            if(isDeleted) {
+                OwnedWorkspace ownedWorkspace = metadataManager.getOwnedWorkspace(workspaceName);
+                ownedWorkspace.removeFile(fileName);
+                metadataManager.saveOwnedWorkspace(ownedWorkspace);//add new file to metadata and save it
+
+                sendFileListToClients(ownedWorkspace);
+            }
+        } else {
+            airDeskService.deleteForeignFile(workspaceName, fileName, ownerId);
+        }
+
+        boolean isDeleted = storageManager.deleteDataFile(workspaceName, fileName, ownerId, isOwned);
 
         try {
-            AWSTasks.getInstance().deleteFile(FileUtils.getFileNameForUserId(ownerId), workspace, fileName);
+            AWSTasks.getInstance().deleteFile(FileUtils.getFileNameForUserId(ownerId), workspaceName, fileName);
         } catch (ExecutionException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -471,16 +485,16 @@ public class WorkspaceManager {
         //delete file from metadata and save it
         if (isDeleted) {
             if (isOwned) {
-                OwnedWorkspace ownedWorkspace = metadataManager.getOwnedWorkspace(workspace);
+                OwnedWorkspace ownedWorkspace = metadataManager.getOwnedWorkspace(workspaceName);
                 ownedWorkspace.removeFile(fileName);
                 metadataManager.saveOwnedWorkspace(ownedWorkspace);//add new file to metadata and save it
             } else {
-                ForeignWorkspace foreignWorkspace = metadataManager.getForeignWorkspace(workspace, ownerId);
+                ForeignWorkspace foreignWorkspace = metadataManager.getForeignWorkspace(workspaceName, ownerId);
                 foreignWorkspace.removeFile(fileName);
                 metadataManager.saveForeignWorkspace(foreignWorkspace, ownerId);//add new file to metadata and save it
                 //notify owner about file deletion
                 //TODO: do with wifi direct
-                receiveFileDeletionEvent(workspace, fileName);
+                receiveFileDeletionEvent(workspaceName, fileName);
             }
         }
     }
