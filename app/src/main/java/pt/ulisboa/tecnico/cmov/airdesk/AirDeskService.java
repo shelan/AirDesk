@@ -113,6 +113,15 @@ public class AirDeskService {
         }
     }
 
+    public void createFileInOwnerSpace(String workspaceName, String fileName, String ownerId, String content) {
+        String ownerIP = idIPMap.get(ownerId);
+
+        if( ownerIP != null) {
+            SaveFileTask saveFileTask = new SaveFileTask(ownerIP);
+            saveFileTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, workspaceName, fileName, ownerId, content);
+        }
+    }
+
     public String requestReadFileFromOwner(String workspaceName, String fileName, String ownerId) {
         String ownerIP = idIPMap.get(ownerId);
 

@@ -124,6 +124,12 @@ public class StorageManager {
         FileUtils.writeToFile(pathToFile, content);
     }
 
+    public boolean fileExists(String workspaceName, String fileName) {
+        File baseDir = appContext.getDir(OWNED_WORKSPACE_DIR, appContext.MODE_PRIVATE);
+        String pathToFile = baseDir.getAbsolutePath() + File.separator + workspaceName + File.separator + fileName;
+        return FileUtils.fileExists(pathToFile);
+    }
+
     public boolean deleteDataFile(String workspaceName, String fileName, String ownerId, boolean isOwned) throws IOException {
         File baseDir;
         String pathToFile;

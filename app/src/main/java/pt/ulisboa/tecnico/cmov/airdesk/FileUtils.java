@@ -27,6 +27,10 @@ public class FileUtils {
         return null;
     }
 
+    public  static boolean fileExists(String path) {
+        return new File(path).exists();
+    }
+
     public static void writeToFile(String path, String content) throws IOException {
 
         File file = new File(path);

@@ -139,8 +139,8 @@ public class AirDeskReceiver {
                     String newContent = (String) msg.getInputs().get(Constants.FILE_CONTENT);
                     try {
                         workspaceManager.updateDataFile(workspaceName2, fileName, newContent, ownerId, true);
-                    } catch (IOException e) {
-                        System.out.println("Error in updating the file in owner space");
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
                 break;

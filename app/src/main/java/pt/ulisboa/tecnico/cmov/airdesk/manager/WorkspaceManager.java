@@ -338,12 +338,23 @@ public class WorkspaceManager {
 
     public void createDataFile(String workspace, String fileName, String ownerId, boolean isOwned) throws Exception {
 
-        boolean isCreated = storageManager.createDataFile(workspace, fileName, ownerId, isOwned);
+        if(isOwned) {
+            boolean isCreated = storageManager.createDataFile(workspace, fileName, ownerId, isOwned);
+            if(isCreated) {
+                OwnedWorkspace ownedWorkspace = metadataManager.getOwnedWorkspace(workspace);
+                ownedWorkspace.addFile(fileName);
+                metadataManager.saveOwnedWorkspace(ownedWorkspace);//add new file to metadata and save it
+
+                //notify clients
+            }
+        } else {
+            //this won't be called. If a file created in foreign workspace, will call update file with content
+        }
         //delay creating an empty S3 and create only when content is ready
 
 
         //add new file to metadata and save it
-        if (isCreated) {
+        /*if (isCreated) {
             if (isOwned) {
                 OwnedWorkspace ownedWorkspace = metadataManager.getOwnedWorkspace(workspace);
                 ownedWorkspace.addFile(fileName);
@@ -356,18 +367,7 @@ public class WorkspaceManager {
                 //TODO: do with wifi direct
                 receiveFileCreateEvent(workspace, fileName);
             }
-        }
-    }
-
-    /**
-     * If a client create a file in a foreign workspace, he should call this method for workspace owner
-     *
-     * @param workspace
-     * @param fileName
-     * @throws Exception
-     */
-    public void receiveFileCreateEvent(String workspace, String fileName) throws Exception {
-        createDataFile(workspace, fileName, userManager.getOwner().getUserId(), true);
+        }*/
     }
 
     public StringBuffer getDataFile(String workspaceName, String fileName, boolean writeMode, String ownerId, boolean isOwned) throws IOException {
@@ -416,9 +416,13 @@ public class WorkspaceManager {
         return dataFileContent;
     }
 
-    public void updateDataFile(String workspace, String fileName, String content, String ownerId, boolean isOwned) throws IOException {
+    public void updateDataFile(String workspace, String fileName, String content, String ownerId, boolean isOwned) throws Exception {
 
         if(isOwned) {
+            boolean fileExists = storageManager.fileExists(workspace, fileName);
+            if(!fileExists) {
+                createDataFile(workspace, fileName, userManager.getOwner().getUserId(), true);
+            }
             storageManager.updateDataFile(workspace, fileName, content, ownerId, isOwned);
 
             try {
@@ -433,10 +437,6 @@ public class WorkspaceManager {
             //notify owner about file update
             airDeskService.saveFileInOwnerSpace(workspace, fileName, ownerId, content);
         }
-    }
-
-    public void receiveFileUpdateEvent(String workspace, String fileName, String content) throws IOException {
-        updateDataFile(workspace, fileName, content, userManager.getOwner().getUserId(), true);
     }
 
     public void deleteDataFile(String workspace, String fileName, String ownerId, boolean isOwned) throws IOException {
