@@ -23,7 +23,7 @@ import pt.ulisboa.tecnico.cmov.airdesk.context.AirDeskApp;
  */
 public class AWSTasks {
 
-    public static boolean offline = true;
+    public static boolean offline = false;
 
     static AWSTasks taskInstance;
     CognitoCachingCredentialsProvider cognitoCachingCredentialsProvider =

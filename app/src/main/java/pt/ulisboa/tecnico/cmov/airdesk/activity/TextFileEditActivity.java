@@ -27,9 +27,9 @@ import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
-import pt.ulisboa.tecnico.cmov.airdesk.Exception.WriteLockedException;
 import pt.ulisboa.tecnico.cmov.airdesk.R;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.TextFile;
+import pt.ulisboa.tecnico.cmov.airdesk.manager.UserManager;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.WorkspaceManager;
 
 
@@ -40,8 +40,9 @@ public class TextFileEditActivity extends ActionBarActivity {
     static TextFile file;
     static Button saveButton;
     static MenuItem saveMenuItem;
-    private MenuItem editMenuItem;
+    private static MenuItem editMenuItem;
     static ProgressDialog progressDialog;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,18 +77,30 @@ public class TextFileEditActivity extends ActionBarActivity {
         if (id == R.id.action_settings) {
             return true;
         } else if (id == R.id.action_edit_file) {
-            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+            try {
+                StringBuffer content = requestText(file, true);
+                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
 
-            saveMenuItem.setVisible(true);
-            item.setVisible(false);
+                saveMenuItem.setVisible(true);
+                item.setVisible(false);
 
-            displayText.setVisibility(View.INVISIBLE);
-            editText.setVisibility(View.VISIBLE);
+                displayText.setVisibility(View.INVISIBLE);
+                editText.setVisibility(View.VISIBLE);
 
-            editText.setBackground(null);
+                editText.setBackground(null);
            /* editText.setInputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE);
             editText.setHorizontallyScrolling(false);*/
-            Toast.makeText(this, "Editing", Toast.LENGTH_SHORT).show();
+                if(content == null)
+                    Toast.makeText(this, "Write lock already taken", Toast.LENGTH_SHORT).show();
+                else
+                    Toast.makeText(this, "Editing", Toast.LENGTH_SHORT).show();
+
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
 
         } else if (id == R.id.delete_file) {
 
@@ -126,7 +139,7 @@ public class TextFileEditActivity extends ActionBarActivity {
             try {
                 saveFileText(file);
                 displayText.setText(editText.getText().toString());
-                //  setText(file);
+                //  requestText(file);
                 saveMenuItem.setVisible(false);
                 editMenuItem.setVisible(true);
                 editText.setVisibility(View.INVISIBLE);
@@ -187,10 +200,10 @@ public class TextFileEditActivity extends ActionBarActivity {
             getActivity().setTitle(file.getWorkspace() + "/" + file.getFileName());
 
             try {
-               progressDialog= ProgressDialog
-                       .show(getActivity(), "Loading", "Loading file...");
+                progressDialog = ProgressDialog
+                        .show(getActivity(), "Loading", "Loading file...");
 
-                setText(file);
+                requestText(file, false);
             } catch (ExecutionException e) {
                 Log.d(LOG_TAG, "Error while executing file get Async task");
             } catch (InterruptedException e) {
@@ -206,6 +219,11 @@ public class TextFileEditActivity extends ActionBarActivity {
     public static class FileStreamAsyncTask extends AsyncTask<TextFile, Void, StringBuffer> {
 
         private final String LOG_TAG = FileStreamAsyncTask.class.getSimpleName();
+        boolean writeMode = false;
+
+        public FileStreamAsyncTask(boolean writeMode) {
+            this.writeMode = writeMode;
+        }
 
         WorkspaceManager manager = new WorkspaceManager();
 
@@ -219,24 +237,32 @@ public class TextFileEditActivity extends ActionBarActivity {
 
                 //TODO:Change this accordingly to pass isOwner parameter using and intent
                 try {
-                    textBuffer = manager.getDataFile(textFile.getWorkspace(), textFile.getFileName(), false,
+                    textBuffer = manager.getDataFile(textFile.getWorkspace(), textFile.getFileName(), writeMode,
                             textFile.getOwner()
-                            , true);
+                            , (new UserManager().getOwner().getUserId().equals(textFile.getOwner())));
                 } catch (IOException e) {
                     Log.d(LOG_TAG, "Error while retrieving the file");
-                } catch (WriteLockedException e) {
-                    e.printStackTrace();
                 }
-
+                if (textBuffer == null) {
+                    System.out.println("----------------------");
+                }
             }
             return textBuffer;
         }
 
         @Override
         protected void onPostExecute(StringBuffer textBuffer) {
-            editText.setText(textBuffer);
-            displayText.setText(textBuffer);
-            progressDialog.dismiss();
+            if (textBuffer != null) {
+                editText.setText(textBuffer);
+                displayText.setText(textBuffer);
+                progressDialog.dismiss();
+            } else {
+                saveMenuItem.setVisible(false);
+                editMenuItem.setVisible(true);
+                editText.setVisibility(View.INVISIBLE);
+                displayText.setVisibility(View.VISIBLE);
+                /////imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+            }
         }
     }
 
@@ -257,7 +283,7 @@ public class TextFileEditActivity extends ActionBarActivity {
                 try {
                     manager.updateDataFile(textFile.getWorkspace(), textFile.getFileName(), editText.getText().toString(),
                             textFile.getOwner()
-                            , true);
+                            , new UserManager().getOwner().getUserId().equals(textFile.getOwner()));
                     return true;
                 } catch (IOException e) {
                     Log.d(LOG_TAG, "Error while saving the file");
@@ -273,8 +299,9 @@ public class TextFileEditActivity extends ActionBarActivity {
         fileSaveAsynTask.execute(file);
     }
 
-    static private void setText(TextFile file) throws ExecutionException, InterruptedException {
-        FileStreamAsyncTask fileStreamAsyncTask = new FileStreamAsyncTask();
-        fileStreamAsyncTask.execute(file);
+    static StringBuffer requestText(TextFile file, boolean writeMode) throws ExecutionException, InterruptedException {
+        FileStreamAsyncTask fileStreamAsyncTask = new FileStreamAsyncTask(writeMode);
+        StringBuffer content  = fileStreamAsyncTask.execute(file).get();
+        return content;
     }
 }

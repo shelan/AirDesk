@@ -2,11 +2,14 @@ package pt.ulisboa.tecnico.cmov.airdesk;
 
 import com.google.gson.internal.LinkedTreeMap;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import pt.ulisboa.tecnico.cmov.airdesk.Exception.WriteLockedException;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.OwnedWorkspace;
 import pt.ulisboa.tecnico.cmov.airdesk.fragment.ForeignWorkspaceListFragment;
+import pt.ulisboa.tecnico.cmov.airdesk.manager.UserManager;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.WorkspaceManager;
 import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.communication.AirDeskMessage;
 
@@ -24,11 +27,11 @@ public class AirDeskReceiver {
         System.out.println("..........................");
         System.out.println("... handle msg: " + msg.getType());
         System.out.println("..........................");
+        String senderIP  = msg.getSenderIP();
         switch (msg.getType()) {
 
             case Constants.INTRODUCE_MSG:
                 String senderID = msg.getSenderID();
-                String senderIP  = msg.getSenderIP();
                 airDeskService.addIdIpMapping(senderID, senderIP);
                 break;
 
@@ -66,13 +69,13 @@ public class AirDeskReceiver {
                     try {
                         ArrayList<String> files = (ArrayList<String>) workspace.get(Constants.FILE_NAMES);
                         ArrayList<String> matchingTags = (ArrayList<String>) workspace.get(Constants.MATCHING_TAGS);
-                        if(matchingTags == null) {
-                            workspaceManager.addToForeignWorkspace((String)workspace.get(Constants.WORKSPACE_NAME),
-                                    (String)workspace.get(Constants.OWNER_ID), (Double)workspace.get(Constants.QUOTA),
+                        if (matchingTags == null) {
+                            workspaceManager.addToForeignWorkspace((String) workspace.get(Constants.WORKSPACE_NAME),
+                                    (String) workspace.get(Constants.OWNER_ID), (Double) workspace.get(Constants.QUOTA),
                                     files.toArray(new String[files.size()]), new String[0]);
                         } else {
-                            workspaceManager.addToForeignWorkspace((String)workspace.get(Constants.WORKSPACE_NAME),
-                                    (String)workspace.get(Constants.OWNER_ID), (Double)workspace.get(Constants.QUOTA),
+                            workspaceManager.addToForeignWorkspace((String) workspace.get(Constants.WORKSPACE_NAME),
+                                    (String) workspace.get(Constants.OWNER_ID), (Double) workspace.get(Constants.QUOTA),
                                     files.toArray(new String[files.size()]),
                                     matchingTags.toArray(new String[matchingTags.size()]));
                         }
@@ -98,6 +101,48 @@ public class AirDeskReceiver {
                 String workspaceOwnerId = (String) msg.getInputs().get(Constants.OWNER_ID);
                 workspaceManager.removeFromForeignWorkspace(workspaceName, workspaceOwnerId);
                 foreignWorkspaceFragment.updateWorkspaceList();
+                break;
+
+            case Constants.REQUEST_FILE_MSG:
+                try {
+                    String workspaceName1 = (String) msg.getInputs().get(Constants.WORKSPACE_NAME);
+                    String fileName = (String) msg.getInputs().get(Constants.FILENAME);
+                    String ownerId = (String) msg.getInputs().get(Constants.OWNER_ID);
+                    boolean writeMod = (Boolean) msg.getInputs().get(Constants.WRITE_MODE);
+                    //this msg will be received by file workspace owner
+                    if(new UserManager().getOwner().getUserId().equals(ownerId)) {
+                        StringBuffer fileContent = workspaceManager.getDataFile(workspaceName1, fileName, writeMod, ownerId, true);
+                        //content will be null if a WriteLockedException is thrown. ie: cannot take file in write mode
+                        if(fileContent != null) {
+                            airDeskService.sendFileContentToClient(senderIP, workspaceName1, fileName, ownerId, fileContent.toString());
+                        } else {
+                            airDeskService.sendFileContentToClient(senderIP, workspaceName1, fileName, ownerId, null);
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+
+            case Constants.FILE_CONTENT_RESULT_MSG:
+                String content = (String) msg.getInputs().get(Constants.FILE_CONTENT);
+                System.out.println("================ file content ==================");
+                System.out.println(content);
+                System.out.println("==================================");
+                break;
+
+            case Constants.SAVE_FILE_MSG:
+                String ownerId = (String) msg.getInputs().get(Constants.OWNER_ID);
+                if(new UserManager().getOwner().getUserId().equals(ownerId)) {
+                    String workspaceName2 = (String) msg.getInputs().get(Constants.WORKSPACE_NAME);
+                    String fileName = (String) msg.getInputs().get(Constants.FILENAME);
+                    String newContent = (String) msg.getInputs().get(Constants.FILE_CONTENT);
+                    try {
+                        workspaceManager.updateDataFile(workspaceName2, fileName, newContent, ownerId, true);
+                    } catch (IOException e) {
+                        System.out.println("Error in updating the file in owner space");
+                    }
+                }
                 break;
 
             default:

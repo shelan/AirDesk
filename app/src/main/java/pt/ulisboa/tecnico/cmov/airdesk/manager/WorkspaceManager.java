@@ -32,6 +32,7 @@ public class WorkspaceManager {
     private StorageManager storageManager = new StorageManager();
     private MetadataManager metadataManager = new MetadataManager();
     private UserManager userManager = new UserManager();
+    private AirDeskService airDeskService = AirDeskService.getInstance();
 
     public WorkspaceManager() {}
 
@@ -108,7 +109,7 @@ public class WorkspaceManager {
     }
 
     private void publishTags(String[] tags) {
-        AirDeskService.getInstance().publishTags(tags);
+        airDeskService.publishTags(tags);
     }
 
     /**
@@ -165,7 +166,7 @@ public class WorkspaceManager {
 
     public void subscribeToTags(String[] tags) {
         userManager.subscribeToTags(tags);
-        AirDeskService.getInstance().broadcastTagSubscription(tags);
+        airDeskService.broadcastTagSubscription(tags);
     }
 
     public void unsubscribeFromTags(String[] tags) {
@@ -269,7 +270,7 @@ public class WorkspaceManager {
         editOwnedWorkspace(ownedWorkspace.getWorkspaceName(), ownedWorkspace, false);
 
         if(addedByOwner) {
-            AirDeskService.getInstance().sendWorkspaceToClient(ownedWorkspace, clientId);
+            airDeskService.sendWorkspaceToClient(ownedWorkspace, clientId);
         }
         //else part : if added due to matching tags it is send to client when matching the public workspaces
     }
@@ -282,7 +283,7 @@ public class WorkspaceManager {
         ownedWorkspace.addClientToRemoveList(clientId);//this list will be used by wifidirect to notify removed users
         editOwnedWorkspace(workspaceName, ownedWorkspace, false);
 
-        AirDeskService.getInstance().revokeAccessFromClient(workspaceName,
+        airDeskService.revokeAccessFromClient(workspaceName,
                 userManager.getOwner().getUserId(), clientId);
 
     }
@@ -369,40 +370,68 @@ public class WorkspaceManager {
         createDataFile(workspace, fileName, userManager.getOwner().getUserId(), true);
     }
 
-    public StringBuffer getDataFile(String workspace, String fileName, boolean writeMode, String ownerId, boolean isOwned) throws IOException, WriteLockedException {
-        StringBuffer dataFileContent = storageManager.
-                getDataFileContent(workspace, fileName, writeMode, ownerId, isOwned);
-        if (dataFileContent == null) {
-            try {
-                dataFileContent = AWSTasks.getInstance().getFile(FileUtils.getFileNameForUserId(ownerId), workspace, fileName);
-                //do a restoration
-                updateDataFile(workspace, fileName, dataFileContent.toString(), ownerId, isOwned);
-                dataFileContent = storageManager.
-                        getDataFileContent(workspace, fileName, writeMode, ownerId, isOwned);
-            } catch (Exception e) {
-                e.printStackTrace();
+    public StringBuffer getDataFile(String workspaceName, String fileName, boolean writeMode, String ownerId, boolean isOwned) throws IOException {
+        StringBuffer dataFileContent = new StringBuffer();
+       /* try {
+            dataFileContent = storageManager.
+                    getDataFileContent(workspaceName, fileName, writeMode, ownerId, isOwned);
+        } catch (WriteLockedException e) {
+            return null;
+        }*/
+        //if (dataFileContent == null) {
+            if(isOwned) {
+                try {
+                    dataFileContent = storageManager.
+                            getDataFileContent(workspaceName, fileName, writeMode, ownerId, isOwned);
+                } catch (WriteLockedException e) {
+                    return null;
+                }
+                if (dataFileContent == null) {
+                    //get from aws
+                    try {
+                        dataFileContent = AWSTasks.getInstance().getFile(FileUtils.getFileNameForUserId(ownerId), workspaceName, fileName);
+                        //do a restoration
+                        updateDataFile(workspaceName, fileName, dataFileContent.toString(), ownerId, isOwned);
+                        dataFileContent = storageManager.
+                                getDataFileContent(workspaceName, fileName, writeMode, ownerId, isOwned);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            } else {
+                if(writeMode) {
+                    //content will be null if cannot get file in write mode
+                    String content = airDeskService.requestWriteFileFromOwner(workspaceName, fileName, ownerId);
+                    if(content == null)
+                        return null;
+                    else
+                        return new StringBuffer(content);
+                } else {
+                    String content = airDeskService.requestReadFileFromOwner(workspaceName, fileName, ownerId);
+                    return new StringBuffer(content);
+                }
             }
-        }
+       // }
 
         return dataFileContent;
     }
 
     public void updateDataFile(String workspace, String fileName, String content, String ownerId, boolean isOwned) throws IOException {
-        storageManager.updateDataFile(workspace, fileName, content, ownerId, isOwned);
 
-        try {
-            AWSTasks.getInstance().
-                    createFile(FileUtils.getFileNameForUserId(ownerId), workspace, fileName, content);
-        } catch (ExecutionException e) {
-            //log error
-        } catch (InterruptedException e) {
-            //log error
-        }
+        if(isOwned) {
+            storageManager.updateDataFile(workspace, fileName, content, ownerId, isOwned);
 
-        if (!isOwned) {
+            try {
+                AWSTasks.getInstance().
+                        createFile(FileUtils.getFileNameForUserId(ownerId), workspace, fileName, content);
+            } catch (ExecutionException e) {
+                //log error
+            } catch (InterruptedException e) {
+                //log error
+            }
+        } else {
             //notify owner about file update
-            //TODO: do with wifi direct
-            receiveFileUpdateEvent(workspace, fileName, content);
+            airDeskService.saveFileInOwnerSpace(workspace, fileName, ownerId, content);
         }
     }
 

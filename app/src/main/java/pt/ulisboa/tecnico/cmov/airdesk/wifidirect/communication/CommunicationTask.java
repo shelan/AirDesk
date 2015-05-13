@@ -3,7 +3,6 @@ package pt.ulisboa.tecnico.cmov.airdesk.wifidirect.communication;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 
@@ -15,10 +14,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
+import java.util.HashMap;
 
 import pt.ulisboa.tecnico.cmov.airdesk.AirDeskReceiver;
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
-import pt.ulisboa.tecnico.cmov.airdesk.activity.MainActivity;
 import pt.ulisboa.tecnico.cmov.airdesk.fragment.ForeignWorkspaceListFragment;
 
 /**
@@ -61,6 +60,16 @@ public class CommunicationTask {
         return this.outgoingCommTask;
     }
 
+    private static HashMap<String, String> fileContents = new HashMap<String, String>();
+
+    public static HashMap<String, String> getFileContents() {
+        return fileContents;
+    }
+
+    public static void removeFileContentItem(String key) {
+        fileContents.remove(key);
+    }
+
     public class IncomingCommTask extends AsyncTask<Void, Socket, Void> {
 
         @Override
@@ -88,6 +97,13 @@ public class CommunicationTask {
                         //set sender IP using the socket created
                         msg.setSenderIP(client.getInetAddress().getHostAddress());
 
+                        if(Constants.FILE_CONTENT_RESULT_MSG.equals(msg.getType())) {
+                            String ownerId = (String) msg.getInputs().get(Constants.OWNER_ID);
+                            String workspaceName = (String) msg.getInputs().get(Constants.WORKSPACE_NAME);
+                            String fileName = (String) msg.getInputs().get(Constants.FILENAME);
+                            String content = (String) msg.getInputs().get(Constants.FILE_CONTENT);
+                            fileContents.put(ownerId.concat("/").concat(workspaceName).concat("/").concat(fileName), content);
+                        }
                         airDeskReceiver.handleMessage(msg);
 
                         if (mCliSocket != null && mCliSocket.isClosed()) {
