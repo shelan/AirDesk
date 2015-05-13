@@ -359,24 +359,6 @@ public class WorkspaceManager {
         } else {
             //this won't be called. If a file created in foreign workspaceName, will call update file with content
         }
-        //delay creating an empty S3 and create only when content is ready
-
-
-        //add new file to metadata and save it
-        /*if (isCreated) {
-            if (isOwned) {
-                OwnedWorkspace ownedWorkspace = metadataManager.getOwnedWorkspace(workspaceName);
-                ownedWorkspace.addFile(fileName);
-                metadataManager.saveOwnedWorkspace(ownedWorkspace);//add new file to metadata and save it
-            } else {
-                ForeignWorkspace foreignWorkspace = metadataManager.getForeignWorkspace(workspaceName, ownerId);
-                foreignWorkspace.addFile(fileName);
-                metadataManager.saveForeignWorkspace(foreignWorkspace, ownerId);
-                //notify owner about file creation
-                //TODO: do with wifi direct
-                receiveFileCreateEvent(workspaceName, fileName);
-            }
-        }*/
     }
 
     private void sendFileListToClients(OwnedWorkspace workspace) {
@@ -434,26 +416,26 @@ public class WorkspaceManager {
         return dataFileContent;
     }
 
-    public void updateDataFile(String workspace, String fileName, String content, String ownerId, boolean isOwned) throws Exception {
+    public void updateDataFile(String workspaceName, String fileName, String content, String ownerId, boolean isOwned) throws Exception {
 
         if(isOwned) {
-            boolean fileExists = storageManager.fileExists(workspace, fileName);
+            boolean fileExists = storageManager.fileExists(workspaceName, fileName);
             if(!fileExists) {
-                createDataFile(workspace, fileName, userManager.getOwner().getUserId(), true);
+                createDataFile(workspaceName, fileName, userManager.getOwner().getUserId(), true);
             }
-            storageManager.updateDataFile(workspace, fileName, content, ownerId, isOwned);
+            storageManager.updateDataFile(workspaceName, fileName, content, ownerId, isOwned);
 
             try {
                 AWSTasks.getInstance().
-                        createFile(FileUtils.getFileNameForUserId(ownerId), workspace, fileName, content);
+                        createFile(FileUtils.getFileNameForUserId(ownerId), workspaceName, fileName, content);
             } catch (ExecutionException e) {
-                //log error
+                e.printStackTrace();
             } catch (InterruptedException e) {
-                //log error
+                e.printStackTrace();
             }
         } else {
             //notify owner about file update
-            airDeskService.saveFileInOwnerSpace(workspace, fileName, ownerId, content);
+            airDeskService.saveFileInOwnerSpace(workspaceName, fileName, ownerId, content);
         }
     }
 
@@ -467,41 +449,17 @@ public class WorkspaceManager {
                 metadataManager.saveOwnedWorkspace(ownedWorkspace);//add new file to metadata and save it
 
                 sendFileListToClients(ownedWorkspace);
+
+                try {
+                    AWSTasks.getInstance().deleteFile(FileUtils.getFileNameForUserId(ownerId), workspaceName, fileName);
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         } else {
             airDeskService.deleteForeignFile(workspaceName, fileName, ownerId);
         }
-
-        boolean isDeleted = storageManager.deleteDataFile(workspaceName, fileName, ownerId, isOwned);
-
-        try {
-            AWSTasks.getInstance().deleteFile(FileUtils.getFileNameForUserId(ownerId), workspaceName, fileName);
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        //delete file from metadata and save it
-        if (isDeleted) {
-            if (isOwned) {
-                OwnedWorkspace ownedWorkspace = metadataManager.getOwnedWorkspace(workspaceName);
-                ownedWorkspace.removeFile(fileName);
-                metadataManager.saveOwnedWorkspace(ownedWorkspace);//add new file to metadata and save it
-            } else {
-                ForeignWorkspace foreignWorkspace = metadataManager.getForeignWorkspace(workspaceName, ownerId);
-                foreignWorkspace.removeFile(fileName);
-                metadataManager.saveForeignWorkspace(foreignWorkspace, ownerId);//add new file to metadata and save it
-                //notify owner about file deletion
-                //TODO: do with wifi direct
-                receiveFileDeletionEvent(workspaceName, fileName);
-            }
-        }
     }
-
-    public void receiveFileDeletionEvent(String workspace, String fileName) throws IOException {
-        deleteDataFile(workspace, fileName, userManager.getOwner().getUserId(), true);
-    }
-
-
 }
