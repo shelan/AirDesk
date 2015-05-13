@@ -120,6 +120,7 @@ public class StorageManager {
                     workspaceName + File.separator + fileName;
         }
         addAccessTimeStamp(pathToFile);
+        removeWriteLock(workspaceName, fileName);
         FileUtils.writeToFile(pathToFile, content);
     }
 
@@ -145,11 +146,21 @@ public class StorageManager {
     }
 
     private boolean isWriteLocked(String workspaceName, String fileName) {
-        return fileWriteLock.get(workspaceName + File.separator + fileName);
+        boolean writeLocked = false;
+        if(fileWriteLock.containsKey(workspaceName + File.separator + fileName)) {
+            writeLocked = fileWriteLock.get(workspaceName + File.separator + fileName);
+        }
+        return writeLocked;
     }
 
     private void addWriteLock(String workspaceName, String fileName) {
         fileWriteLock.put(workspaceName + File.separator + fileName, new Boolean(true));
+    }
+
+    private void removeWriteLock(String workspaceName, String fileName) {
+        String key = workspaceName + File.separator + fileName;
+        if(fileWriteLock.containsKey(key))
+            fileWriteLock.remove(key);
     }
 
     public File createFolderForForeignWorkspace(String ownerId, String workspaceName) throws Exception {

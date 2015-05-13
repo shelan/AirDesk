@@ -38,11 +38,16 @@ public class Constants {
     public static final String PUBLISH_TAGS_MSG = "publish_tags";
     public static final String ADD_TO_FOREIGN_WORKSPACE_MSG = "add_to_foreign_ws";
     public static final String REVOKE_ACCESS_MSG = "revoke_access_of_client";
+    public static final String REQUEST_FILE_MSG = "request_file";
+    public static final String SAVE_FILE_MSG = "save_file";
+    public static final String FILE_CONTENT_RESULT_MSG = "send_file";
     public static final String WORKSPACES = "workspaces";
     public static final String SENDER_ID = "senderID";
     public static final String TAGS = "tags";
     public static final String CLIENT_ID = "client_id";
     public static final String ID_IP_MAP = "id_ip_map";
+    public static final String WRITE_MODE = "write_mode";
+    public static final String FILE_CONTENT = "file_content";
 
     //workspace fields in cast json msg
     public static final String MATCHING_TAGS = "matchingTags";

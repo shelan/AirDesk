@@ -1,6 +1,5 @@
 package pt.ulisboa.tecnico.cmov.airdesk;
 
-import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.os.AsyncTask;
 
@@ -12,12 +11,8 @@ import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
@@ -27,6 +22,7 @@ import pt.ulisboa.tecnico.cmov.airdesk.entity.ForeignWorkspace;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.OwnedWorkspace;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.UserManager;
 import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.communication.AirDeskMessage;
+import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.communication.CommunicationTask;
 
 /**
  * Created by ashansa on 5/3/15.
@@ -69,7 +65,7 @@ public class AirDeskService {
 
     //request from group owner
     public void requestIdIpMap() {
-        if(groupOwnerAddress != null) {
+        if(groupOwnerAddress != null && !isGroupOwner) {
             IDIPMapRequestTask idipMapRequestTask = new IDIPMapRequestTask(groupOwnerAddress.getHostAddress());
             idipMapRequestTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
@@ -111,13 +107,81 @@ public class AirDeskService {
 
     public void revokeAccessFromClient(String workspaceName, String workspaceOwnerId, String clientId) {
         String clientIP = idIPMap.get(clientId);
-        //if( clientIP != null && connectedIpsVirtual.contains(clientIP)) {
         if( clientIP != null) {
             AccessRevoker accessRevoker = new AccessRevoker(clientIP);
             accessRevoker.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, workspaceName, workspaceOwnerId);
         }
     }
 
+    public String requestReadFileFromOwner(String workspaceName, String fileName, String ownerId) {
+        String ownerIP = idIPMap.get(ownerId);
+
+        if( ownerIP != null) {
+            RequestFileTask requestFileTask = new RequestFileTask(ownerIP);
+            //params : workspace name, file name, owner Id, writeMode
+            requestFileTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, workspaceName, fileName, ownerId, "false");
+
+            String key = ownerId.concat("/").concat(workspaceName).concat("/").concat(fileName);
+            while (!CommunicationTask.getFileContents().containsKey(key)) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            String content = CommunicationTask.getFileContents().get(key);
+            if(content != null) {
+                System.out.println("************************************");
+                System.out.println("***************** content *******************");
+                System.out.println("******" + content + "***");
+                System.out.println("************************************");
+            }
+            CommunicationTask.removeFileContentItem(key);
+            return content;
+        }
+        return "";
+    }
+
+    public String requestWriteFileFromOwner(String workspaceName, String fileName, String ownerId) {
+        String ownerIP = idIPMap.get(ownerId);
+
+        if( ownerIP != null) {
+            RequestFileTask requestFileTask = new RequestFileTask(ownerIP);
+            //params : workspace name, file name, owner Id, writeMode
+            requestFileTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, workspaceName, fileName, ownerId, "true");
+
+            String key = ownerId.concat("/").concat(workspaceName).concat("/").concat(fileName);
+            while (!CommunicationTask.getFileContents().containsKey(key)) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            String content = CommunicationTask.getFileContents().get(key);
+            System.out.println("************************************");
+            System.out.println("***************** content *******************");
+            System.out.println("******" + content + "***");
+            System.out.println("************************************");
+            CommunicationTask.removeFileContentItem(key);
+            return content;
+        }
+        return null;
+    }
+
+    public void sendFileContentToClient(String clientIP, String workspaceName, String fileName, String ownerId, String fileContent) {
+        SendFileContentTask sendFileContentTask = new SendFileContentTask(clientIP);
+        sendFileContentTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, workspaceName, fileName, ownerId, fileContent);
+    }
+
+    public void saveFileInOwnerSpace(String workspaceName, String fileName, String ownerId, String content) {
+        String ownerIP = idIPMap.get(ownerId);
+
+        if( ownerIP != null) {
+            SaveFileTask saveFileTask = new SaveFileTask(ownerIP);
+            saveFileTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, workspaceName, fileName, ownerId, content);
+        }
+    }
     /* service method section end*/
 
 
@@ -418,6 +482,141 @@ public class AirDeskService {
             return msg;
         }
     }
+
+    private class RequestFileTask extends AsyncTask<String, Void, String> {
+
+        private  String receiverIp;
+        public RequestFileTask(String receiverIp) {
+            this.receiverIp = receiverIp;
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+
+            //params : workspace name, file name, owner Id, writeMode
+            System.out.println("___________ going to send RequestFileTask ______________");
+            AirDeskMessage msg = createMessage(Constants.REQUEST_FILE_MSG, params[0], params[1],
+                    params[2], Boolean.valueOf(params[3]));
+
+            if(msg == null) {
+                logger.log(Level.SEVERE, "RequestFileTask msg not created. Returning.");
+                return null;
+            }
+            String msgJson = gson.toJson(msg);
+            System.out.println("------------ msg : " + msgJson);
+
+            try {
+                Socket socket = new Socket(receiverIp, Constants.port);
+                OutputStream outputStream = socket.getOutputStream();
+                outputStream.write(msgJson.getBytes());
+                outputStream.flush();
+                outputStream.close();
+                System.out.println("___________________ RequestFileTask wrote to o/p stream ___________________");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        private AirDeskMessage createMessage(String type, String workspaceName, String fileName, String ownerId, boolean writeMode) {
+            AirDeskMessage msg = new AirDeskMessage(type, userManager.getOwner().getUserId());
+            msg.addInput(Constants.WORKSPACE_NAME, workspaceName);
+            msg.addInput(Constants.FILENAME, fileName);
+            msg.addInput(Constants.OWNER_ID, ownerId);
+            msg.addInput(Constants.WRITE_MODE, writeMode);
+            return msg;
+        }
+    }
+
+    private class SendFileContentTask extends AsyncTask<String, Void, Void> {
+
+        private  String receiverIp;
+        public SendFileContentTask(String receiverIp) {
+            this.receiverIp = receiverIp;
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+
+            //params will be workspaceName, fileName, ownerId, fileContent
+            System.out.println("___________ going to send SendFileContentTask ______________");
+            AirDeskMessage msg = createMessage(Constants.FILE_CONTENT_RESULT_MSG, params[0], params[1], params[2], params[3]);
+
+            if(msg == null) {
+                logger.log(Level.SEVERE, "SendFileContentTask msg not created. Returning.");
+                return null;
+            }
+            String msgJson = gson.toJson(msg);
+            System.out.println("------------ msg : " + msgJson);
+
+            try {
+                Socket socket = new Socket(receiverIp, Constants.port);
+                OutputStream outputStream = socket.getOutputStream();
+                outputStream.write(msgJson.getBytes());
+                outputStream.flush();
+                outputStream.close();
+                System.out.println("___________________ SendFileContentTask wrote to o/p stream ___________________");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        private AirDeskMessage createMessage(String type, String workspaceName, String fileName, String ownerId, String content) {
+            AirDeskMessage msg = new AirDeskMessage(type, userManager.getOwner().getUserId());
+            msg.addInput(Constants.FILE_CONTENT, content);
+            msg.addInput(Constants.WORKSPACE_NAME, workspaceName);
+            msg.addInput(Constants.FILENAME, fileName);
+            msg.addInput(Constants.OWNER_ID, ownerId);
+            return msg;
+        }
+    }
+
+    private class SaveFileTask extends AsyncTask<String, Void, String> {
+
+        private  String receiverIp;
+        public SaveFileTask(String receiverIp) {
+            this.receiverIp = receiverIp;
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+
+            //params : workspace name, file name, owner Id, content
+            System.out.println("___________ going to send SaveFileTask ______________");
+            AirDeskMessage msg = createMessage(Constants.SAVE_FILE_MSG, params[0], params[1],
+                    params[2], params[3]);
+
+            if(msg == null) {
+                logger.log(Level.SEVERE, "SaveFileTask msg not created. Returning.");
+                return null;
+            }
+            String msgJson = gson.toJson(msg);
+            System.out.println("------------ msg : " + msgJson);
+
+            try {
+                Socket socket = new Socket(receiverIp, Constants.port);
+                OutputStream outputStream = socket.getOutputStream();
+                outputStream.write(msgJson.getBytes());
+                outputStream.flush();
+                outputStream.close();
+                System.out.println("___________________ SaveFileTask wrote to o/p stream ___________________");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        private AirDeskMessage createMessage(String type, String workspaceName, String fileName, String ownerId, String content) {
+            AirDeskMessage msg = new AirDeskMessage(type, userManager.getOwner().getUserId());
+            msg.addInput(Constants.WORKSPACE_NAME, workspaceName);
+            msg.addInput(Constants.FILENAME, fileName);
+            msg.addInput(Constants.OWNER_ID, ownerId);
+            msg.addInput(Constants.FILE_CONTENT, content);
+            return msg;
+        }
+    }
+
     /** message sending tasks end **/
 
 }
