@@ -38,8 +38,12 @@ public class HoardingManager {
         double usage = getCurrentUsage();
         double free = new WorkspaceManager().getMaximumDeviceSpace();
 
-        //if 90% is filled we perform cleaning
-        if (usage / (usage + free) > 0.9) return true;
+        //Temp since we are returning a fixed 5mb as workspace size.
+        // free = 5mb
+        double availableSpace = free - usage;
+
+        //if 80% is filled we perform cleaning
+        if (availableSpace / (usage) < 0.2) return true;
         return false;
     }
 
@@ -49,7 +53,7 @@ public class HoardingManager {
         Context appContext = AirDeskApp.s_applicationContext;
         File appContextDir = appContext.getDir(Constants.OWNED_WORKSPACE_DIR, appContext.MODE_PRIVATE);
 
-        return dirSize(appContextDir)/Constants.BYTES_PER_MB;
+        return dirSize(appContextDir) / Constants.BYTES_PER_MB;
 
     }
 
@@ -77,11 +81,16 @@ public class HoardingManager {
         double usage = getCurrentUsage();
         double free = new WorkspaceManager().getMaximumDeviceSpace();
 
+        //Temp since we are returning a fixed 5mb as workspace size.
+        // free = 5mb
+
+        double availableSpace = free - usage;
+
         System.out.println(" Used space :" + usage);
-        System.out.println(" Free space :" + free);
+        System.out.println(" Free space :" + availableSpace);
 
 
-        double amountToBeFreed = (usage - free) / 2;
+        double amountToBeFreed = (usage - (usage + availableSpace) * 0.7);
         double totalSizeOfDeletingFiles = 0.0;
         ArrayList<String> pathListToBeDeleted = new ArrayList<>();
 
@@ -89,7 +98,7 @@ public class HoardingManager {
             TreeMap<Long, String> sortedMap = sortByAccessTime(new StorageManager().getAccessMap());
             for (Map.Entry<Long, String> entry : sortedMap.entrySet()) {
                 String filePath = entry.getValue();
-                totalSizeOfDeletingFiles += Float.valueOf(new File(filePath).length() )/ Constants.BYTES_PER_MB;
+                totalSizeOfDeletingFiles += Float.valueOf(new File(filePath).length()) / Constants.BYTES_PER_MB;
                 pathListToBeDeleted.add(filePath);
                 if (totalSizeOfDeletingFiles > amountToBeFreed) {
                     deleteFiles(pathListToBeDeleted);
@@ -142,7 +151,7 @@ public class HoardingManager {
         }
     }
 
-    public void deleteFiles(ArrayList<String> toBeDeletedList){
+    public void deleteFiles(ArrayList<String> toBeDeletedList) {
         for (String filePath : toBeDeletedList) {
             new File(filePath).delete();
         }

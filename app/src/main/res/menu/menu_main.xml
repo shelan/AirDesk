@@ -2,10 +2,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity">
-    <item
-        android:id="@+id/online"
-        app:showAsAction="never"
-        android:visible="true"
-        android:icon="@drawable/delete"
-        android:title="go online" />
+    <group android:checkableBehavior="all">
+        <item
+            android:id="@+id/online"
+            android:icon="@drawable/delete"
+            android:title="online"
+            android:visible="true"
+            app:showAsAction="never" />
+    </group>
 </menu>

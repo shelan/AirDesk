@@ -15,13 +15,12 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import pt.ulisboa.tecnico.cmov.airdesk.AWSTasks;
 import pt.ulisboa.tecnico.cmov.airdesk.AirDeskService;
 import pt.ulisboa.tecnico.cmov.airdesk.R;
 import pt.ulisboa.tecnico.cmov.airdesk.fragment.ForeignWorkspaceListFragment;
@@ -71,7 +70,7 @@ public class MainActivity extends ActionBarActivity {
 
         StorageManager.restoreAccessMap();
 
-        if(communicationManager == null) {
+        if (communicationManager == null) {
             communicationManager = new CommunicationManager();
             communicationManager.init();
         }
@@ -81,7 +80,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu (Menu menu){
+    public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
@@ -90,11 +89,21 @@ public class MainActivity extends ActionBarActivity {
 
 
     @Override
-    public boolean onOptionsItemSelected (MenuItem item){
+    public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+
+        if (id == R.id.online) {
+            if (item.isChecked()) {
+                item.setChecked(false);
+                AWSTasks.offline = true;
+            } else {
+                item.setChecked(true);
+                AWSTasks.offline = false;
+            }
+        }
 
         //noinspection SimplifiableIfStatement
             /*if (id == R.id.action_settings) {
@@ -131,7 +140,7 @@ public class MainActivity extends ActionBarActivity {
         StorageManager.persistAccessMap();
     }
 
-    public class CommunicationManager extends ListFragment implements WifiP2pManager.PeerListListener,WifiP2pManager.ConnectionInfoListener {
+    public class CommunicationManager extends ListFragment implements WifiP2pManager.PeerListListener, WifiP2pManager.ConnectionInfoListener {
 
         private List<WifiP2pDevice> peerList = new ArrayList<WifiP2pDevice>();
         AirDeskService airDeskService;
@@ -182,7 +191,7 @@ public class MainActivity extends ActionBarActivity {
                 airDeskService.setGroupOwnerDetails(info);
 
                 //others send introduce msg to group owner
-                if(info.isGroupOwner) {
+                if (info.isGroupOwner) {
                     airDeskService.addIdIpMapping(new UserManager().getOwner().getUserId(), info.groupOwnerAddress.getHostAddress());
                 } else {
                     CommunicationTask.OutgoingCommTask outgoingCommTask = new CommunicationTask(foreignWorkspacesFragment).getOutgoingCommTask();
