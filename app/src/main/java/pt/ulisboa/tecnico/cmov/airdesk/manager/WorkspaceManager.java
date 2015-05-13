@@ -323,6 +323,14 @@ public class WorkspaceManager {
         }
     }
 
+    public void updateForeignWorkspaceFileList(String workspaceName, String ownerId, String[] fileNames) {
+        ForeignWorkspace foreignWorkspace = metadataManager.getForeignWorkspace(workspaceName, ownerId);
+        if(foreignWorkspace != null) {
+            foreignWorkspace.replaceFileNames(fileNames);
+            metadataManager.saveForeignWorkspace(foreignWorkspace, ownerId);
+        }
+    }
+
     public void removeFromForeignWorkspace(String workspaceName, String workspaceOwnerId) {
         User user = userManager.getOwner();
         user.removeFromForeignWorkspaceList(workspaceOwnerId.concat("/").concat(workspaceName));
@@ -336,19 +344,20 @@ public class WorkspaceManager {
         FileUtils.deleteFolder(foreignWSFolderPath);
     }
 
-    public void createDataFile(String workspace, String fileName, String ownerId, boolean isOwned) throws Exception {
+    public void createDataFile(String workspaceName, String fileName, String ownerId, boolean isOwned) throws Exception {
 
         if(isOwned) {
-            boolean isCreated = storageManager.createDataFile(workspace, fileName, ownerId, isOwned);
+            boolean isCreated = storageManager.createDataFile(workspaceName, fileName, ownerId, isOwned);
             if(isCreated) {
-                OwnedWorkspace ownedWorkspace = metadataManager.getOwnedWorkspace(workspace);
+                OwnedWorkspace ownedWorkspace = metadataManager.getOwnedWorkspace(workspaceName);
                 ownedWorkspace.addFile(fileName);
                 metadataManager.saveOwnedWorkspace(ownedWorkspace);//add new file to metadata and save it
 
                 //notify clients
+                sendFileListToClients(ownedWorkspace);
             }
         } else {
-            //this won't be called. If a file created in foreign workspace, will call update file with content
+            //this won't be called. If a file created in foreign workspaceName, will call update file with content
         }
         //delay creating an empty S3 and create only when content is ready
 
@@ -356,18 +365,27 @@ public class WorkspaceManager {
         //add new file to metadata and save it
         /*if (isCreated) {
             if (isOwned) {
-                OwnedWorkspace ownedWorkspace = metadataManager.getOwnedWorkspace(workspace);
+                OwnedWorkspace ownedWorkspace = metadataManager.getOwnedWorkspace(workspaceName);
                 ownedWorkspace.addFile(fileName);
                 metadataManager.saveOwnedWorkspace(ownedWorkspace);//add new file to metadata and save it
             } else {
-                ForeignWorkspace foreignWorkspace = metadataManager.getForeignWorkspace(workspace, ownerId);
+                ForeignWorkspace foreignWorkspace = metadataManager.getForeignWorkspace(workspaceName, ownerId);
                 foreignWorkspace.addFile(fileName);
                 metadataManager.saveForeignWorkspace(foreignWorkspace, ownerId);
                 //notify owner about file creation
                 //TODO: do with wifi direct
-                receiveFileCreateEvent(workspace, fileName);
+                receiveFileCreateEvent(workspaceName, fileName);
             }
         }*/
+    }
+
+    private void sendFileListToClients(OwnedWorkspace workspace) {
+        Set<String> clients = workspace.getClients().keySet();
+        if(clients.size() > 0) {
+            String[] fileNames = workspace.getFileNames().toArray(new String[workspace.getFileNames().size()]);
+            airDeskService.sendUpdatedFileListToClients(workspace.getWorkspaceName(), workspace.getOwnerId(), fileNames, clients.toArray(new String[clients.size()]));
+        }
+
     }
 
     public StringBuffer getDataFile(String workspaceName, String fileName, boolean writeMode, String ownerId, boolean isOwned) throws IOException {

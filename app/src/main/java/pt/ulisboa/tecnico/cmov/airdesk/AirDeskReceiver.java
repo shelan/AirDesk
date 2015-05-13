@@ -145,6 +145,13 @@ public class AirDeskReceiver {
                 }
                 break;
 
+            case Constants.UPDATED_FILE_LIST_MSG:
+                String workspaceName3 = (String) msg.getInputs().get(Constants.WORKSPACE_NAME);
+                String ownerId3 = (String) msg.getInputs().get(Constants.OWNER_ID);
+                ArrayList<String> filesNames = (ArrayList<String>)  msg.getInputs().get(Constants.FILE_NAMES);
+                workspaceManager.updateForeignWorkspaceFileList(workspaceName3, ownerId3, filesNames.toArray(new String[filesNames.size()]));
+                break;
+
             default:
                 System.out.println("........ default case. Do nothing .......");
         }
