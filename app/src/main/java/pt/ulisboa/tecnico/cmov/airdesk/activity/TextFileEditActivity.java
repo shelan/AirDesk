@@ -202,7 +202,7 @@ public class TextFileEditActivity extends ActionBarActivity {
             try {
                 requestText(file, false, false);
                 progressDialog = ProgressDialog
-                        .show(getActivity(), "Loading", "Loading file...");
+                        .show(getActivity(), "Loading", "Loading file...",true,true);
 
             } catch (ExecutionException e) {
                 Log.d(LOG_TAG, "Error while executing file get Async task");

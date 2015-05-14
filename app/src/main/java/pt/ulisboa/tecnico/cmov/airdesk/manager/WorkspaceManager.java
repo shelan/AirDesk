@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -19,6 +18,7 @@ import pt.ulisboa.tecnico.cmov.airdesk.AirDeskService;
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
 import pt.ulisboa.tecnico.cmov.airdesk.Exception.WriteLockedException;
 import pt.ulisboa.tecnico.cmov.airdesk.FileUtils;
+import pt.ulisboa.tecnico.cmov.airdesk.entity.AbstractWorkspace;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.ForeignWorkspace;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.OwnedWorkspace;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.User;
@@ -34,7 +34,8 @@ public class WorkspaceManager {
     private UserManager userManager = new UserManager();
     private AirDeskService airDeskService = AirDeskService.getInstance();
 
-    public WorkspaceManager() {}
+    public WorkspaceManager() {
+    }
 
     //set all ui data other than owner data in workspace object
     public WorkspaceCreateStatus createWorkspace(OwnedWorkspace workspace) {
@@ -113,7 +114,6 @@ public class WorkspaceManager {
     }
 
     /**
-     *
      * @param tags published tags
      * @return the subscribed tags IF there are any matching tags with published tags
      */
@@ -254,7 +254,6 @@ public class WorkspaceManager {
     }
 
     /**
-     *
      * @param workspace
      * @param clientId
      * @param addedByOwner true if owner add a client to his private workspace.
@@ -269,7 +268,7 @@ public class WorkspaceManager {
         ownedWorkspace.addClient(clientId, false);//still client is inactive
         editOwnedWorkspace(ownedWorkspace.getWorkspaceName(), ownedWorkspace, false);
 
-        if(addedByOwner) {
+        if (addedByOwner) {
             airDeskService.sendWorkspaceToClient(ownedWorkspace, clientId);
         }
         //else part : if added due to matching tags it is send to client when matching the public workspaces
@@ -325,7 +324,7 @@ public class WorkspaceManager {
 
     public void updateForeignWorkspaceFileList(String workspaceName, String ownerId, String[] fileNames) {
         ForeignWorkspace foreignWorkspace = metadataManager.getForeignWorkspace(workspaceName, ownerId);
-        if(foreignWorkspace != null) {
+        if (foreignWorkspace != null) {
             foreignWorkspace.replaceFileNames(fileNames);
             metadataManager.saveForeignWorkspace(foreignWorkspace, ownerId);
         }
@@ -346,9 +345,9 @@ public class WorkspaceManager {
 
     public void createDataFile(String workspaceName, String fileName, String ownerId, boolean isOwned) throws Exception {
 
-        if(isOwned) {
+        if (isOwned) {
             boolean isCreated = storageManager.createDataFile(workspaceName, fileName, ownerId, isOwned);
-            if(isCreated) {
+            if (isCreated) {
                 OwnedWorkspace ownedWorkspace = metadataManager.getOwnedWorkspace(workspaceName);
                 ownedWorkspace.addFile(fileName);
                 metadataManager.saveOwnedWorkspace(ownedWorkspace);//add new file to metadata and save it
@@ -363,7 +362,7 @@ public class WorkspaceManager {
 
     private void sendFileListToClients(OwnedWorkspace workspace) {
         Set<String> clients = workspace.getClients().keySet();
-        if(clients.size() > 0) {
+        if (clients.size() > 0) {
             String[] fileNames = workspace.getFileNames().toArray(new String[workspace.getFileNames().size()]);
             airDeskService.sendUpdatedFileListToClients(workspace.getWorkspaceName(), workspace.getOwnerId(), fileNames, clients.toArray(new String[clients.size()]));
         }
@@ -379,48 +378,49 @@ public class WorkspaceManager {
             return null;
         }*/
         //if (dataFileContent == null) {
-            if(isOwned) {
+        if (isOwned) {
+            try {
+                dataFileContent = storageManager.
+                        getDataFileContent(workspaceName, fileName, writeMode, ownerId, isOwned);
+            } catch (WriteLockedException e) {
+                return null;
+            }
+            if (dataFileContent == null) {
+                //get from aws
                 try {
+                    dataFileContent = AWSTasks.getInstance().getFile(FileUtils.getFileNameForUserId(ownerId), workspaceName, fileName);
+                    //do a restoration
+                    updateDataFile(workspaceName, fileName, dataFileContent.toString(), ownerId, isOwned);
                     dataFileContent = storageManager.
                             getDataFileContent(workspaceName, fileName, writeMode, ownerId, isOwned);
-                } catch (WriteLockedException e) {
-                    return null;
-                }
-                if (dataFileContent == null) {
-                    //get from aws
-                    try {
-                        dataFileContent = AWSTasks.getInstance().getFile(FileUtils.getFileNameForUserId(ownerId), workspaceName, fileName);
-                        //do a restoration
-                        updateDataFile(workspaceName, fileName, dataFileContent.toString(), ownerId, isOwned);
-                        dataFileContent = storageManager.
-                                getDataFileContent(workspaceName, fileName, writeMode, ownerId, isOwned);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            } else {
-                if(writeMode) {
-                    //content will be null if cannot get file in write mode
-                    String content = airDeskService.requestWriteFileFromOwner(workspaceName, fileName, ownerId);
-                    if(content == null)
-                        return null;
-                    else
-                        return new StringBuffer(content);
-                } else {
-                    String content = airDeskService.requestReadFileFromOwner(workspaceName, fileName, ownerId);
-                    return new StringBuffer(content);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
-       // }
+        } else {
+            if (writeMode) {
+                //content will be null if cannot get file in write mode
+                String content = airDeskService.requestWriteFileFromOwner(workspaceName, fileName, ownerId);
+                if (content == null)
+                    return null;
+                else
+                    return new StringBuffer(content);
+            } else {
+                String content = airDeskService.requestReadFileFromOwner(workspaceName, fileName, ownerId);
+                return new StringBuffer(content);
+            }
+        }
+        // }
 
         return dataFileContent;
     }
 
     public void updateDataFile(String workspaceName, String fileName, String content, String ownerId, boolean isOwned) throws Exception {
 
-        if(isOwned) {
-            boolean fileExists = storageManager.fileExists(workspaceName, fileName);
-            if(!fileExists) {
+        if (isOwned) {
+
+            boolean fileExists = fileExists(fileName,workspaceName,isOwned,ownerId);
+            if (!fileExists) {
                 createDataFile(workspaceName, fileName, userManager.getOwner().getUserId(), true);
             }
             storageManager.updateDataFile(workspaceName, fileName, content, ownerId, isOwned);
@@ -441,9 +441,9 @@ public class WorkspaceManager {
 
     public void deleteDataFile(String workspaceName, String fileName, String ownerId, boolean isOwned) throws IOException {
 
-        if(isOwned) {
+        if (isOwned) {
             boolean isDeleted = storageManager.deleteDataFile(workspaceName, fileName, ownerId, isOwned);
-            if(isDeleted) {
+            if (isDeleted) {
                 OwnedWorkspace ownedWorkspace = metadataManager.getOwnedWorkspace(workspaceName);
                 ownedWorkspace.removeFile(fileName);
                 metadataManager.saveOwnedWorkspace(ownedWorkspace);//add new file to metadata and save it
@@ -460,6 +460,18 @@ public class WorkspaceManager {
             }
         } else {
             airDeskService.deleteForeignFile(workspaceName, fileName, ownerId);
+        }
+    }
+
+    private boolean fileExists(String filename, String workspaceName, boolean isOwner, String ownerId) {
+        AbstractWorkspace workspace = null;
+        WorkspaceManager manager = new WorkspaceManager();
+        if (isOwner) {
+            workspace = manager.getOwnedWorkspace(workspaceName);
+           return workspace.getFileNames().contains(filename);
+        }else{
+            workspace = manager.getForeignWorkspace(workspaceName,ownerId);
+           return workspace.getFileNames().contains(filename);
         }
     }
 }

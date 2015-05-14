@@ -44,15 +44,17 @@ public class AWSTasks {
     public boolean createFolder(String parentName, String folderName) throws ExecutionException, InterruptedException {
         if (offline) return true;
 
-        return new FolderCreateAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
-                parentName, folderName).get();
+        new FolderCreateAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
+                parentName, folderName);
+        return true;
     }
 
     public boolean deleteFolder(String parentName, String folderName) throws ExecutionException, InterruptedException {
         if (offline) return true;
 
-        return new FolderDeleteAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
-                parentName, folderName).get();
+        new FolderDeleteAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
+                parentName, folderName);
+        return true;
     }
 
     public boolean createFile(String parent, String folderName, String fileName, String content) throws ExecutionException, InterruptedException {
@@ -65,8 +67,9 @@ public class AWSTasks {
     public boolean deleteFile(String parent, String folderName, String fileName) throws ExecutionException, InterruptedException {
         if (offline) return true;
 
-        return new FileDeleteTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
-                parent, folderName, fileName).get();
+        new FileDeleteTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
+                parent, folderName, fileName);
+        return true;
     }
 
     public StringBuffer getFile(String parent, String folderName, String fileName) throws ExecutionException, InterruptedException {
@@ -74,7 +77,8 @@ public class AWSTasks {
 
         AsyncTask getTask = new FileDownload().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
                 parent, folderName, fileName);
-        return (StringBuffer) getTask.get();
+            return (StringBuffer) getTask.get();
+
     }
 
 
@@ -103,7 +107,7 @@ public class AWSTasks {
                             emptyContent, metadata);
 
 
-            try{
+            try {
                 AWSUtils.getS3Client(AirDeskApp.s_applicationContext).putObject(putObjectRequest);
                 //transferManager.upload(putObjectRequest);
                 return true;
@@ -145,7 +149,7 @@ public class AWSTasks {
                             + workspaceName +
                             Constants.FOLDER_SEP + fileName,
                             fileContent, metadata);
-            try{
+            try {
                 AWSUtils.getS3Client(AirDeskApp.s_applicationContext).putObject(putObjectRequest);
                 //transferManager.upload(putObjectRequest);
                 return true;
@@ -204,10 +208,10 @@ public class AWSTasks {
             String workspaceName = params[1];
             String fileName = params[2];
 
-            try{
+            try {
                 AWSUtils.getS3Client(AirDeskApp.s_applicationContext).deleteObject(Constants.BUCKET_NAME,
-                    parentFolder + Constants.FOLDER_SEP + workspaceName + Constants.FOLDER_SEP +
-                            fileName);
+                        parentFolder + Constants.FOLDER_SEP + workspaceName + Constants.FOLDER_SEP +
+                                fileName);
 
                 //transferManager.upload(putObjectRequest);
                 return true;
@@ -228,10 +232,10 @@ public class AWSTasks {
             String workspaceName = params[1];
             String fileName = params[2];
 
-            try{
+            try {
                 S3Object s3Object = AWSUtils.getS3Client(AirDeskApp.s_applicationContext).getObject(Constants.BUCKET_NAME,
-                    parentFolder + Constants.FOLDER_SEP + workspaceName + Constants.FOLDER_SEP +
-                            fileName);
+                        parentFolder + Constants.FOLDER_SEP + workspaceName + Constants.FOLDER_SEP +
+                                fileName);
 
                 //transferManager.upload(putObjectRequest);
                 return FileUtils.getStringBuffer(s3Object.getObjectContent());
@@ -241,8 +245,6 @@ public class AWSTasks {
             return new StringBuffer();
         }
     }
-
-
 
 
 }

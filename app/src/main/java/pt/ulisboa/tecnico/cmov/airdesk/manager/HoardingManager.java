@@ -31,7 +31,7 @@ public class HoardingManager {
                         System.out.println("=====CLaming spacee ========== !!!!!!!!!");
                         claimSpace();
                     }
-                }, 0, 20, TimeUnit.SECONDS);
+                }, 0, 30, TimeUnit.SECONDS);
     }
 
     public boolean isCleaningNeeded() {

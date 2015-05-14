@@ -314,14 +314,13 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
 
     public void createDummyFiles() throws Exception {
         WorkspaceManager manager = new WorkspaceManager();
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 8; i++) {
             String fileName = "file" + new Random().nextInt(100);
             manager.createDataFile(workspace.getWorkspaceName(), fileName,
                     workspace.getOwnerId(), true);
             StringBuilder builder = new StringBuilder();
-            char[] data = new char[1000000];
-            for (int j = 0; j < 1000000; j++) {
-                builder.append("a");
+            for (int j = 0; j < 10000; j++) {
+                builder.append("abcde");
             }
             manager.updateDataFile(workspace.getWorkspaceName(), fileName,
                     builder.toString(), workspace.getOwnerId(), true);
