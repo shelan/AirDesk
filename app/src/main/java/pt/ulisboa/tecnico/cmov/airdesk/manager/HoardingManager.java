@@ -86,8 +86,8 @@ public class HoardingManager {
 
         double availableSpace = free - usage;
 
-        System.out.println(" Used space :" + usage);
-        System.out.println(" Free space :" + availableSpace);
+       /* System.out.println(" Used space :" + usage);
+        System.out.println(" Free space :" + availableSpace);*/
 
 
         double amountToBeFreed = (usage - (usage + availableSpace) * 0.7);
@@ -145,7 +145,7 @@ public class HoardingManager {
             scheduler.schedule
                     (new Runnable() {
                         public void run() {
-                            System.out.println("=====CLaming spacee ========== !!!!!!!!!");
+                            //System.out.println("=====CLaming spacee ========== !!!!!!!!!");
                             claimSpace();
                         }
                     }, 10, TimeUnit.MICROSECONDS);

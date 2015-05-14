@@ -409,6 +409,7 @@ public class AirDeskService {
                 for (Map.Entry<String, String> entry : idIPMap.entrySet()) {
                     try {
                     if(!entry.getKey().equals(userManager.getOwner().getUserId())) {
+                        System.out.println("Sending tags to " + entry.getKey() + " , " + entry.getValue());
                         Socket socket = new Socket(entry.getValue(), Constants.port);
                         OutputStream outputStream = socket.getOutputStream();
                         outputStream.write(msgJson.getBytes());
