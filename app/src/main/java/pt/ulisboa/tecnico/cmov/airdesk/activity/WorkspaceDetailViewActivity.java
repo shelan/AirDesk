@@ -319,8 +319,8 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
             manager.createDataFile(workspace.getWorkspaceName(), fileName,
                     workspace.getOwnerId(), true);
             StringBuilder builder = new StringBuilder();
-            for (int j = 0; j < 10000; j++) {
-                builder.append("abcde");
+            for (int j = 0; j < 40000; j++) {
+                builder.append("abcde ");
             }
             manager.updateDataFile(workspace.getWorkspaceName(), fileName,
                     builder.toString(), workspace.getOwnerId(), true);

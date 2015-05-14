@@ -60,8 +60,9 @@ public class AWSTasks {
     public boolean createFile(String parent, String folderName, String fileName, String content) throws ExecutionException, InterruptedException {
         if (offline) return true;
 
-        return new FileCreateAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
-                parent, folderName, fileName, content).get();
+        new FileCreateAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
+                parent, folderName, fileName, content);
+        return true;
     }
 
     public boolean deleteFile(String parent, String folderName, String fileName) throws ExecutionException, InterruptedException {
@@ -77,7 +78,7 @@ public class AWSTasks {
 
         AsyncTask getTask = new FileDownload().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
                 parent, folderName, fileName);
-            return (StringBuffer) getTask.get();
+        return (StringBuffer) getTask.get();
 
     }
 
