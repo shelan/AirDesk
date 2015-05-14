@@ -78,7 +78,7 @@ public class TextFileEditActivity extends ActionBarActivity {
             return true;
         } else if (id == R.id.action_edit_file) {
             try {
-                StringBuffer content = requestText(file, true);
+                StringBuffer content = requestText(file, true, true);
                 imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
 
                 saveMenuItem.setVisible(true);
@@ -90,7 +90,7 @@ public class TextFileEditActivity extends ActionBarActivity {
                 editText.setBackground(null);
            /* editText.setInputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE);
             editText.setHorizontallyScrolling(false);*/
-                if(content == null)
+                if (content == null)
                     Toast.makeText(this, "Write lock already taken", Toast.LENGTH_SHORT).show();
                 else
                     Toast.makeText(this, "Editing", Toast.LENGTH_SHORT).show();
@@ -200,10 +200,10 @@ public class TextFileEditActivity extends ActionBarActivity {
             getActivity().setTitle(file.getWorkspace() + "/" + file.getFileName());
 
             try {
+                requestText(file, false, false);
                 progressDialog = ProgressDialog
                         .show(getActivity(), "Loading", "Loading file...");
 
-                requestText(file, false);
             } catch (ExecutionException e) {
                 Log.d(LOG_TAG, "Error while executing file get Async task");
             } catch (InterruptedException e) {
@@ -296,12 +296,18 @@ public class TextFileEditActivity extends ActionBarActivity {
 
     static private void saveFileText(TextFile file) throws ExecutionException, InterruptedException {
         FileSaveAsynTask fileSaveAsynTask = new FileSaveAsynTask();
-        fileSaveAsynTask.execute(file);
+        fileSaveAsynTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, file);
     }
 
-    static StringBuffer requestText(TextFile file, boolean writeMode) throws ExecutionException, InterruptedException {
+    static StringBuffer requestText(TextFile file, boolean writeMode, boolean isBlocking) throws ExecutionException, InterruptedException {
         FileStreamAsyncTask fileStreamAsyncTask = new FileStreamAsyncTask(writeMode);
-        StringBuffer content  = fileStreamAsyncTask.execute(file).get();
-        return content;
+        if (isBlocking) {
+            return fileStreamAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, file).get();
+        } else {
+            // No need to return anything here but returning an empty string to be on safe side.
+            fileStreamAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, file);
+            return new StringBuffer();
+        }
+
     }
 }

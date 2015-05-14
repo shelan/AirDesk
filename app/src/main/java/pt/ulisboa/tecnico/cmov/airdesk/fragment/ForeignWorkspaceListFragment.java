@@ -175,7 +175,7 @@ public class ForeignWorkspaceListFragment extends Fragment {
     public void updateWorkspaceList() {
         System.out.println("......... updating foreign workspace list ......");
         ForeignWorkspaceDataAsync foreignWorkspaceDataAsync = new ForeignWorkspaceDataAsync();
-        foreignWorkspaceDataAsync.execute();
+        foreignWorkspaceDataAsync.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
     }
 
