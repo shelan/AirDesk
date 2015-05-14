@@ -136,7 +136,7 @@ public class ForeignWorkspaceListFragment extends Fragment {
             }
         });
 
-        Button connect_btn = (Button) rootView.findViewById(R.id.connect_btn);
+      /*  Button connect_btn = (Button) rootView.findViewById(R.id.connect_btn);
         connect_btn.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -149,7 +149,7 @@ public class ForeignWorkspaceListFragment extends Fragment {
                 }
 
             }
-        });
+        });*/
 
         return rootView;
     }

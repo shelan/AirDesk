@@ -1,23 +1,33 @@
 package pt.ulisboa.tecnico.cmov.airdesk;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.res.AssetManager;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.os.AsyncTask;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.internal.LinkedTreeMap;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import pt.ulisboa.tecnico.cmov.airdesk.context.AirDeskApp;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.ForeignWorkspace;
 import pt.ulisboa.tecnico.cmov.airdesk.entity.OwnedWorkspace;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.UserManager;
@@ -54,11 +64,26 @@ public class AirDeskService {
     public static AirDeskService getInstance() {
         if(instance == null) {
             instance = new AirDeskService();
-            /////// temp adding ips
-            instance.idIPMap.put("user@gmail.com","192.168.49.1");
-            instance.idIPMap.put("cc@g.com","192.168.49.81");
+            instance.loadIdIPMap();
+            /*/////// temp adding ips
+            instance.idIPMap.put("user1@gmail.com","192.168.49.1");
+            instance.idIPMap.put("user2@gmail.com","192.168.49.81");
+            instance.idIPMap.put("user3@gmail.com","192.168.49.133");*/
         }
         return instance;
+    }
+
+    private void loadIdIPMap() {
+        SharedPreferences mPrefs = AirDeskApp.s_applicationContext.getSharedPreferences(
+                AirDeskApp.s_applicationContext.getApplicationInfo().name, Context.MODE_PRIVATE);
+
+        String map = mPrefs.getString("idIpMap", null);
+        if(map != null) {
+            String[] idIpPair = map.split(";");
+            for (String pair : idIpPair) {
+                idIPMap.put(pair.split(",")[0], pair.split(",")[1]);
+            }
+        }
     }
 
     /* service method section */
@@ -207,7 +232,34 @@ public class AirDeskService {
 
 
     public void addIdIpMapping(String ownerId, String virtualIp) {
-        idIPMap.put(ownerId, virtualIp);
+        System.out.println("*************adding ips to map ************");
+        System.out.println(ownerId + "," + virtualIp);
+        System.out.println("*************************");
+        if(!idIPMap.containsKey(ownerId) || !idIPMap.get(ownerId).equals(virtualIp)) {
+            idIPMap.put(ownerId, virtualIp);
+            storeIdIpMap();
+        }
+    }
+
+    private void storeIdIpMap() {
+        String idIpMap = "";
+        for (Map.Entry<String, String> entry : idIPMap.entrySet()) {
+            String mapping = entry.getKey().concat(",").concat(entry.getValue());
+            idIpMap = idIpMap.concat(mapping).concat(";");
+        }
+        if(idIpMap.endsWith(";"))
+            idIpMap = idIpMap.substring(0, idIpMap.length()-1);
+
+
+        SharedPreferences mPrefs = AirDeskApp.s_applicationContext.getSharedPreferences(
+                AirDeskApp.s_applicationContext.getApplicationInfo().name, Context.MODE_PRIVATE);
+        SharedPreferences.Editor ed = mPrefs.edit();
+        ed.putString("idIpMap", idIpMap);
+        System.out.println("@@@@@@@@@@@@@@ storing id ip map @@@@@@@@@@@@@@");
+        System.out.println(idIpMap);
+        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+        ed.commit();
+
     }
 
     public HashMap<String, String> getIdIPMap() {
@@ -216,6 +268,21 @@ public class AirDeskService {
 
     public void updateIdIPMap(LinkedTreeMap receivedMap) {
         idIPMap.putAll(receivedMap);
+
+        System.out.println("*************adding UPDATED ips to map ************");
+        for (Object key : receivedMap.keySet()) {
+            String id = (String) key;
+            String ip = (String) receivedMap.get(key);
+            System.out.println(id + " , " + ip);
+
+            if(!idIPMap.containsKey(id) || !idIPMap.get(id).equals(ip)) {
+                idIPMap.put(id, ip);
+                storeIdIpMap();
+                break;
+            }
+        }
+        System.out.println("*************************");
+
     }
 
     private ForeignWorkspace[] createForeignWorkspaceList(HashMap<OwnedWorkspace, String[]> ownedWorkspaceMap) {
@@ -333,8 +400,9 @@ public class AirDeskService {
             String msgJson = gson.toJson(msg);
             System.out.println("------------ msg : " + msgJson);
 
-            try {
+
                 for (Map.Entry<String, String> entry : idIPMap.entrySet()) {
+                    try {
                     if(!entry.getKey().equals(userManager.getOwner().getUserId())) {
                         Socket socket = new Socket(entry.getValue(), Constants.port);
                         OutputStream outputStream = socket.getOutputStream();
@@ -343,10 +411,11 @@ public class AirDeskService {
                         outputStream.close();
                         System.out.println("___________________BroadcastTagSubscription msg wrote to o/p stream ___________________");
                     }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+
             peerLock.unlock();
             return null;
         }
@@ -418,9 +487,9 @@ public class AirDeskService {
             String msgJson = gson.toJson(msg);
             System.out.println("------------ msg : " + msgJson);
 
-            try {
-                for (Map.Entry<String, String> entry : idIPMap.entrySet()) {
-                    if(!entry.getKey().equals(userManager.getOwner().getUserId())) {
+            for (Map.Entry<String, String> entry : idIPMap.entrySet()) {
+                try {
+                    if (!entry.getKey().equals(userManager.getOwner().getUserId())) {
                         Socket socket = new Socket(entry.getValue(), Constants.port);
                         OutputStream outputStream = socket.getOutputStream();
                         outputStream.write(msgJson.getBytes());
@@ -428,10 +497,11 @@ public class AirDeskService {
                         outputStream.close();
                         System.out.println("___________________ PUBLISH_TAGS_MSG wrote to o/p stream ___________________");
                     }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
             }
+
             peerLock.unlock();
             return null;
         }
