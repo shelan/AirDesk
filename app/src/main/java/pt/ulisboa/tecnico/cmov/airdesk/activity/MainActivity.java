@@ -25,6 +25,7 @@ import pt.ulisboa.tecnico.cmov.airdesk.AirDeskService;
 import pt.ulisboa.tecnico.cmov.airdesk.R;
 import pt.ulisboa.tecnico.cmov.airdesk.fragment.ForeignWorkspaceListFragment;
 import pt.ulisboa.tecnico.cmov.airdesk.fragment.MyWorkspaceListFragment;
+import pt.ulisboa.tecnico.cmov.airdesk.manager.HoardingManager;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.UserManager;
 import pt.ulisboa.tecnico.cmov.airdesk.storage.StorageManager;
 import pt.ulisboa.tecnico.cmov.airdesk.wifidirect.communication.CommunicationTask;
@@ -75,7 +76,7 @@ public class MainActivity extends ActionBarActivity {
             communicationManager.init();
         }
 
-        ////new HoardingManager().scheduleCleaningTask();
+        new HoardingManager().scheduleCleaningTask();
 
     }
 

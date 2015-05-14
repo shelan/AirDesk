@@ -31,7 +31,7 @@ public class HoardingManager {
                         System.out.println("=====CLaming spacee ========== !!!!!!!!!");
                         claimSpace();
                     }
-                }, 0, 10, TimeUnit.SECONDS);
+                }, 0, 20, TimeUnit.SECONDS);
     }
 
     public boolean isCleaningNeeded() {
@@ -107,6 +107,7 @@ public class HoardingManager {
                     for (String s : pathListToBeDeleted) {
                         System.out.println(s);
                     }
+                    return;
                 }
             }
         }
