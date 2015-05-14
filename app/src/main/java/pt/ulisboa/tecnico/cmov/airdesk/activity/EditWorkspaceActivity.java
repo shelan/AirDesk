@@ -218,7 +218,7 @@ public class EditWorkspaceActivity extends ActionBarActivity {
             if (!oldTags.equals(newTags)) {
                 tagsChanged = true;
 
-                HashSet<String> intersect = oldTags;
+                HashSet<String> intersect = (HashSet<String>) oldTags.clone();
                 intersect.retainAll(newTags);
 
                 //keep removed tags in oldTags
