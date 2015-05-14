@@ -195,18 +195,20 @@ public class WorkspaceManager {
         List<String> accessList = getClientList(clients);
         user.updateDeletedWorkspacesMap(workspaceName, accessList);//to send notifications for deleted workspaces
 
+
+
+        for (String clientId : accessList) {
+            airDeskService.revokeAccessFromClient(workspaceName,
+                    userManager.getOwner().getUserId(), clientId);
+        }
+
         metadataManager.deleteOwnedWorkspace(workspaceName);
-
-        //detete owned WS folder
-        boolean statusOwned = FileUtils.deleteOwnedWorkspaceFolder(workspaceName, user.getUserId());
-
-        //TODO: later change this to notify all clients about deletion
-        metadataManager.deleteForeignWorkspace(workspaceName, user.getUserId());
-        boolean statusForeign = storageManager.deleteFolderForForeignWorkspace(workspaceName, user.getUserId());  //only to simulate self mount. remove later
-        System.out.println("workspace folder delete status :owned" + statusOwned + " foreign" + statusForeign);
 
         //save user with new changes
         userManager.updateOwner(user);//.createOwner(user);//save user with updated owned and foreign WS and updated deletedWSMap
+
+        //detete owned WS folder
+        boolean statusOwned = FileUtils.deleteOwnedWorkspaceFolder(workspaceName, user.getUserId());
 
         return true;
     }

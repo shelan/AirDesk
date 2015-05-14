@@ -238,6 +238,11 @@ public class AirDeskService {
         if(!idIPMap.containsKey(ownerId) || !idIPMap.get(ownerId).equals(virtualIp)) {
             idIPMap.put(ownerId, virtualIp);
             storeIdIpMap();
+
+            //send updated list to all clients
+            for (String client : idIPMap.keySet()) {
+                sendIdIpMap(idIPMap.get(client));
+            }
         }
     }
 
