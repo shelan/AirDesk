@@ -102,10 +102,15 @@ public class AWSTasks {
                             workspaceName + Constants.FOLDER_SEP,
                             emptyContent, metadata);
 
-            AWSUtils.getS3Client(AirDeskApp.s_applicationContext).putObject(putObjectRequest);
 
-            //transferManager.upload(putObjectRequest);
-            return true;
+            try{
+                AWSUtils.getS3Client(AirDeskApp.s_applicationContext).putObject(putObjectRequest);
+                //transferManager.upload(putObjectRequest);
+                return true;
+            } catch (Exception e) {
+                System.out.println("======= create folder failed in S3 =====");
+                return false;
+            }
         }
     }
 
@@ -140,11 +145,14 @@ public class AWSTasks {
                             + workspaceName +
                             Constants.FOLDER_SEP + fileName,
                             fileContent, metadata);
-
-            AWSUtils.getS3Client(AirDeskApp.s_applicationContext).putObject(putObjectRequest);
-
-            //transferManager.upload(putObjectRequest);
-            return true;
+            try{
+                AWSUtils.getS3Client(AirDeskApp.s_applicationContext).putObject(putObjectRequest);
+                //transferManager.upload(putObjectRequest);
+                return true;
+            } catch (Exception e) {
+                System.out.println("===== create file failed in S3 ====");
+                return false;
+            }
         }
     }
 
@@ -153,31 +161,36 @@ public class AWSTasks {
         @Override
         protected Boolean doInBackground(String... params) {
 
-            AmazonS3Client s3Client = AWSUtils.getS3Client(AirDeskApp.s_applicationContext);
+            try {
+                AmazonS3Client s3Client = AWSUtils.getS3Client(AirDeskApp.s_applicationContext);
 
-            String parentFolder = params[0];
-            String workspaceName = params[1];
+                String parentFolder = params[0];
+                String workspaceName = params[1];
 
-            // Create metadata for your folder & set content-length to 0
-            List<S3ObjectSummary> objData = s3Client.listObjects(Constants.BUCKET_NAME,
-                    parentFolder + Constants.FOLDER_SEP + workspaceName + Constants.FOLDER_SEP)
-                    .getObjectSummaries();
-            if (objData.size() > 0) {
-                DeleteObjectsRequest emptyBucket = new DeleteObjectsRequest(Constants.BUCKET_NAME);
-                List<DeleteObjectsRequest.KeyVersion> keyList = new ArrayList<>();
-                for (S3ObjectSummary summary : objData) {
-                    keyList.add(new DeleteObjectsRequest.KeyVersion(summary.getKey()));
+                // Create metadata for your folder & set content-length to 0
+                List<S3ObjectSummary> objData = s3Client.listObjects(Constants.BUCKET_NAME,
+                        parentFolder + Constants.FOLDER_SEP + workspaceName + Constants.FOLDER_SEP)
+                        .getObjectSummaries();
+                if (objData.size() > 0) {
+                    DeleteObjectsRequest emptyBucket = new DeleteObjectsRequest(Constants.BUCKET_NAME);
+                    List<DeleteObjectsRequest.KeyVersion> keyList = new ArrayList<>();
+                    for (S3ObjectSummary summary : objData) {
+                        keyList.add(new DeleteObjectsRequest.KeyVersion(summary.getKey()));
+                    }
+                    emptyBucket.withKeys(keyList);
+                    s3Client.deleteObjects(emptyBucket);
+                    // s3Client.deleteObject(Constants.BUCKET_NAME +);
                 }
-                emptyBucket.withKeys(keyList);
-                s3Client.deleteObjects(emptyBucket);
-                // s3Client.deleteObject(Constants.BUCKET_NAME +);
-            }
 
            /* AWSUtils.getS3Client(AirDeskApp.s_applicationContext).deleteObject(Constants.BUCKET_NAME,
                     parentFolder + Constants.FOLDER_SEP + workspaceName);*/
 
-            //transferManager.upload(putObjectRequest);
-            return true;
+                //transferManager.upload(putObjectRequest);
+                return true;
+            } catch (Exception e) {
+                System.out.println("======= delete folder failed in S3 =====");
+                return false;
+            }
         }
     }
 
@@ -191,12 +204,17 @@ public class AWSTasks {
             String workspaceName = params[1];
             String fileName = params[2];
 
-            AWSUtils.getS3Client(AirDeskApp.s_applicationContext).deleteObject(Constants.BUCKET_NAME,
+            try{
+                AWSUtils.getS3Client(AirDeskApp.s_applicationContext).deleteObject(Constants.BUCKET_NAME,
                     parentFolder + Constants.FOLDER_SEP + workspaceName + Constants.FOLDER_SEP +
                             fileName);
 
-            //transferManager.upload(putObjectRequest);
-            return true;
+                //transferManager.upload(putObjectRequest);
+                return true;
+            } catch (Exception e) {
+                System.out.println("===== delete file failed in S3 ====");
+                return false;
+            }
         }
     }
 
@@ -210,12 +228,17 @@ public class AWSTasks {
             String workspaceName = params[1];
             String fileName = params[2];
 
-            S3Object s3Object = AWSUtils.getS3Client(AirDeskApp.s_applicationContext).getObject(Constants.BUCKET_NAME,
+            try{
+                S3Object s3Object = AWSUtils.getS3Client(AirDeskApp.s_applicationContext).getObject(Constants.BUCKET_NAME,
                     parentFolder + Constants.FOLDER_SEP + workspaceName + Constants.FOLDER_SEP +
                             fileName);
 
-            //transferManager.upload(putObjectRequest);
-            return FileUtils.getStringBuffer(s3Object.getObjectContent());
+                //transferManager.upload(putObjectRequest);
+                return FileUtils.getStringBuffer(s3Object.getObjectContent());
+            } catch (Exception e) {
+                System.out.println("===== create file failed in S3 ====");
+            }
+            return new StringBuffer();
         }
     }
 

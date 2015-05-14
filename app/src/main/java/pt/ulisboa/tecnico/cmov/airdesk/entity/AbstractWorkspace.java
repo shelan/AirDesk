@@ -54,4 +54,11 @@ public class AbstractWorkspace implements Serializable {
     public void removeFile(String fileName) {
         fileNames.remove(fileName);
     }
+
+    public void replaceFileNames(String[] updatedNames) {
+        fileNames = new ArrayList<String>();
+        for (String fileName : updatedNames) {
+            fileNames.add(fileName);
+        }
+    }
 }

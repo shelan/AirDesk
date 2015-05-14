@@ -40,7 +40,9 @@ public class Constants {
     public static final String REVOKE_ACCESS_MSG = "revoke_access_of_client";
     public static final String REQUEST_FILE_MSG = "request_file";
     public static final String SAVE_FILE_MSG = "save_file";
+    public static final String DELETE_FILE_MSG = "delete_file";
     public static final String FILE_CONTENT_RESULT_MSG = "send_file";
+    public static final String UPDATED_FILE_LIST_MSG = "updated_file_list";
     public static final String WORKSPACES = "workspaces";
     public static final String SENDER_ID = "senderID";
     public static final String TAGS = "tags";

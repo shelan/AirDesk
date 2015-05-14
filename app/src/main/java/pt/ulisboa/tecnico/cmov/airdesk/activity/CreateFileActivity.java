@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
 import pt.ulisboa.tecnico.cmov.airdesk.R;
+import pt.ulisboa.tecnico.cmov.airdesk.manager.UserManager;
 import pt.ulisboa.tecnico.cmov.airdesk.manager.WorkspaceManager;
 
 
@@ -84,10 +85,10 @@ public class CreateFileActivity extends ActionBarActivity {
                 }
                 try {
                     //TODO: change true to proper value depending on the workspace type
-                    manager.createDataFile(workspace, String.valueOf(fileName.getText()),
-                            owner, true);
+                    /*manager.createDataFile(workspace, String.valueOf(fileName.getText()),
+                            owner, true);*/
                     manager.updateDataFile(workspace, String.valueOf(fileName.getText()),
-                            String.valueOf(fileText.getText()), owner, true);
+                            String.valueOf(fileText.getText()), owner, new UserManager().getOwner().getUserId().equals(owner));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

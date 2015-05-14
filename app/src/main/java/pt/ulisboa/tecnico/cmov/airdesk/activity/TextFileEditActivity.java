@@ -115,7 +115,7 @@ public class TextFileEditActivity extends ActionBarActivity {
                         public void onClick(DialogInterface dialog, int whichButton) {
                             try {
                                 new WorkspaceManager().deleteDataFile(file.getWorkspace(), file.getFileName(),
-                                        file.getOwner(), true);
+                                        file.getOwner(), new UserManager().getOwner().getUserId().equals(file.getOwner()));
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -285,7 +285,7 @@ public class TextFileEditActivity extends ActionBarActivity {
                             textFile.getOwner()
                             , new UserManager().getOwner().getUserId().equals(textFile.getOwner()));
                     return true;
-                } catch (IOException e) {
+                } catch (Exception e) {
                     Log.d(LOG_TAG, "Error while saving the file");
                 }
             }

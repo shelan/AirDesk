@@ -100,6 +100,18 @@ public class AirDeskService {
         }
     }
 
+    public void sendUpdatedFileListToClients(String workspaceName, String ownerId, String[] fileNames, String[] clientIds) {
+        for (String clientId : clientIds) {
+            String clientIP = idIPMap.get(clientId);
+            if( clientIP != null) {
+                SendUpdatedFileListTask sendUpdatedFileListTask = new SendUpdatedFileListTask(clientIP, workspaceName, ownerId);
+                sendUpdatedFileListTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, fileNames);
+            }
+        }
+        //if( clientIP != null && connectedIpsVirtual.contains(clientIP)) {
+
+    }
+
     public void publishTags(String[] tags) {
         TagPublisher tagPublisher = new TagPublisher();
         tagPublisher.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, tags);
@@ -182,6 +194,15 @@ public class AirDeskService {
             saveFileTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, workspaceName, fileName, ownerId, content);
         }
     }
+
+    public void deleteForeignFile(String workspaceName, String fileName, String ownerId) {
+        String ownerIP = idIPMap.get(ownerId);
+        if(ownerIP != null) {
+            DeleteFileTask deleteFileTask = new DeleteFileTask(ownerIP);
+            deleteFileTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, workspaceName, fileName, ownerId);
+        }
+    }
+
     /* service method section end*/
 
 
@@ -207,24 +228,6 @@ public class AirDeskService {
         }
         return foreignWorkspaces.toArray(new ForeignWorkspace[foreignWorkspaces.size()]);
     }
-
-    /*public void updateConnectedDevices(Collection<WifiP2pDevice> nearbyDevices) {
-        peerLock.lock();
-        if(nearbyDevices.size() > 0) {
-            for (WifiP2pDevice device : nearbyDevices) {
-                connectedIpsVirtual.add(device.deviceAddress);
-            }
-        }
-        peerLock.unlock();
-    }*/
-
-    /*public void setMyDevice(WifiP2pDevice device) {
-        myDevice = device;
-    }
-
-    public WifiP2pDevice getMyDevice() {
-        return myDevice;
-    }*/
 
     public void setGroupOwnerDetails(WifiP2pInfo info) {
         groupOwnerAddress = info.groupOwnerAddress;
@@ -613,6 +616,98 @@ public class AirDeskService {
             msg.addInput(Constants.FILENAME, fileName);
             msg.addInput(Constants.OWNER_ID, ownerId);
             msg.addInput(Constants.FILE_CONTENT, content);
+            return msg;
+        }
+    }
+
+    private class DeleteFileTask extends AsyncTask<String, Void, String> {
+
+        private  String receiverIp;
+        public DeleteFileTask(String receiverIp) {
+            this.receiverIp = receiverIp;
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+
+            //params : workspace name, file name, owner Id
+            System.out.println("___________ going to send DeleteFileTask ______________");
+            AirDeskMessage msg = createMessage(Constants.DELETE_FILE_MSG, params[0], params[1],
+                    params[2]);
+
+            if(msg == null) {
+                logger.log(Level.SEVERE, "DeleteFileTask msg not created. Returning.");
+                return null;
+            }
+            String msgJson = gson.toJson(msg);
+            System.out.println("------------ msg : " + msgJson);
+
+            try {
+                Socket socket = new Socket(receiverIp, Constants.port);
+                OutputStream outputStream = socket.getOutputStream();
+                outputStream.write(msgJson.getBytes());
+                outputStream.flush();
+                outputStream.close();
+                System.out.println("___________________ DeleteFileTask wrote to o/p stream ___________________");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        private AirDeskMessage createMessage(String type, String workspaceName, String fileName, String ownerId) {
+            AirDeskMessage msg = new AirDeskMessage(type, userManager.getOwner().getUserId());
+            msg.addInput(Constants.WORKSPACE_NAME, workspaceName);
+            msg.addInput(Constants.FILENAME, fileName);
+            msg.addInput(Constants.OWNER_ID, ownerId);
+            return msg;
+        }
+    }
+
+    private class SendUpdatedFileListTask extends AsyncTask<String, Void, Void> {
+
+        private  String receiverIp;
+        private String workspaceName;
+        private String ownerId;
+
+        public SendUpdatedFileListTask(String receiverIp, String workspaceName, String ownerId) {
+            this.receiverIp = receiverIp;
+            this.workspaceName = workspaceName;
+            this.ownerId = ownerId;
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+
+            //params will be fileNames
+            System.out.println("___________ going to send SendUpdatedFileListTask ______________");
+            AirDeskMessage msg = createMessage(Constants.UPDATED_FILE_LIST_MSG, workspaceName, ownerId, params);
+
+            if(msg == null) {
+                logger.log(Level.SEVERE, "SendUpdatedFileListTask msg not created. Returning.");
+                return null;
+            }
+            String msgJson = gson.toJson(msg);
+            System.out.println("------------ msg : " + msgJson);
+
+            try {
+                Socket socket = new Socket(receiverIp, Constants.port);
+                OutputStream outputStream = socket.getOutputStream();
+                outputStream.write(msgJson.getBytes());
+                outputStream.flush();
+                outputStream.close();
+                System.out.println("___________________ SendUpdatedFileListTask wrote to o/p stream ___________________");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        private AirDeskMessage createMessage(String type, String workspaceName, String ownerId, String[] fileNames) {
+            AirDeskMessage msg = new AirDeskMessage(type, userManager.getOwner().getUserId());
+            msg.addInput(Constants.WORKSPACE_NAME, workspaceName);
+            msg.addInput(Constants.OWNER_ID, ownerId);
+            msg.addInput(Constants.FILE_NAMES, fileNames);
             return msg;
         }
     }

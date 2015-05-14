@@ -124,13 +124,6 @@ public class AirDeskReceiver {
                 }
                 break;
 
-            case Constants.FILE_CONTENT_RESULT_MSG:
-                String content = (String) msg.getInputs().get(Constants.FILE_CONTENT);
-                System.out.println("================ file content ==================");
-                System.out.println(content);
-                System.out.println("==================================");
-                break;
-
             case Constants.SAVE_FILE_MSG:
                 String ownerId = (String) msg.getInputs().get(Constants.OWNER_ID);
                 if(new UserManager().getOwner().getUserId().equals(ownerId)) {
@@ -139,8 +132,28 @@ public class AirDeskReceiver {
                     String newContent = (String) msg.getInputs().get(Constants.FILE_CONTENT);
                     try {
                         workspaceManager.updateDataFile(workspaceName2, fileName, newContent, ownerId, true);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                break;
+
+            case Constants.UPDATED_FILE_LIST_MSG:
+                String workspaceName3 = (String) msg.getInputs().get(Constants.WORKSPACE_NAME);
+                String ownerId3 = (String) msg.getInputs().get(Constants.OWNER_ID);
+                ArrayList<String> filesNames = (ArrayList<String>)  msg.getInputs().get(Constants.FILE_NAMES);
+                workspaceManager.updateForeignWorkspaceFileList(workspaceName3, ownerId3, filesNames.toArray(new String[filesNames.size()]));
+                break;
+
+            case Constants.DELETE_FILE_MSG:
+                String ownerId4 = (String) msg.getInputs().get(Constants.OWNER_ID);
+                if(new UserManager().getOwner().getUserId().equals(ownerId4)) {
+                    String workspaceName4 = (String) msg.getInputs().get(Constants.WORKSPACE_NAME);
+                    String fileName4 = (String) msg.getInputs().get(Constants.FILENAME);
+                    try {
+                        workspaceManager.deleteDataFile(workspaceName4, fileName4, ownerId4, true);
                     } catch (IOException e) {
-                        System.out.println("Error in updating the file in owner space");
+                        e.printStackTrace();
                     }
                 }
                 break;
