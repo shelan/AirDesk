@@ -170,6 +170,10 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
             startActivity(intent);
         }
 
+        /*if(id == R.id.refresh) {
+            workspaceDetailFragment.refresh();
+        }*/
+
         if (id == R.id.dummy_files) {
             try {
                 createDummyFiles();
@@ -325,7 +329,7 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
                     workspace = workspaceManager.getOwnedWorkspace(workspace.getWorkspaceName());
                 }
                 else {
-                    workspace = workspaceManager.getForeignWorkspace(workspace.getWorkspaceName(), ownerId);
+                    workspace = workspaceManager.getForeignWorkspace(workspace.getWorkspaceName(), workspace.getOwnerId());
                 }
 
                 for (String file : workspace.getFileNames()) {
