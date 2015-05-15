@@ -68,7 +68,7 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
         if (!isOwnedWorkspace) {
             menu.getItem(1).setVisible(false);
             menu.getItem(2).setVisible(false);
-            menu.getItem(3).setVisible(false);
+            //menu.getItem(3).setVisible(false);
         }
 
 
@@ -105,32 +105,63 @@ public class WorkspaceDetailViewActivity extends ActionBarActivity {
             startActivity(intent);
         }
         if (id == R.id.delete_workspace) {
-            //TODO: when in foreign workspace, should call delete foreign workspace... :)
-            AlertDialog myQuittingDialogBox = new AlertDialog.Builder(this)
-                    //set message, title, and icon
-                    .setTitle("Delete")
-                    .setMessage("Do you want to delete this workspace ?")
-                    .setIcon(R.drawable.delete)
 
-                    .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+            if(isOwnedWorkspace) {
+                //TODO: when in foreign workspace, should call delete foreign workspace... :)
+                AlertDialog myQuittingDialogBox = new AlertDialog.Builder(this)
+                        //set message, title, and icon
+                        .setTitle("Delete")
+                        .setMessage("Do you want to delete this workspace ?")
+                        .setIcon(R.drawable.delete)
 
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                            workspaceManager.deleteOwnedWorkspace(workspace.getWorkspaceName());
-                            dialog.dismiss();
-                            finish();
-                        }
+                        .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
 
-                    })
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                workspaceManager.deleteOwnedWorkspace(workspace.getWorkspaceName());
+                                dialog.dismiss();
+                                finish();
+                            }
 
-                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
+                        })
 
-                            dialog.dismiss();
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
 
-                        }
-                    })
-                    .create();
-            myQuittingDialogBox.show();
+                                dialog.dismiss();
+
+                            }
+                        })
+                        .create();
+                myQuittingDialogBox.show();
+            } else {
+                //TODO: when in foreign workspace, should call delete foreign workspace... :)
+                AlertDialog myQuittingDialogBox = new AlertDialog.Builder(this)
+                        //set message, title, and icon
+                        .setTitle("Delete")
+                        .setMessage("Do you want to remove this workspace from your foreign workspaces?")
+                        .setIcon(R.drawable.delete)
+
+                        .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                workspaceManager.removeFromForeignWorkspace(workspace.getWorkspaceName(), workspace.getOwnerId());
+                                dialog.dismiss();
+                                finish();
+                            }
+
+                        })
+
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+
+                                dialog.dismiss();
+
+                            }
+                        })
+                        .create();
+                myQuittingDialogBox.show();
+            }
+
         }
         if (id == R.id.edit_workspace) {
             Intent intent = new Intent(this, EditWorkspaceActivity.class);
