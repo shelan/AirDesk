@@ -73,7 +73,10 @@ public class CreateWorkspaceActivity extends ActionBarActivity {
                     new UserManager().getOwner().getUserId(), Double.parseDouble(String.valueOf(quotaBar.getProgress())));
             ownedWorkspace.setPublic(publicCheckBox.isChecked());
 
-            ownedWorkspace.addTags(Arrays.asList(tags.replace(" ", "").split(",")));
+            if(tags != null && !tags.isEmpty()) {
+                ownedWorkspace.addTags(Arrays.asList(tags.replace(" ", "").split(",")));
+            }
+
             workspaceManager.createWorkspace(ownedWorkspace);
             finish();
 
