@@ -11,6 +11,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import pt.ulisboa.tecnico.cmov.airdesk.AWSTasks;
 import pt.ulisboa.tecnico.cmov.airdesk.Constants;
 import pt.ulisboa.tecnico.cmov.airdesk.context.AirDeskApp;
 import pt.ulisboa.tecnico.cmov.airdesk.storage.StorageManager;
@@ -35,6 +36,9 @@ public class HoardingManager {
     }
 
     public boolean isCleaningNeeded() {
+        if(AWSTasks.offline){
+            return false;
+        }
         double usage = getCurrentUsage();
         double free = new WorkspaceManager().getMaximumDeviceSpace();
 
@@ -77,6 +81,10 @@ public class HoardingManager {
     }
 
     public void claimSpace() {
+
+        if(AWSTasks.offline){
+            return;
+        }
 
         double usage = getCurrentUsage();
         double free = new WorkspaceManager().getMaximumDeviceSpace();
